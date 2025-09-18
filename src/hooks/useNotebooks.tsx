@@ -13,6 +13,7 @@ export const useNotebooks = () => {
     isLoading,
     error,
     isError,
+    refetch,
   } = useQuery({
     queryKey: ['notebooks', user?.id],
     queryFn: async () => {
@@ -97,10 +98,10 @@ export const useNotebooks = () => {
   }, [user?.id, isAuthenticated, queryClient]);
 
   const createNotebook = useMutation({
-    mutationFn: async (notebookData: { title: string; description?: string }) => {
+    mutationFn: async (notebookData: { title: string; description?: string; assigned_role?: string }) => {
       console.log('Creating notebook with data:', notebookData);
       console.log('Current user:', user?.id);
-      
+
       if (!user) {
         console.error('User not authenticated');
         throw new Error('User not authenticated');
@@ -113,6 +114,7 @@ export const useNotebooks = () => {
           description: notebookData.description,
           user_id: user.id,
           generation_status: 'pending',
+          role_assignment: notebookData.assigned_role || 'executive', // Default to executive
         })
         .select()
         .single();
@@ -141,5 +143,6 @@ export const useNotebooks = () => {
     isError,
     createNotebook: createNotebook.mutate,
     isCreating: createNotebook.isPending,
+    refetch,
   };
 };

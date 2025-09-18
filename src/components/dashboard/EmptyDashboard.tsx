@@ -1,20 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Upload, FileText, Globe, Video, Mic } from 'lucide-react';
+import { Upload, FileText, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useNotebooks } from '@/hooks/useNotebooks';
+import AddSourcesDialog from '@/components/notebook/AddSourcesDialog';
 const EmptyDashboard = () => {
   const navigate = useNavigate();
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const {
     createNotebook,
-    isCreating
+    isCreating,
+    refetch
   } = useNotebooks();
+
+  const handleDocumentCreated = (notebookId: string) => {
+    navigate(`/notebook/${notebookId}`);
+    refetch();
+  };
   const handleCreateNotebook = () => {
     console.log('Create notebook button clicked');
     console.log('isCreating:', isCreating);
     createNotebook({
       title: 'Untitled Policy Document',
-      description: ''
+      description: '',
+      assigned_role: 'executive' // Auto-assign to executive role
     }, {
       onSuccess: data => {
         console.log('Navigating to notebook:', data.id);
@@ -25,6 +34,7 @@ const EmptyDashboard = () => {
       }
     });
   };
+
   return <div className="text-center py-16">
       <div className="mb-12">
         <h2 className="text-3xl font-medium text-gray-900 mb-4">Create your first policy document</h2>
@@ -57,10 +67,28 @@ const EmptyDashboard = () => {
         </div>
       </div>
 
-      <Button onClick={handleCreateNotebook} size="lg" className="bg-blue-600 hover:bg-blue-700" disabled={isCreating}>
-        <Upload className="h-5 w-5 mr-2" />
-        {isCreating ? 'Creating...' : 'Create Policy Document'}
-      </Button>
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+        <Button onClick={handleCreateNotebook} size="lg" className="bg-blue-600 hover:bg-blue-700" disabled={isCreating}>
+          <Upload className="h-5 w-5 mr-2" />
+          {isCreating ? 'Creating...' : 'Create Policy Document'}
+        </Button>
+        <Button
+          onClick={() => setShowUploadModal(true)}
+          size="lg"
+          variant="outline"
+          className="border-blue-200 text-blue-600 hover:bg-blue-50"
+        >
+          <Upload className="h-5 w-5 mr-2" />
+          Upload Existing Policy
+        </Button>
+      </div>
+
+      <AddSourcesDialog
+        open={showUploadModal}
+        onOpenChange={setShowUploadModal}
+        mode="create-document"
+        onDocumentCreated={handleDocumentCreated}
+      />
     </div>;
 };
 export default EmptyDashboard;

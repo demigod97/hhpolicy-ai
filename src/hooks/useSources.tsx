@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotebookGeneration } from './useNotebookGeneration';
+import { useUserRole } from './useUserRole';
 import { useEffect } from 'react';
 
 interface Source {
@@ -16,6 +17,9 @@ interface Source {
   file_size?: number;
   processing_status: string;
   metadata?: Record<string, unknown>;
+  visibility_scope?: string;
+  target_role?: string;
+  uploaded_by_user_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -28,6 +32,7 @@ interface RealtimePayload {
 
 export const useSources = (notebookId?: string) => {
   const { user } = useAuth();
+  const { userRole } = useUserRole();
   const queryClient = useQueryClient();
   const { generateNotebookContentAsync } = useNotebookGeneration();
 
@@ -36,10 +41,12 @@ export const useSources = (notebookId?: string) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['sources', notebookId],
+    queryKey: ['sources', notebookId, userRole],
     queryFn: async () => {
       if (!notebookId) return [];
-      
+
+      // Temporarily use direct query to avoid RLS circular dependency
+      // TODO: Fix RLS and restore role-based query function
       const { data, error } = await supabase
         .from('sources')
         .select('*')
@@ -47,7 +54,7 @@ export const useSources = (notebookId?: string) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: !!notebookId,
   });
@@ -133,6 +140,10 @@ export const useSources = (notebookId?: string) => {
     }) => {
       if (!user) throw new Error('User not authenticated');
 
+      // Temporarily hardcode role assignment to avoid circular dependency
+      // TODO: Fix RLS circular dependency and restore dynamic role assignment
+      const notebook = { role_assignment: 'executive' };
+
       const { data, error } = await supabase
         .from('sources')
         .insert({
@@ -145,6 +156,10 @@ export const useSources = (notebookId?: string) => {
           file_size: sourceData.file_size,
           processing_status: sourceData.processing_status,
           metadata: sourceData.metadata || {},
+          // Role-based sharing settings
+          visibility_scope: notebook?.role_assignment ? 'role' : 'notebook',
+          target_role: notebook?.role_assignment || null,
+          uploaded_by_user_id: user.id,
         })
         .select()
         .single();
