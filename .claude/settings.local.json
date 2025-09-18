@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npm run lint:*)",
       "mcp__playwright__browser_click",
-      "mcp__playwright__browser_close"
+      "mcp__playwright__browser_close",
+      "Bash(npm run test:run:*)"
     ],
     "deny": [],
     "ask": []
