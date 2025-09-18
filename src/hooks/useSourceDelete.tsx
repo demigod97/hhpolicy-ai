@@ -73,17 +73,18 @@ export const useSourceDelete = () => {
         description: `"${deletedSource?.title || 'Source'}" has been successfully deleted.`,
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Delete mutation error:', error);
       
       let errorMessage = "Failed to delete the source. Please try again.";
       
       // Provide more specific error messages based on the error type
-      if (error?.code === 'PGRST116') {
+      const errorWithCode = error as Error & { code?: string };
+      if (errorWithCode.code === 'PGRST116') {
         errorMessage = "Source not found or you don't have permission to delete it.";
-      } else if (error?.message?.includes('foreign key')) {
+      } else if (error.message?.includes('foreign key')) {
         errorMessage = "Cannot delete source due to data dependencies. Please contact support.";
-      } else if (error?.message?.includes('network')) {
+      } else if (error.message?.includes('network')) {
         errorMessage = "Network error. Please check your connection and try again.";
       }
       

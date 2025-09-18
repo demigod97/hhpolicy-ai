@@ -3,9 +3,10 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
 import { useNotes } from '@/hooks/useNotes';
+import { MessageSegment, Citation } from '@/types/message';
 
 interface SaveToNoteButtonProps {
-  content: string | { segments: any[]; citations: any[] };
+  content: string | { segments: MessageSegment[]; citations: Citation[] };
   notebookId?: string;
   onSaved?: () => void;
 }
@@ -41,7 +42,7 @@ const SaveToNoteButton = ({ content, notebookId, onSaved }: SaveToNoteButtonProp
       // Extract text for preview from first few segments
       extracted_text = content.segments
         .slice(0, 3)
-        .map((segment: any) => segment.text)
+        .map((segment: MessageSegment) => segment.text)
         .join(' ')
         .substring(0, 200);
     } else {

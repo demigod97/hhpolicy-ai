@@ -10,7 +10,7 @@ export const useNotebookUpdate = () => {
       console.log('Updating notebook:', id, updates);
       
       const { data, error } = await supabase
-        .from('notebooks')
+        .from('policy_documents')
         .update(updates)
         .eq('id', id)
         .select()

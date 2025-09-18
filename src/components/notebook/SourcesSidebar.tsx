@@ -31,8 +31,8 @@ const SourcesSidebar = ({
   const [showAddSourcesDialog, setShowAddSourcesDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showRenameDialog, setShowRenameDialog] = useState(false);
-  const [selectedSource, setSelectedSource] = useState<any>(null);
-  const [selectedSourceForViewing, setSelectedSourceForViewing] = useState<any>(null);
+  const [selectedSource, setSelectedSource] = useState<{ id: string; title: string; type: string; processing_status: string; content?: string; summary?: string; url?: string } | null>(null);
+  const [selectedSourceForViewing, setSelectedSourceForViewing] = useState<{ id: string; title: string; type: string; processing_status: string; content?: string; summary?: string; url?: string } | null>(null);
 
   const {
     sources,
@@ -124,17 +124,17 @@ const SourcesSidebar = ({
     }
   };
 
-  const handleRemoveSource = (source: any) => {
+  const handleRemoveSource = (source: { id: string; title: string; type: string; processing_status: string }) => {
     setSelectedSource(source);
     setShowDeleteDialog(true);
   };
 
-  const handleRenameSource = (source: any) => {
+  const handleRenameSource = (source: { id: string; title: string; type: string; processing_status: string }) => {
     setSelectedSource(source);
     setShowRenameDialog(true);
   };
 
-  const handleSourceClick = (source: any) => {
+  const handleSourceClick = (source: { id: string; title: string; type: string; processing_status: string; content?: string; summary?: string; url?: string }) => {
     console.log('SourcesSidebar: Source clicked from list', {
       sourceId: source.id,
       sourceTitle: source.title
