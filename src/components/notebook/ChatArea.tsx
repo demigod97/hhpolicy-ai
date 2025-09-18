@@ -10,7 +10,7 @@ import { useSources } from '@/hooks/useSources';
 import MarkdownRenderer from '@/components/chat/MarkdownRenderer';
 import SaveToNoteButton from './SaveToNoteButton';
 import AddSourcesDialog from './AddSourcesDialog';
-import { Citation } from '@/types/message';
+import { Citation, EnhancedChatMessage } from '@/types/message';
 
 interface ChatAreaProps {
   hasSource: boolean;
@@ -133,15 +133,15 @@ const ChatArea = ({
   };
 
   // Helper function to determine if message is from user
-  const isUserMessage = (msg: any) => {
-    const messageType = msg.message?.type || msg.message?.role;
-    return messageType === 'human' || messageType === 'user';
+  const isUserMessage = (msg: EnhancedChatMessage) => {
+    const messageType = msg.message?.type;
+    return messageType === 'human';
   };
 
   // Helper function to determine if message is from AI
-  const isAiMessage = (msg: any) => {
-    const messageType = msg.message?.type || msg.message?.role;
-    return messageType === 'ai' || messageType === 'assistant';
+  const isAiMessage = (msg: EnhancedChatMessage) => {
+    const messageType = msg.message?.type;
+    return messageType === 'ai';
   };
 
   // Get the index of the last message for auto-scrolling
@@ -189,7 +189,7 @@ const ChatArea = ({
                   </div>
                   <div>
                     <h1 className="text-2xl font-medium text-gray-900">
-                      {isGenerating ? 'Generating content...' : notebook?.title || 'Untitled Notebook'}
+                      {isGenerating ? 'Generating content...' : notebook?.title || 'Untitled Policy Document'}
                     </h1>
                     <p className="text-sm text-gray-600">{sourceCount} source{sourceCount !== 1 ? 's' : ''}</p>
                   </div>
@@ -199,7 +199,7 @@ const ChatArea = ({
                   {isGenerating ? <div className="flex items-center space-x-2 text-gray-600">
                       
                       <p>AI is analyzing your source and generating a title and description...</p>
-                    </div> : <MarkdownRenderer content={notebook?.description || 'No description available for this notebook.'} className="prose prose-gray max-w-none text-gray-700 leading-relaxed" />}
+                    </div> : <MarkdownRenderer content={notebook?.description || 'No description available for this policy document.'} className="prose prose-gray max-w-none text-gray-700 leading-relaxed" />}
                 </div>
 
                 {/* Chat Messages */}
@@ -305,7 +305,7 @@ const ChatArea = ({
       
       {/* Footer */}
       <div className="p-4 border-t border-gray-200 flex-shrink-0">
-        <p className="text-center text-sm text-gray-500">InsightsLM can be inaccurate; please double-check its responses.</p>
+        <p className="text-center text-sm text-gray-500">PolicyAi can be inaccurate; please double-check its responses.</p>
       </div>
       
       {/* Add Sources Dialog */}

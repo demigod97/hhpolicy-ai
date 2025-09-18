@@ -13,7 +13,7 @@ const EmptyDashboard = () => {
     console.log('Create notebook button clicked');
     console.log('isCreating:', isCreating);
     createNotebook({
-      title: 'Untitled notebook',
+      title: 'Untitled Policy Document',
       description: ''
     }, {
       onSuccess: data => {
@@ -27,8 +27,8 @@ const EmptyDashboard = () => {
   };
   return <div className="text-center py-16">
       <div className="mb-12">
-        <h2 className="text-3xl font-medium text-gray-900 mb-4">Create your first notebook</h2>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">InsightsLM is an AI-powered research and writing assistant that works best with the sources you upload</p>
+        <h2 className="text-3xl font-medium text-gray-900 mb-4">Create your first policy document</h2>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">PolicyAi is an AI-powered policy management assistant that helps you navigate and understand your organizational policies</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
@@ -50,16 +50,16 @@ const EmptyDashboard = () => {
 
         <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
           <div className="w-12 h-12 bg-purple-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
-            <Video className="h-6 w-6 text-purple-600" />
+            <FileText className="h-6 w-6 text-purple-600" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Audio</h3>
-          <p className="text-gray-600">Include multimedia content in your research</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Text Files</h3>
+          <p className="text-gray-600">Upload plain text and markdown policy documents</p>
         </div>
       </div>
 
       <Button onClick={handleCreateNotebook} size="lg" className="bg-blue-600 hover:bg-blue-700" disabled={isCreating}>
         <Upload className="h-5 w-5 mr-2" />
-        {isCreating ? 'Creating...' : 'Create notebook'}
+        {isCreating ? 'Creating...' : 'Create Policy Document'}
       </Button>
     </div>;
 };

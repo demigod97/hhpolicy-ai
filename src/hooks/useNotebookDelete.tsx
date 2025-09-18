@@ -16,7 +16,7 @@ export const useNotebookDelete = () => {
       try {
         // First, get the notebook details for better error reporting
         const { data: notebook, error: fetchError } = await supabase
-          .from('notebooks')
+          .from('policy_documents')
           .select('id, title')
           .eq('id', notebookId)
           .single();
@@ -64,7 +64,7 @@ export const useNotebookDelete = () => {
 
         // Delete the notebook - this will cascade delete all sources
         const { error: deleteError } = await supabase
-          .from('notebooks')
+          .from('policy_documents')
           .delete()
           .eq('id', notebookId);
 
@@ -89,20 +89,21 @@ export const useNotebookDelete = () => {
       queryClient.invalidateQueries({ queryKey: ['notebook', notebookId] });
       
       toast({
-        title: "Notebook deleted",
-        description: `"${deletedNotebook?.title || 'Notebook'}" and all its sources have been successfully deleted.`,
+        title: "Policy Document deleted",
+        description: `"${deletedNotebook?.title || 'Policy Document'}" and all its sources have been successfully deleted.`,
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Delete mutation error:', error);
       
-      let errorMessage = "Failed to delete the notebook. Please try again.";
+      let errorMessage = "Failed to delete the policy document. Please try again.";
       
       // Provide more specific error messages based on the error type
-      if (error?.code === 'PGRST116') {
-        errorMessage = "Notebook not found or you don't have permission to delete it.";
+      const errorWithCode = error as Error & { code?: string };
+      if (errorWithCode?.code === 'PGRST116') {
+        errorMessage = "Policy document not found or you don't have permission to delete it.";
       } else if (error?.message?.includes('foreign key')) {
-        errorMessage = "Cannot delete notebook due to data dependencies. Please contact support.";
+        errorMessage = "Cannot delete policy document due to data dependencies. Please contact support.";
       } else if (error?.message?.includes('network')) {
         errorMessage = "Network error. Please check your connection and try again.";
       }

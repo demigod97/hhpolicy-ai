@@ -5,6 +5,27 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNotebookGeneration } from './useNotebookGeneration';
 import { useEffect } from 'react';
 
+interface Source {
+  id: string;
+  notebook_id: string;
+  title: string;
+  type: 'pdf' | 'text' | 'website' | 'youtube' | 'audio';
+  content?: string;
+  url?: string;
+  file_path?: string;
+  file_size?: number;
+  processing_status: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+interface RealtimePayload {
+  eventType: string;
+  new?: Source;
+  old?: Source;
+}
+
 export const useSources = (notebookId?: string) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -47,15 +68,15 @@ export const useSources = (notebookId?: string) => {
           table: 'sources',
           filter: `notebook_id=eq.${notebookId}`
         },
-        (payload: any) => {
+        (payload: RealtimePayload) => {
           console.log('Realtime: Sources change received:', payload);
           
           // Update the query cache based on the event type
-          queryClient.setQueryData(['sources', notebookId], (oldSources: any[] = []) => {
+          queryClient.setQueryData(['sources', notebookId], (oldSources: Source[] = []) => {
             switch (payload.eventType) {
-              case 'INSERT':
+              case 'INSERT': {
                 // Add new source if it doesn't already exist
-                const newSource = payload.new as any;
+                const newSource = payload.new;
                 const existsInsert = oldSources.some(source => source.id === newSource?.id);
                 if (existsInsert) {
                   console.log('Source already exists, skipping INSERT:', newSource?.id);
@@ -63,20 +84,23 @@ export const useSources = (notebookId?: string) => {
                 }
                 console.log('Adding new source to cache:', newSource);
                 return [newSource, ...oldSources];
-                
-              case 'UPDATE':
+              }
+
+              case 'UPDATE': {
                 // Update existing source
-                const updatedSource = payload.new as any;
+                const updatedSource = payload.new;
                 console.log('Updating source in cache:', updatedSource?.id);
-                return oldSources.map(source => 
+                return oldSources.map(source =>
                   source.id === updatedSource?.id ? updatedSource : source
                 );
-                
-              case 'DELETE':
+              }
+
+              case 'DELETE': {
                 // Remove deleted source
-                const deletedSource = payload.old as any;
+                const deletedSource = payload.old;
                 console.log('Removing source from cache:', deletedSource?.id);
                 return oldSources.filter(source => source.id !== deletedSource?.id);
+              }
                 
               default:
                 console.log('Unknown event type:', payload.eventType);
@@ -105,7 +129,7 @@ export const useSources = (notebookId?: string) => {
       file_path?: string;
       file_size?: number;
       processing_status?: string;
-      metadata?: any;
+      metadata?: Record<string, unknown>;
     }) => {
       if (!user) throw new Error('User not authenticated');
 
@@ -133,7 +157,7 @@ export const useSources = (notebookId?: string) => {
       
       // The Realtime subscription will handle updating the cache
       // But we still check for first source to trigger generation
-      const currentSources = queryClient.getQueryData(['sources', notebookId]) as any[] || [];
+      const currentSources = queryClient.getQueryData(['sources', notebookId]) as Source[] || [];
       const isFirstSource = currentSources.length === 0;
       
       if (isFirstSource && notebookId) {
@@ -141,7 +165,7 @@ export const useSources = (notebookId?: string) => {
         
         // Check notebook generation status
         const { data: notebook } = await supabase
-          .from('notebooks')
+          .from('policy_documents')
           .select('generation_status')
           .eq('id', notebookId)
           .single();
@@ -199,12 +223,12 @@ export const useSources = (notebookId?: string) => {
       
       // If file_path was added and this is the first source, trigger generation
       if (updatedSource.file_path && notebookId) {
-        const currentSources = queryClient.getQueryData(['sources', notebookId]) as any[] || [];
+        const currentSources = queryClient.getQueryData(['sources', notebookId]) as Source[] || [];
         const isFirstSource = currentSources.length === 1;
         
         if (isFirstSource) {
           const { data: notebook } = await supabase
-            .from('notebooks')
+            .from('policy_documents')
             .select('generation_status')
             .eq('id', notebookId)
             .single();

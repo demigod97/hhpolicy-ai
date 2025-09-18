@@ -24,9 +24,9 @@ export interface EnhancedChatMessage {
       segments: MessageSegment[];
       citations: Citation[];
     };
-    additional_kwargs?: any;
-    response_metadata?: any;
-    tool_calls?: any[];
-    invalid_tool_calls?: any[];
+    additional_kwargs?: Record<string, unknown>;
+    response_metadata?: Record<string, unknown>;
+    tool_calls?: Record<string, unknown>[];
+    invalid_tool_calls?: Record<string, unknown>[];
   };
 }

@@ -21,10 +21,10 @@ interface N8nMessageFormat {
       excerpt?: string;
     }>;
   };
-  additional_kwargs?: any;
-  response_metadata?: any;
-  tool_calls?: any[];
-  invalid_tool_calls?: any[];
+  additional_kwargs?: Record<string, unknown>;
+  response_metadata?: Record<string, unknown>;
+  tool_calls?: Record<string, unknown>[];
+  invalid_tool_calls?: Record<string, unknown>[];
 }
 
 // Type for the AI response structure from n8n
@@ -40,7 +40,7 @@ interface N8nAiResponseContent {
   }>;
 }
 
-const transformMessage = (item: any, sourceMap: Map<string, any>): EnhancedChatMessage => {
+const transformMessage = (item: { id: string; session_id: string; message: unknown }, sourceMap: Map<string, { id: string; title: string; type: string }>): EnhancedChatMessage => {
   console.log('Processing item:', item);
   
   // Handle the message format based on your JSON examples

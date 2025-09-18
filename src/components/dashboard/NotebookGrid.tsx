@@ -39,7 +39,7 @@ const NotebookGrid = () => {
 
   const handleCreateNotebook = () => {
     createNotebook({
-      title: 'Untitled notebook',
+      title: 'Untitled Policy Document',
       description: ''
     }, {
       onSuccess: data => {

@@ -1,26 +1,18 @@
-<p align="center">
-  <img src="https://www.theaiautomators.com/wp-content/uploads/2025/07/Group-2651.svg" alt="InsightsLM Logo" width="600"/>
-</p>
 
+# PolicyAi: AI-Powered Policy Management and Compliance Q&A System
 
-# InsightsLM: The Open Source NotebookLM Alternative
+> Transform your organizational policy management with AI-powered intelligence. PolicyAi helps organizations manage, search, and get instant answers from their policy documents through an intelligent Q&A interface.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub stars](https://img.shields.io/github/stars/theaiautomators/insights-lm-public?style=social)](https://github.com/theaiautomators/insights-lm-public/stargazers)
-[![YouTube Video](https://img.shields.io/badge/YouTube-Watch%20the%20Build-red)](https://www.youtube.com/watch?v=IXJEGjfZRBE)
-
-> What if the power of a tool like NotebookLM wasn't locked away in a closed system? What if you could build a private, self-hosted alternative that can be customized for your business needs, all without writing a single line of code?
-
-That's exactly what we've done with **InsightsLM**. This project is an open-source, self-hostable alternative to NotebookLM. It's designed to be a powerful AI research tool that grounds its responses exclusively in the sources you provide, making it a reliable window into your company's knowledge base.
+**PolicyAi** is a specialized application designed to help administrators and executives navigate complex organizational policies with AI-powered search and question-answering capabilities. It provides a centralized platform for policy document management with advanced RAG (Retrieval-Augmented Generation) technology to ensure accurate, source-grounded responses.
 
 
 ## About The Project
 
-NotebookLM is one of the most powerful AI research tools available today. However, its closed-source nature limits its potential for customization and private hosting. InsightsLM was created to bridge this gap.
+PolicyAi addresses the critical challenge organizations face in managing and accessing their policy documents effectively. Traditional policy management often results in scattered documents, inconsistent interpretations, and difficulty finding relevant information when needed.
 
-This isn't just a basic prototype. It's a robust application with some killer features, developed using a "vibe-coding" approach with Loveable for the Javascript frontend and a powerful backend combination of Supabase and N8N.
+This application provides a centralized, AI-powered solution that transforms how organizations interact with their policies. Built with modern web technologies and powered by advanced RAG capabilities, PolicyAi ensures that policy-related questions receive accurate, source-backed answers.
 
-We are open-sourcing InsightsLM so you can install it, customize it, improve it, and even commercialize it. The ability to deploy AI agents grounded in a company's specific knowledge (a concept known as Retrieval-Augmented Generation or RAG) represents one of the biggest commercial opportunities for generative AI today.
+The system is designed to be self-hostable and customizable, allowing organizations to maintain complete control over their sensitive policy data while benefiting from cutting-edge AI assistance.
 
 
 <p align="center">
@@ -45,11 +37,12 @@ https://www.theaiautomators.com/
 
 ## Key Features
 
-* **Chat with Your Documents:** Upload your documents and get instant, context-aware answers.
-* **Verifiable Citations:** Jump directly to the source of the information to ensure the AI isn't hallucinating.
-* **Podcast Generation:** Create audio summaries and discussions from your source materials, just like in NotebookLM.
-* **Private and Self-Hosted:** Maintain complete control over your data by hosting it yourself. Use local models if you wish.
-* **Customizable and Extensible:** Built with modern, accessible tools, making it easy to tailor to your specific needs.
+* **Policy Document Q&A:** Upload policy documents and get instant, context-aware answers to compliance questions.
+* **Verifiable Citations:** Jump directly to the source policy text to ensure accurate interpretation and compliance.
+* **Administrator Experience:** Streamlined interface designed for policy administrators to manage and organize documents.
+* **Executive Dashboard:** High-level overview and advanced search capabilities for executive decision-making.
+* **Private and Self-Hosted:** Maintain complete control over sensitive policy data by hosting it yourself.
+* **Customizable and Extensible:** Built with modern, accessible tools, making it easy to tailor to your organization's needs.
 
 
 ## Demo & Walkthrough

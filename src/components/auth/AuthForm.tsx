@@ -57,11 +57,11 @@ const AuthForm = () => {
 
       // The AuthContext will handle the redirect automatically
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Auth form error:', error);
       toast({
         title: "Sign In Error",
-        description: error.message,
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {

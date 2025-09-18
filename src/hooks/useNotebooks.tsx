@@ -25,7 +25,7 @@ export const useNotebooks = () => {
       
       // First get the notebooks
       const { data: notebooksData, error: notebooksError } = await supabase
-        .from('notebooks')
+        .from('policy_documents')
         .select('*')
         .eq('user_id', user.id)
         .order('updated_at', { ascending: false });
@@ -78,7 +78,7 @@ export const useNotebooks = () => {
         {
           event: '*',
           schema: 'public',
-          table: 'notebooks',
+          table: 'policy_documents',
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
@@ -107,7 +107,7 @@ export const useNotebooks = () => {
       }
 
       const { data, error } = await supabase
-        .from('notebooks')
+        .from('policy_documents')
         .insert({
           title: notebookData.title,
           description: notebookData.description,
