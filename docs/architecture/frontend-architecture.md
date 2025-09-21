@@ -113,7 +113,10 @@ const { userRole, hasRole, isAdministrator, isExecutive, isSuperAdmin } = useUse
   - Administrator: Blue badge with Shield icon
   - Executive: Purple badge with Shield icon  
   - Board: Green badge with Shield icon
-- **Policy Dates**: Display policy effective dates in "Month Year" format
+- **Policy Dates**: Display policy effective dates with age-based visual indicators:
+  - Green badges: Current policies (≤18 months old)
+  - Red badges: Outdated policies (>18 months old)  
+  - Yellow badges: Missing date information ("Not Provided")
 - **Enhanced Cards**: Source cards now show role and date metadata
 
 ## Component Architecture
@@ -140,7 +143,7 @@ src/
 │   ├── notebook/            # Chat notebook management
 │   │   ├── NotebookList.tsx
 │   │   ├── NotebookViewer.tsx
-│   │   ├── SourcesSidebar.tsx
+│   │   ├── SourcesSidebar.tsx    # Enhanced with fallback citation logic
 │   │   └── SourceItem.tsx
 │   ├── admin/               # Admin-only components (background)
 │   │   ├── UserManagement.tsx
@@ -178,11 +181,13 @@ src/
 ##### NotebookGrid.tsx
 
 - **Purpose**: Main dashboard grid for chat display
-- **Key Changes**: Removed "Upload Policy" buttons, cleaned unused imports
+- **Key Changes**: Removed "Upload Policy" buttons, cleaned unused imports, implemented bulk delete functionality
 - **Current Features**:
   - Pure grid display of chat notebooks
   - Streamlined creation flow
   - Focus on content over administration
+  - **Bulk Delete Operations**: Multi-select with confirmation dialogs (September 2025)
+  - **Safety Features**: Count-based selection feedback and deletion confirmation
 
 #### New Components
 
@@ -616,12 +621,19 @@ npm run test
 
 ## Future Enhancements
 
+### Recently Completed Features (2025)
+- **Policy Age Indicators** (September 2025): Color-coded visual indicators for policy document age (current/outdated/missing dates)
+- **Bulk Delete Operations** (September 2025): Multi-select chat deletion with confirmation dialogs and safety features
+- **UI/UX Terminology Consistency** (September 2025): Updated default titles, global sources display, and role-appropriate information across components
+- **Enhanced Citation Handling** (January 2025): Improved fallback logic for citation display when source content is not available, providing meaningful user feedback instead of "Unknown Source" messages
+
 ### Planned Features
-- Real-time notifications
+- Real-time notifications  
 - Advanced search capabilities
 - Document versioning
 - Collaborative features
 - Mobile app support
+- Chat response disclaimers for outdated policies
 
 ### Technical Improvements
 - Micro-frontend architecture

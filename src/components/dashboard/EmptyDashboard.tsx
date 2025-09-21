@@ -14,7 +14,7 @@ const EmptyDashboard = () => {
     console.log('Create notebook button clicked');
     console.log('isCreating:', isCreating);
     createNotebook({
-      title: 'Untitled Policy Document',
+      title: 'New Chat',
       description: '',
       assigned_role: 'executive' // Auto-assign to executive role
     }, {

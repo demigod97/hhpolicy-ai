@@ -42,12 +42,12 @@
 
 ---
 
-**Story 2.4: Outdated Policy Flagging**
+**Story 2.4: Outdated Policy Flagging** ✅ **PARTIALLY COMPLETE**
 * **As a** User (Admin or Executive),
 * **I want** the system to clearly flag when a policy document is older than 18 months,
 * **so that** I am immediately aware of its potential obsolescence.
 
     **Acceptance Criteria:**
-    1.  In the dashboard/document list, a clear visual indicator (e.g., a warning icon) is displayed next to any document whose extracted date is more than 18 months in the past.
-    2.  When the chat AI provides an answer sourced from a document older than 18 months, its response **must** include a disclaimer (e.g., "Note: This information is from a policy that is over 18 months old.").
-    3.  Documents with no extracted date are not flagged.
+    1.  ✅ In the dashboard/document list, a clear visual indicator (color-coded badges) is displayed next to any document whose extracted date is more than 18 months in the past.
+    2.  ⏳ When the chat AI provides an answer sourced from a document older than 18 months, its response **must** include a disclaimer (e.g., "Note: This information is from a policy that is over 18 months old.").
+    3.  ✅ Documents with no extracted date are not flagged (shown with yellow "Not Provided" badges).

@@ -38,7 +38,7 @@ const Notebook = () => {
   return (
     <div className="h-screen bg-white flex flex-col overflow-hidden">
       <NotebookHeader 
-        title={notebook?.title || 'Untitled Policy Document'} 
+        title={notebook?.title || 'New Chat'} 
         notebookId={notebookId} 
       />
       

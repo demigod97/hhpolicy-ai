@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import NotebookCard from './NotebookCard';
-import { Check, Grid3X3, List, ChevronDown, CheckSquare, Square, Users } from 'lucide-react';
+import { Check, Grid3X3, List, ChevronDown, CheckSquare, Square, Trash2 } from 'lucide-react';
 import { useNotebooks } from '@/hooks/useNotebooks';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -11,14 +11,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import BulkRoleAssignmentEditor from '@/components/policy-document/BulkRoleAssignmentEditor';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useNotebookDelete } from '@/hooks/useNotebookDelete';
 
 const NotebookGrid = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('Most recent');
   const [bulkSelectMode, setBulkSelectMode] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
-  const [showBulkRoleEditor, setShowBulkRoleEditor] = useState(false);
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
   const {
     notebooks,
     isLoading,
@@ -26,6 +27,7 @@ const NotebookGrid = () => {
     isCreating,
     refetch
   } = useNotebooks();
+  const { deleteNotebook, isDeleting } = useNotebookDelete();
   const navigate = useNavigate();
 
   const sortedNotebooks = useMemo(() => {
@@ -44,7 +46,7 @@ const NotebookGrid = () => {
 
   const handleCreateNotebook = () => {
     createNotebook({
-      title: 'Untitled Policy Document',
+      title: 'New Chat',
       description: '',
       assigned_role: 'executive' // Auto-assign to executive role
     }, {
@@ -94,11 +96,19 @@ const NotebookGrid = () => {
     }
   };
 
-  const handleBulkRoleAssignmentComplete = () => {
-    refetch();
-    setSelectedDocuments([]);
-    setBulkSelectMode(false);
-    setShowBulkRoleEditor(false);
+  const handleBulkDelete = async () => {
+    try {
+      // Delete all selected notebooks
+      await Promise.all(selectedDocuments.map(id => deleteNotebook(id)));
+      
+      // Reset state after successful deletion
+      setSelectedDocuments([]);
+      setBulkSelectMode(false);
+      setShowBulkDeleteDialog(false);
+      refetch();
+    } catch (error) {
+      console.error('Failed to delete notebooks:', error);
+    }
   };
 
   if (isLoading) {
@@ -116,10 +126,10 @@ const NotebookGrid = () => {
           <Button 
             variant={bulkSelectMode ? "default" : "outline"}
             onClick={handleBulkSelectToggle}
-            className={bulkSelectMode ? "bg-blue-600 hover:bg-blue-700 rounded-full px-6" : "border-purple-200 text-purple-600 hover:bg-purple-50 rounded-full px-6"}
+            className={bulkSelectMode ? "bg-blue-600 hover:bg-blue-700 rounded-full px-6" : "border-red-200 text-red-600 hover:bg-red-50 rounded-full px-6"}
           >
             <CheckSquare className="h-4 w-4 mr-2" />
-            {bulkSelectMode ? 'Exit Selection' : 'Bulk Select'}
+            {bulkSelectMode ? 'Exit Selection' : 'Bulk Delete'}
           </Button>
         </div>
         
@@ -174,12 +184,13 @@ const NotebookGrid = () => {
             
             {selectedDocuments.length > 0 && (
               <Button 
-                onClick={() => setShowBulkRoleEditor(true)}
-                className="bg-blue-600 hover:bg-blue-700"
+                onClick={() => setShowBulkDeleteDialog(true)}
+                variant="destructive"
                 size="sm"
+                disabled={isDeleting}
               >
-                <Users className="h-4 w-4 mr-2" />
-                Assign Role
+                <Trash2 className="h-4 w-4 mr-2" />
+                {isDeleting ? 'Deleting...' : `Delete ${selectedDocuments.length} chat${selectedDocuments.length !== 1 ? 's' : ''}`}
               </Button>
             )}
           </div>
@@ -210,12 +221,26 @@ const NotebookGrid = () => {
           </div>)}
       </div>
 
-      <BulkRoleAssignmentEditor
-        open={showBulkRoleEditor}
-        onOpenChange={setShowBulkRoleEditor}
-        documentIds={selectedDocuments}
-        onRoleChanged={handleBulkRoleAssignmentComplete}
-      />
+      <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedDocuments.length} chat{selectedDocuments.length !== 1 ? 's' : ''}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You're about to delete {selectedDocuments.length} chat{selectedDocuments.length !== 1 ? 's' : ''} and all of their content. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleBulkDelete} 
+              className="bg-red-600 hover:bg-red-700" 
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>;
 };
 

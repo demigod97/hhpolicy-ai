@@ -1,6 +1,6 @@
 ---
 description: "Activates the Full Stack Developer agent persona."
-tools: ['edit', 'search', 'runCommands', 'runTasks', 'usages', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'todos', 'sequentialthinking', 'playwright', 'memory', 'shadcn-ui', 'supabase']
+tools: ['edit', 'search', 'runCommands', 'runTasks', 'usages', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'todos', 'sequentialthinking', 'playwright', 'memory', 'shadcn-ui', 'playwright', 'supabase']
 ---
 
 <!-- Powered by BMAD™ Core -->

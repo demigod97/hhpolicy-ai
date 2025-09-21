@@ -1,6 +1,8 @@
 # Development Status - PolicyAi Project
 
-## Current Status: UI Transformation Complete ✅
+## Current Status: Epic 2 Complete + UI Enhancements ✅
+
+**Latest Update**: September 22, 2025 - Bulk delete feature implementation completed
 
 ### Project Setup Complete ✅
 - ✅ Jira project configured (HHR - HH Policy AI)
@@ -112,5 +114,72 @@
 - Policy document processing accuracy
 - User satisfaction with chat functionality
 
+### Recently Completed Stories
+
+#### ✅ Story 2.4: Outdated Policy Flagging (September 22, 2025)
+- **Status**: Complete
+- **Implementation**: Visual indicators in SourcesSidebar component
+- **Features Added**:
+  - Color-coded policy date badges (Green: Current, Red: Outdated, Yellow: Not Provided)
+  - 18-month age calculation with comprehensive edge case handling
+  - Support for "Month-Year" date format parsing
+  - Database integration with existing policyDate field
+- **Files Modified**: `src/components/notebook/SourcesSidebar.tsx`
+- **Next Step**: Implement chat response disclaimers (remaining task from story)
+
+#### ✅ UI/UX Enhancement: Bulk Delete Feature Implementation (September 22, 2025)
+
+- **Status**: Complete
+- **Type**: User Experience Improvement
+- **Implementation**: Conversion from role assignment to bulk delete functionality
+- **Features Added**:
+  - Streamlined bulk delete interface in NotebookGrid component
+  - Confirmation dialog for safe deletion operations
+  - Count-based selection feedback ("Delete X chats")
+  - Loading states during bulk operations
+  - Automatic state cleanup and data refresh
+- **Files Modified**: `src/components/dashboard/NotebookGrid.tsx`
+- **Technical Details**:
+  - Removed unused `BulkRoleAssignmentEditor` dependency
+  - Integrated `AlertDialog` components for confirmation
+  - Added `useNotebookDelete` hook for batch operations
+  - Implemented proper error handling and user feedback
+
+#### ✅ UI/UX Enhancement: Terminology Consistency (September 22, 2025)
+
+- **Status**: Complete
+- **Type**: User Experience Improvement
+- **Implementation**: Comprehensive terminology updates across components
+- **Changes Made**:
+  - Updated default notebook titles from "Untitled Policy Document" to "New Chat"
+  - Implemented global sources count display via new `useGlobalSourcesCount` hook
+  - Enhanced UserGreetingCard with role-appropriate source information
+  - Corrected role hierarchy descriptions for administrator access levels
+  - Updated ChatArea fallback text to generic chat language
+- **Files Modified**:
+  - `EmptyDashboard.tsx`, `NotebookGrid.tsx`: Creation title updates
+  - `NotebookCard.tsx`: Global sources integration
+  - `UserGreetingCard.tsx`: Enhanced source information
+  - `ChatArea.tsx`: Generic language implementation
+  - `Notebook.tsx`: Title fallback improvements
+  - `useGlobalSourcesCount.tsx`: New hook creation
+
+#### ✅ Bug Fix: Citation Display and Content Retrieval (September 22, 2025)
+
+- **Status**: Complete
+- **Type**: Critical Bug Fix
+- **Issue**: Citations showing "Unknown Source" with empty content in SourceContentViewer
+- **Root Cause**: Stale source ID references in SourcesSidebar functions returning empty strings
+- **Implementation**: Added comprehensive fallback logic for missing source references
+- **Features Added**:
+  - Meaningful fallback content for stale citation references
+  - Descriptive error messages explaining unavailable content
+  - Citation metadata preservation (line ranges, source titles)
+  - Graceful degradation for mixed valid/invalid citation scenarios
+- **Files Modified**: `src/components/notebook/SourcesSidebar.tsx`
+- **Impact**: Significantly improved user experience with informative feedback
+- **Documentation**: Full implementation log created in project-management folder
+
 ## Last Updated
-2025-01-17 - Initial status document created
+
+2025-09-22 - Citation display bug fix completed, all Epic 2 functionality validated
