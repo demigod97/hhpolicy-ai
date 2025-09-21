@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import NotebookCard from './NotebookCard';
-import { Check, Grid3X3, List, ChevronDown, Upload, CheckSquare, Square, Users } from 'lucide-react';
+import { Check, Grid3X3, List, ChevronDown, CheckSquare, Square, Users } from 'lucide-react';
 import { useNotebooks } from '@/hooks/useNotebooks';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -11,13 +11,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import AddSourcesDialog from '@/components/notebook/AddSourcesDialog';
 import BulkRoleAssignmentEditor from '@/components/policy-document/BulkRoleAssignmentEditor';
 
 const NotebookGrid = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('Most recent');
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const [bulkSelectMode, setBulkSelectMode] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
   const [showBulkRoleEditor, setShowBulkRoleEditor] = useState(false);
@@ -73,11 +71,7 @@ const NotebookGrid = () => {
     navigate(`/notebook/${notebookId}`);
   };
 
-  const handleDocumentCreated = (notebookId: string) => {
-    navigate(`/notebook/${notebookId}`);
-    refetch();
-    setShowUploadModal(false);
-  };
+
 
   const handleBulkSelectToggle = () => {
     setBulkSelectMode(!bulkSelectMode);
@@ -118,14 +112,6 @@ const NotebookGrid = () => {
         <div className="flex items-center space-x-3">
           <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6" onClick={handleCreateNotebook} disabled={isCreating}>
             {isCreating ? 'Creating...' : '+ Create new'}
-          </Button>
-          <Button
-            variant="outline"
-            className="border-blue-200 text-blue-600 hover:bg-blue-50 rounded-full px-6"
-            onClick={() => setShowUploadModal(true)}
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Upload Policy
           </Button>
           <Button 
             variant={bulkSelectMode ? "default" : "outline"}
@@ -214,22 +200,15 @@ const NotebookGrid = () => {
                 sources: notebook.sources?.[0]?.count || 0,
                 icon: notebook.icon || '📝',
                 color: notebook.color || 'bg-gray-100',
-                role_assignment: notebook.role_assignment as 'administrator' | 'executive' | null
+                description: notebook.description
               }}
-              onRoleChanged={refetch}
+              onTitleChanged={refetch}
               bulkSelectMode={bulkSelectMode}
               isSelected={selectedDocuments.includes(notebook.id)}
               onSelectionChange={handleDocumentSelect}
             />
           </div>)}
       </div>
-
-      <AddSourcesDialog
-        open={showUploadModal}
-        onOpenChange={setShowUploadModal}
-        mode="create-document"
-        onDocumentCreated={handleDocumentCreated}
-      />
 
       <BulkRoleAssignmentEditor
         open={showBulkRoleEditor}

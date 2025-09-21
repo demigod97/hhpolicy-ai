@@ -25,8 +25,8 @@ export const useUserRole = () => {
   const hasRole = (role: UserRole): boolean => {
     if (!userRole) return false;
 
-    // Role hierarchy: super_admin > administrator > executive
-    const roleHierarchy: UserRole[] = ['super_admin', 'administrator', 'executive'];
+    // Role hierarchy: board > administrator > executive
+    const roleHierarchy: UserRole[] = ['board', 'administrator', 'executive'];
     const userRoleIndex = roleHierarchy.indexOf(userRole);
     const targetRoleIndex = roleHierarchy.indexOf(role);
 
@@ -43,7 +43,7 @@ export const useUserRole = () => {
   };
 
   const isSuperAdmin = (): boolean => {
-    return userRole === 'super_admin';
+    return userRole === 'board';
   };
 
   return {

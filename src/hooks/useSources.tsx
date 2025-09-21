@@ -22,6 +22,9 @@ interface Source {
   uploaded_by_user_id?: string;
   created_at: string;
   updated_at: string;
+  policyDate?: string;
+  policyType?: string;
+  policyName?: string;
 }
 
 interface RealtimePayload {
@@ -41,45 +44,45 @@ export const useSources = (notebookId?: string) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['sources', notebookId, userRole],
+    queryKey: ['sources', userRole], // Removed notebookId as sources are now global
     queryFn: async () => {
-      if (!notebookId) return [];
-
-      // Temporarily use direct query to avoid RLS circular dependency
-      // TODO: Fix RLS and restore role-based query function
-      const { data, error } = await supabase
+      // Fetch all global sources - RLS policies will handle role-based filtering
+      const { data: allSources, error } = await supabase
         .from('sources')
         .select('*')
-        .eq('notebook_id', notebookId)
+        .eq('visibility_scope', 'global')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+
+      // RLS policies now handle the role-based filtering at database level
+      // No need for client-side filtering
+      return allSources || [];
     },
-    enabled: !!notebookId,
+    enabled: !!user, // Enable when user is available instead of notebookId
   });
 
-  // Set up Realtime subscription for sources table
+  // Set up Realtime subscription for sources table (global sources)
   useEffect(() => {
-    if (!notebookId || !user) return;
+    if (!user) return;
 
-    console.log('Setting up Realtime subscription for sources table, notebook:', notebookId);
+    console.log('Setting up Realtime subscription for global sources table');
 
     const channel = supabase
-      .channel('sources-changes')
+      .channel('global-sources-changes')
       .on(
         'postgres_changes',
         {
           event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
           schema: 'public',
           table: 'sources',
-          filter: `notebook_id=eq.${notebookId}`
+          filter: 'visibility_scope=eq.global'
         },
         (payload: RealtimePayload) => {
-          console.log('Realtime: Sources change received:', payload);
+          console.log('Realtime: Global sources change received:', payload);
           
           // Update the query cache based on the event type
-          queryClient.setQueryData(['sources', notebookId], (oldSources: Source[] = []) => {
+          queryClient.setQueryData(['sources', userRole], (oldSources: Source[] = []) => {
             switch (payload.eventType) {
               case 'INSERT': {
                 // Add new source if it doesn't already exist
@@ -89,14 +92,14 @@ export const useSources = (notebookId?: string) => {
                   console.log('Source already exists, skipping INSERT:', newSource?.id);
                   return oldSources;
                 }
-                console.log('Adding new source to cache:', newSource);
+                console.log('Adding new global source to cache:', newSource);
                 return [newSource, ...oldSources];
               }
 
               case 'UPDATE': {
                 // Update existing source
                 const updatedSource = payload.new;
-                console.log('Updating source in cache:', updatedSource?.id);
+                console.log('Updating global source in cache:', updatedSource?.id);
                 return oldSources.map(source =>
                   source.id === updatedSource?.id ? updatedSource : source
                 );
@@ -105,7 +108,7 @@ export const useSources = (notebookId?: string) => {
               case 'DELETE': {
                 // Remove deleted source
                 const deletedSource = payload.old;
-                console.log('Removing source from cache:', deletedSource?.id);
+                console.log('Removing global source from cache:', deletedSource?.id);
                 return oldSources.filter(source => source.id !== deletedSource?.id);
               }
                 
@@ -117,14 +120,14 @@ export const useSources = (notebookId?: string) => {
         }
       )
       .subscribe((status) => {
-        console.log('Realtime subscription status for sources:', status);
+        console.log('Realtime subscription status for global sources:', status);
       });
 
     return () => {
-      console.log('Cleaning up Realtime subscription for sources');
+      console.log('Cleaning up Realtime subscription for global sources');
       supabase.removeChannel(channel);
     };
-  }, [notebookId, user, queryClient]);
+  }, [user, userRole, queryClient]);
 
   const addSource = useMutation({
     mutationFn: async (sourceData: {
@@ -137,12 +140,16 @@ export const useSources = (notebookId?: string) => {
       file_size?: number;
       processing_status?: string;
       metadata?: Record<string, unknown>;
+      target_role?: 'board' | 'executive' | 'administrator';
     }) => {
       if (!user) throw new Error('User not authenticated');
 
-      // Temporarily hardcode role assignment to avoid circular dependency
-      // TODO: Fix RLS circular dependency and restore dynamic role assignment
-      const notebook = { role_assignment: 'executive' };
+      // Default target_role based on user's role if not specified
+      let targetRole = sourceData.target_role;
+      if (!targetRole) {
+        // Default to user's current role for new sources
+        targetRole = userRole as 'board' | 'executive' | 'administrator' || 'administrator';
+      }
 
       const { data, error } = await supabase
         .from('sources')
@@ -156,9 +163,9 @@ export const useSources = (notebookId?: string) => {
           file_size: sourceData.file_size,
           processing_status: sourceData.processing_status,
           metadata: sourceData.metadata || {},
-          // Role-based sharing settings
-          visibility_scope: notebook?.role_assignment ? 'role' : 'notebook',
-          target_role: notebook?.role_assignment || null,
+          // Global visibility with role-based access control
+          visibility_scope: 'global',
+          target_role: targetRole,
           uploaded_by_user_id: user.id,
         })
         .select()

@@ -9,7 +9,7 @@ import {
 import { Shield, Users } from 'lucide-react';
 
 interface RoleAssignmentBadgeProps {
-  role: 'administrator' | 'executive' | null;
+  role: 'administrator' | 'executive' | 'board' | null;
   className?: string;
   showTooltip?: boolean;
 }
@@ -63,6 +63,16 @@ const RoleAssignmentBadge = ({ role, className, showTooltip = true }: RoleAssign
         Executive
       </Badge>,
       'This document is assigned to Executive role - only executives can access it'
+    );
+  }
+
+  if (role === 'board') {
+    return renderBadge(
+      <Badge variant="secondary" className={`${className || ''} bg-green-100 text-green-800`}>
+        <Shield className="h-3 w-3 mr-1" />
+        Board
+      </Badge>,
+      'This document is assigned to Board role - only board members can access it'
     );
   }
 

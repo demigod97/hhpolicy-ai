@@ -18,13 +18,14 @@
 
 **Story 1.2: Initial Database Schema & Role Setup**
 * **As a** Super-Admin,
-* **I want** the initial database schema with support for user roles,
-* **so that** I can create and manage the first Administrator accounts.
+* **I want** the initial database schema with support for user roles and global source access,
+* **so that** I can create and manage user accounts with appropriate role-based permissions.
 
     **Acceptance Criteria:**
-    1.  A database migration script updates the schema to include tables for `user_roles` and `policy_documents` (renamed from `notebooks`).
-    2.  A mechanism exists (e.g., a script or manual Supabase command) to assign a new user the 'Administrator' role.
-    3.  The RLS policy for `policy_documents` is updated to ensure users can only see documents they own for now.
+    1.  A database migration script updates the schema to include tables for `user_roles` and `policy_documents` (renamed from `notebooks`) with global visibility scope.
+    2.  The three-tier role system is implemented: Board (sees all sources), Executive (sees executive and administrator sources), Administrator (sees administrator sources only).
+    3.  A mechanism exists (e.g., a script or manual Supabase command) to assign users to Board, Executive, or Administrator roles.
+    4.  The RLS policy for sources is updated to support global access with role-based filtering at the database level.
 
 ---
 
@@ -57,10 +58,10 @@
 **Story 1.5: Role-Aware Chat for Administrators**
 * **As an** Administrator,
 * **I want** to ask a question in the chat interface,
-* **so that** I receive an answer based *only* on the documents I am authorized to see.
+* **so that** I receive an answer based *only* on the sources I am authorized to see according to the three-tier role system.
 
     **Acceptance Criteria:**
     1.  The chat interface successfully sends the user's query and their identity to the backend.
-    2.  The N8N chat workflow filters the vector store search to only include documents belonging to the requesting Administrator.
-    3.  A correct, cited answer is returned to the UI.
-    4.  If no answer is found within their accessible documents, a clear message is displayed.
+    2.  The N8N chat workflow uses database-level role filtering to only include administrator-level sources in vector store searches.
+    3.  A correct, cited answer is returned to the UI from globally available sources filtered by administrator role permissions.
+    4.  If no answer is found within their accessible sources, a clear message is displayed.

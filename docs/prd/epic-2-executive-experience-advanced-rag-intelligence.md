@@ -4,28 +4,28 @@
 
 ---
 
-**Story 2.1: Administrator Assignment of Executive Policies**
+**Story 2.1: Administrator Assignment of Executive Sources**
 * **As an** Administrator,
-* **I want** to assign an uploaded policy document to the 'Executive' role,
-* **so that** it can be segregated for their exclusive access.
+* **I want** to assign uploaded sources to the 'Executive' target role within the global access system,
+* **so that** they can be made available to Executive users while maintaining role-based access control.
 
     **Acceptance Criteria:**
-    1.  The document management UI allows an Administrator to select the 'Executive' role when uploading or editing a policy document.
-    2.  The document's record in the database is correctly associated with the 'Executive' role.
-    3.  Once assigned to the 'Executive' role, the document is no longer visible in the Administrator's own dashboard or searchable via their chat interface, confirming the RLS policy is working.
+    1.  The document management UI allows an Administrator to select the 'Executive' target role when uploading or editing a source document.
+    2.  The source's record in the database is correctly associated with the 'Executive' target_role while maintaining global visibility_scope.
+    3.  Once assigned to the 'Executive' target_role, the source is no longer visible to Administrator users but remains accessible to Executive and Board users, confirming the three-tier RLS policy is working.
 
 ---
 
-**Story 2.2: Executive Document Access & Chat**
+**Story 2.2: Executive Source Access & Chat**
 * **As an** Executive,
-* **I want** to log in and interact with the policy documents assigned to my role,
-* **so that** I can get answers to my specific questions.
+* **I want** to log in and interact with sources available to my role in the global access system,
+* **so that** I can get answers from both executive and administrator level content.
 
     **Acceptance Criteria:**
     1.  A user with the 'Executive' role can successfully log in.
-    2.  Their dashboard displays *only* the policy documents that have been assigned to the 'Executive' role.
-    3.  Their chat queries return answers derived *only* from the 'Executive' policy set.
-    4.  An Executive cannot see or query any documents assigned to the 'Administrator' role.
+    2.  Their dashboard displays sources assigned to both 'Executive' and 'Administrator' target roles (but not Board-only sources).
+    3.  Their chat queries return answers derived from executive and administrator sources within the global source pool.
+    4.  An Executive cannot see or query any sources assigned exclusively to the 'Board' target role.
 
 ---
 

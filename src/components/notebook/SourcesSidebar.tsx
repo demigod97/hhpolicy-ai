@@ -13,6 +13,7 @@ import { useSources } from '@/hooks/useSources';
 import { useSourceDelete } from '@/hooks/useSourceDelete';
 import { Citation } from '@/types/message';
 import { useAuth } from '@/contexts/AuthContext';
+import RoleAssignmentBadge from '@/components/policy-document/RoleAssignmentBadge';
 
 interface SourcesSidebarProps {
   hasSource: boolean;
@@ -32,8 +33,8 @@ const SourcesSidebar = ({
   const [showAddSourcesDialog, setShowAddSourcesDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showRenameDialog, setShowRenameDialog] = useState(false);
-  const [selectedSource, setSelectedSource] = useState<{ id: string; title: string; type: string; processing_status: string; content?: string; summary?: string; url?: string } | null>(null);
-  const [selectedSourceForViewing, setSelectedSourceForViewing] = useState<{ id: string; title: string; type: string; processing_status: string; content?: string; summary?: string; url?: string } | null>(null);
+  const [selectedSource, setSelectedSource] = useState<any>(null);
+  const [selectedSourceForViewing, setSelectedSourceForViewing] = useState<any>(null);
 
   const {
     sources,
@@ -41,24 +42,16 @@ const SourcesSidebar = ({
   } = useSources(notebookId);
   const { user } = useAuth();
 
-  // Group sources by visibility scope
+  // Group sources by ownership - all sources are now global but we show them grouped by who uploaded
   const groupedSources = useMemo(() => {
-    if (!sources) return { notebookSources: [], sharedSources: [] };
+    if (!sources) return { myUploads: [], sharedSources: [] };
 
-    // Since we're currently using notebook-only query due to RLS fix,
-    // all returned sources belong to this notebook - show them all in document sources
-    const notebookSources = sources.filter(source =>
-      source.notebook_id === notebookId
-    );
+    // Separate sources by who uploaded them
+    const myUploads = sources.filter(source => (source as any).uploaded_by_user_id === user?.id);
+    const sharedSources = sources.filter(source => (source as any).uploaded_by_user_id !== user?.id);
 
-    // Shared sources will be empty for now until role-based query is restored
-    const sharedSources = sources.filter(source =>
-      source.visibility_scope === 'role' &&
-      source.notebook_id !== notebookId
-    );
-
-    return { notebookSources, sharedSources };
-  }, [sources, notebookId]);
+    return { myUploads, sharedSources };
+  }, [sources, user]);
 
   const {
     deleteSource,
@@ -81,6 +74,20 @@ const SourcesSidebar = ({
   const getSourceUrl = (citation: Citation) => {
     const source = sources?.find(s => s.id === citation.source_id);
     return source?.url || '';
+  };
+
+  // Format policy date for display
+  const formatPolicyDate = (policyDate?: string) => {
+    if (!policyDate) return null;
+    
+    // Handle formats like "August-2024", "May-2025"
+    const parts = policyDate.split('-');
+    if (parts.length === 2) {
+      const [month, year] = parts;
+      return `${month} ${year}`;
+    }
+    
+    return policyDate;
   };
 
   // Get the source summary for a selected source
@@ -269,18 +276,18 @@ const SourcesSidebar = ({
             </div>
           ) : sources && sources.length > 0 ? (
             <div className="space-y-6">
-              {/* Notebook Sources Section */}
-              {groupedSources.notebookSources.length > 0 && (
+              {/* My Uploaded Sources Section */}
+              {groupedSources.myUploads.length > 0 && (
                 <div>
                   <div className="flex items-center space-x-2 mb-3">
                     <FileText className="h-4 w-4 text-gray-500" />
-                    <h3 className="text-sm font-medium text-gray-700">Document Sources</h3>
+                    <h3 className="text-sm font-medium text-gray-700">My Uploads</h3>
                     <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                      {groupedSources.notebookSources.length}
+                      {groupedSources.myUploads.length}
                     </span>
                   </div>
                   <div className="space-y-2">
-                    {groupedSources.notebookSources.map((source) => (
+                    {groupedSources.myUploads.map((source) => (
                       <ContextMenu key={source.id}>
                         <ContextMenuTrigger>
                           <Card className="p-3 border border-gray-200 cursor-pointer hover:bg-gray-50" onClick={() => handleSourceClick(source)}>
@@ -291,6 +298,18 @@ const SourcesSidebar = ({
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <span className="text-sm text-gray-900 truncate block">{source.title}</span>
+                                  <div className="flex items-center space-x-2 mt-1.5">
+                                    <RoleAssignmentBadge 
+                                      role={(source as any).target_role as 'administrator' | 'executive' | 'board' | null} 
+                                      className="text-xs px-1.5 py-0.5"
+                                      showTooltip={false}
+                                    />
+                                    {formatPolicyDate((source as any).policyDate) && (
+                                      <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                                        {formatPolicyDate((source as any).policyDate)}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                               <div className="flex-shrink-0 py-[4px]">
@@ -337,11 +356,21 @@ const SourcesSidebar = ({
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <span className="text-sm text-gray-900 truncate block">{source.title}</span>
-                                  <div className="flex items-center space-x-2 mt-1">
+                                  <div className="flex items-center space-x-2 mt-1.5">
                                     <Users className="h-3 w-3 text-blue-500" />
                                     <span className="text-xs text-blue-600 capitalize">
-                                      {source.target_role} shared
+                                      Global access
                                     </span>
+                                    <RoleAssignmentBadge 
+                                      role={(source as any).target_role as 'administrator' | 'executive' | 'board' | null} 
+                                      className="text-xs px-1.5 py-0.5"
+                                      showTooltip={false}
+                                    />
+                                    {formatPolicyDate((source as any).policyDate) && (
+                                      <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                                        {formatPolicyDate((source as any).policyDate)}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -353,7 +382,7 @@ const SourcesSidebar = ({
                         </ContextMenuTrigger>
                         <ContextMenuContent>
                           {/* Only allow deletion if user uploaded the source */}
-                          {source.uploaded_by_user_id === user?.id && (
+                          {(source as any).uploaded_by_user_id === user?.id && (
                             <ContextMenuItem onClick={() => handleRemoveSource(source)} className="text-red-600 focus:text-red-600">
                               <Trash2 className="h-4 w-4 mr-2" />
                               Remove source
@@ -371,8 +400,8 @@ const SourcesSidebar = ({
               <div className="w-16 h-16 bg-gray-200 rounded-lg mx-auto mb-4 flex items-center justify-center">
                 <span className="text-gray-400 text-2xl">📄</span>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No sources yet</h3>
-              <p className="text-sm text-gray-600 mb-4">Add policy documents, PDFs, or text files to get started. Sources will be shared with others in your role.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No sources available</h3>
+              <p className="text-sm text-gray-600 mb-4">Add policy documents, PDFs, or text files to get started. Sources are shared globally based on your role permissions.</p>
             </div>
           )}
         </div>

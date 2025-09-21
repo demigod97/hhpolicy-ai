@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Trash2, Edit, CheckSquare, Square } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useNotebookDelete } from '@/hooks/useNotebookDelete';
-import RoleAssignmentBadge from '@/components/policy-document/RoleAssignmentBadge';
-import RoleAssignmentEditor from '@/components/policy-document/RoleAssignmentEditor';
+import NotebookTitleEditor from '@/components/notebook/NotebookTitleEditor';
 
 interface NotebookCardProps {
   notebook: {
@@ -14,9 +13,9 @@ interface NotebookCardProps {
     icon: string;
     color: string;
     hasCollaborators?: boolean;
-    role_assignment?: 'administrator' | 'executive' | null;
+    description?: string;
   };
-  onRoleChanged?: () => void;
+  onTitleChanged?: () => void;
   bulkSelectMode?: boolean;
   isSelected?: boolean;
   onSelectionChange?: (documentId: string, isSelected: boolean) => void;
@@ -24,13 +23,13 @@ interface NotebookCardProps {
 
 const NotebookCard = ({
   notebook,
-  onRoleChanged,
+  onTitleChanged,
   bulkSelectMode = false,
   isSelected = false,
   onSelectionChange
 }: NotebookCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showRoleEditor, setShowRoleEditor] = useState(false);
+  const [showTitleEditor, setShowTitleEditor] = useState(false);
   const {
     deleteNotebook,
     isDeleting
@@ -51,16 +50,18 @@ const NotebookCard = ({
     setShowDeleteDialog(false);
   };
 
-  const handleEditRoleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setShowRoleEditor(true);
-  };
+
 
   const handleSelectionToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     onSelectionChange?.(notebook.id, !isSelected);
+  };
+
+  const handleEditTitleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setShowTitleEditor(true);
   };
 
   // Generate CSS classes from color name
@@ -89,9 +90,9 @@ const NotebookCard = ({
       
       <div className="absolute top-3 right-3 flex space-x-1" data-delete-action="true">
         <button
-          onClick={handleEditRoleClick}
+          onClick={handleEditTitleClick}
           className="p-1 hover:bg-blue-50 rounded text-gray-400 hover:text-blue-500 transition-colors"
-          title="Edit role assignment"
+          title="Edit title and summary"
         >
           <Edit className="h-4 w-4" />
         </button>
@@ -104,9 +105,9 @@ const NotebookCard = ({
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete this policy document?</AlertDialogTitle>
+              <AlertDialogTitle>Delete this chat?</AlertDialogTitle>
               <AlertDialogDescription>
-                You're about to delete this policy document and all of its content. This cannot be undone.
+                You're about to delete this chat and all of its content. This cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -141,18 +142,14 @@ const NotebookCard = ({
       <div className="flex items-center justify-between text-sm text-gray-500 mt-auto">
         <span>{notebook.date} • {notebook.sources} source{notebook.sources !== 1 ? 's' : ''}</span>
       </div>
-      
-      <div className="mt-2 flex justify-start">
-        <RoleAssignmentBadge role={notebook.role_assignment || null} className="text-xs" />
-      </div>
 
-      <RoleAssignmentEditor
-        open={showRoleEditor}
-        onOpenChange={setShowRoleEditor}
-        documentId={notebook.id}
-        documentTitle={notebook.title}
-        currentRole={notebook.role_assignment || null}
-        onRoleChanged={onRoleChanged}
+      <NotebookTitleEditor
+        open={showTitleEditor}
+        onOpenChange={setShowTitleEditor}
+        notebookId={notebook.id}
+        currentTitle={notebook.title}
+        currentDescription={notebook.description}
+        onTitleChanged={onTitleChanged}
       />
     </div>;
 };
