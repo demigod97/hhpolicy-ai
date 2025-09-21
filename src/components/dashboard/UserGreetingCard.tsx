@@ -1,13 +1,15 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { User, Mail, Shield } from 'lucide-react';
+import { User, Mail, Shield, FileText } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useGlobalSourcesCount } from '@/hooks/useGlobalSourcesCount';
 
 const UserGreetingCard = () => {
   const { user } = useAuth();
   const { userRole, isLoading: roleLoading, error } = useUserRole();
+  const { globalSourcesCount, sourcesDescription, isLoading: sourcesLoading } = useGlobalSourcesCount();
 
   // Debug logging
   React.useEffect(() => {
@@ -85,6 +87,18 @@ const UserGreetingCard = () => {
               {userRole ? formatRole(userRole) : 'No Role Assigned'}
             </Badge>
           )}
+        </div>
+
+        <div className="flex items-start gap-2 pt-1">
+          <FileText className="h-4 w-4 text-gray-500 mt-0.5" />
+          <div className="flex-1">
+            <span className="text-sm text-gray-600">Available Sources:</span>
+            {sourcesLoading ? (
+              <div className="h-4 w-32 bg-gray-200 animate-pulse rounded mt-1"></div>
+            ) : (
+              <p className="text-sm text-gray-700 mt-0.5">{sourcesDescription}</p>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

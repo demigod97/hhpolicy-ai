@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Trash2, Edit, CheckSquare, Square } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useNotebookDelete } from '@/hooks/useNotebookDelete';
+import { useGlobalSourcesCount } from '@/hooks/useGlobalSourcesCount';
 import NotebookTitleEditor from '@/components/notebook/NotebookTitleEditor';
 
 interface NotebookCardProps {
@@ -34,6 +35,7 @@ const NotebookCard = ({
     deleteNotebook,
     isDeleting
   } = useNotebookDelete();
+  const { globalSourcesCount } = useGlobalSourcesCount();
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -140,7 +142,7 @@ const NotebookCard = ({
       </h3>
       
       <div className="flex items-center justify-between text-sm text-gray-500 mt-auto">
-        <span>{notebook.date} • {notebook.sources} source{notebook.sources !== 1 ? 's' : ''}</span>
+        <span>{notebook.date} • {globalSourcesCount} available source{globalSourcesCount !== 1 ? 's' : ''}</span>
       </div>
 
       <NotebookTitleEditor

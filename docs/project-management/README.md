@@ -11,8 +11,14 @@ docs/project-management/
 ├── story-task-breakdown.md             # Detailed task breakdowns for all stories
 ├── development-status.md               # Current development status and progress
 ├── agent-handoff-notes.md              # Notes for agent continuity
+├── global-source-access-implementation-log.md  # Global sources feature log
+├── outdated-policy-flagging-implementation.md  # Policy flagging feature log
+├── bulk-delete-feature-implementation-log.md   # Bulk delete feature log
+├── SourceContentViewer-Enhancement-Implementation.md # Source viewer enhancement log
+├── citation-display-fix-implementation-log.md   # Citation fallback enhancement log
 └── updates/                            # Update logs and change tracking
     ├── 2025-01-17-initial-setup.md     # Initial project setup
+    ├── ui-transformation-implementation-log.md  # UI transformation log
     └── [future-updates].md             # Future update logs
 ```
 
@@ -47,4 +53,4 @@ This documentation is designed to help AI agents understand:
 ## Last Updated
 
 2025-01-17 - Initial setup and documentation structure  
-2025-01-XX - UI transformation completed, documentation updated across all areas
+2025-01-25 - Citation display enhancement implemented, documentation updated across all areas

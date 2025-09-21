@@ -189,7 +189,7 @@ const ChatArea = ({
                   </div>
                   <div>
                     <h1 className="text-2xl font-medium text-gray-900">
-                      {isGenerating ? 'Generating content...' : notebook?.title || 'Untitled Policy Document'}
+                      {isGenerating ? 'Generating content...' : notebook?.title || 'New Chat'}
                     </h1>
                     <p className="text-sm text-gray-600">{sourceCount} source{sourceCount !== 1 ? 's' : ''}</p>
                   </div>
@@ -199,7 +199,7 @@ const ChatArea = ({
                   {isGenerating ? <div className="flex items-center space-x-2 text-gray-600">
                       
                       <p>AI is analyzing your source and generating a title and description...</p>
-                    </div> : <MarkdownRenderer content={notebook?.description || 'No description available for this policy document.'} className="prose prose-gray max-w-none text-gray-700 leading-relaxed" />}
+                    </div> : <MarkdownRenderer content={notebook?.description || 'Start a conversation by asking a question about your uploaded sources.'} className="prose prose-gray max-w-none text-gray-700 leading-relaxed" />}
                 </div>
 
                 {/* Chat Messages */}

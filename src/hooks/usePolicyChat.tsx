@@ -79,10 +79,15 @@ const transformMessage = (item: { id: string; session_id: string; message: unkno
             if (outputItem.citations && outputItem.citations.length > 0) {
               outputItem.citations.forEach((citation) => {
                 const sourceInfo = sourceMap.get(citation.chunk_source_id);
+                console.log('PolicyChat: Processing citation:', {
+                  chunk_source_id: citation.chunk_source_id,
+                  sourceInfo: sourceInfo,
+                  foundInMap: sourceMap.has(citation.chunk_source_id)
+                });
                 citations.push({
                   citation_id: citationIdCounter,
                   source_id: citation.chunk_source_id,
-                  source_title: sourceInfo?.title || 'Unknown Source',
+                  source_title: sourceInfo?.title || `Source Reference ${citation.chunk_source_id.substring(0, 8)}...`,
                   source_type: sourceInfo?.type || 'pdf',
                   chunk_lines_from: citation.chunk_lines_from,
                   chunk_lines_to: citation.chunk_lines_to,
@@ -188,8 +193,8 @@ export const usePolicyChat = (policyDocumentId?: string) => {
       if (error) throw error;
 
       // Also fetch sources to get proper source titles
-      // CRITICAL: Only fetch sources that match user role
-      const { data: sourcesData } = await supabase
+      // EXPANDED: Fetch all sources for the notebook to resolve citation IDs
+      const { data: sourcesData, error: sourcesError } = await supabase
         .from('sources')
         .select(`
           id,
@@ -200,12 +205,16 @@ export const usePolicyChat = (policyDocumentId?: string) => {
             role_assignment
           )
         `)
-        .eq('notebook_id', policyDocumentId)
-        .eq('policy_documents.role_assignment', userRole);
+        .eq('notebook_id', policyDocumentId);
+        // Note: Removed role filter to ensure all citation source IDs can be resolved
+
+      console.log('PolicyChat: Sources query result:', { sourcesData, sourcesError, userRole });
 
       const sourceMap = new Map(sourcesData?.map(s => [s.id, s]) || []);
 
       console.log('PolicyChat: Sources filtered by role:', sourceMap.size);
+      console.log('PolicyChat: SourceMap entries:', Array.from(sourceMap.entries()));
+      console.log('PolicyChat: Sample source data:', sourcesData?.slice(0, 2));
 
       // Transform the data to match our expected format
       return data.map((item) => transformMessage(item, sourceMap));

@@ -61,13 +61,21 @@ const SourcesSidebar = ({
   // Get the source content for the selected citation
   const getSourceContent = (citation: Citation) => {
     const source = sources?.find(s => s.id === citation.source_id);
-    return source?.content || '';
+    if (!source) {
+      // Fallback content for stale/missing source references
+      return `Content not available for source reference ${citation.source_id.substring(0, 8)}...\n\nThis citation references lines ${citation.chunk_lines_from}-${citation.chunk_lines_to} from a source that may have been updated or removed.\n\nCitation details:\n- Source ID: ${citation.source_id}\n- Line range: ${citation.chunk_lines_from}-${citation.chunk_lines_to}\n- Source title: ${citation.source_title}`;
+    }
+    return source.content || '';
   };
 
   // Get the source summary for the selected citation
   const getSourceSummary = (citation: Citation) => {
     const source = sources?.find(s => s.id === citation.source_id);
-    return source?.summary || '';
+    if (!source) {
+      // Fallback summary for stale/missing source references
+      return `This citation references content from a source that is not currently available. The citation was created for "${citation.source_title}" but the source may have been updated or removed since this conversation was created.`;
+    }
+    return source.summary || '';
   };
 
   // Get the source URL for the selected citation
@@ -78,7 +86,7 @@ const SourcesSidebar = ({
 
   // Format policy date for display
   const formatPolicyDate = (policyDate?: string) => {
-    if (!policyDate) return null;
+    if (!policyDate || policyDate.trim() === '' || policyDate.trim().toLowerCase() === 'not provided') return null;
     
     // Handle formats like "August-2024", "May-2025"
     const parts = policyDate.split('-');
@@ -88,6 +96,59 @@ const SourcesSidebar = ({
     }
     
     return policyDate;
+  };
+
+  // Check if policy is outdated (older than 18 months)
+  const isPolicyOutdated = (policyDate?: string): boolean => {
+    if (!policyDate || policyDate.trim() === '' || policyDate.trim().toLowerCase() === 'not provided') return false;
+    
+    try {
+      const parts = policyDate.split('-');
+      if (parts.length !== 2) return false;
+      
+      const [monthName, yearStr] = parts;
+      const year = parseInt(yearStr);
+      
+      // Convert month name to month number (0-indexed)
+      const monthMap: { [key: string]: number } = {
+        'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
+        'July': 6, 'August': 7, 'September': 8, 'October': 9, 'November': 10, 'December': 11
+      };
+      
+      const month = monthMap[monthName];
+      if (month === undefined) return false;
+      
+      const policyDateObj = new Date(year, month);
+      const currentDate = new Date();
+      const eighteenMonthsAgo = new Date();
+      eighteenMonthsAgo.setMonth(currentDate.getMonth() - 18);
+      
+      return policyDateObj < eighteenMonthsAgo;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  // Get policy date badge styling based on age
+  const getPolicyDateBadgeStyle = (policyDate?: string) => {
+    if (!policyDate || policyDate.trim() === '' || policyDate.trim().toLowerCase() === 'not provided') {
+      // No policy date provided - pastel yellow
+      return "text-xs text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded";
+    }
+    
+    if (isPolicyOutdated(policyDate)) {
+      // Outdated (older than 18 months) - pastel red
+      return "text-xs text-red-700 bg-red-100 px-1.5 py-0.5 rounded";
+    } else {
+      // Current (not older than 18 months) - pastel green
+      return "text-xs text-green-700 bg-green-100 px-1.5 py-0.5 rounded";
+    }
+  };
+
+  // Get policy date display text
+  const getPolicyDateText = (policyDate?: string) => {
+    if (!policyDate || policyDate.trim() === '' || policyDate.trim().toLowerCase() === 'not provided') return "Not Provided";
+    return formatPolicyDate(policyDate);
   };
 
   // Get the source summary for a selected source
@@ -304,11 +365,9 @@ const SourcesSidebar = ({
                                       className="text-xs px-1.5 py-0.5"
                                       showTooltip={false}
                                     />
-                                    {formatPolicyDate((source as any).policyDate) && (
-                                      <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
-                                        {formatPolicyDate((source as any).policyDate)}
-                                      </span>
-                                    )}
+                                    <span className={getPolicyDateBadgeStyle((source as any).policyDate)}>
+                                      {getPolicyDateText((source as any).policyDate)}
+                                    </span>
                                   </div>
                                 </div>
                               </div>
@@ -366,11 +425,9 @@ const SourcesSidebar = ({
                                       className="text-xs px-1.5 py-0.5"
                                       showTooltip={false}
                                     />
-                                    {formatPolicyDate((source as any).policyDate) && (
-                                      <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
-                                        {formatPolicyDate((source as any).policyDate)}
-                                      </span>
-                                    )}
+                                    <span className={getPolicyDateBadgeStyle((source as any).policyDate)}>
+                                      {getPolicyDateText((source as any).policyDate)}
+                                    </span>
                                   </div>
                                 </div>
                               </div>

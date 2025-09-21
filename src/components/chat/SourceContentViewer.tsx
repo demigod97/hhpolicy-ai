@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Citation } from '@/types/message';
@@ -9,6 +9,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { parseContentStructure, detectContentType } from '@/utils/contentParser';
+import EnhancedContentRenderer from './EnhancedContentRenderer';
 
 interface SourceContentViewerProps {
   citation: Citation | null;
@@ -112,6 +114,24 @@ const SourceContentViewer = ({
     }
   }, [hasValidCitationLines]);
 
+  // Parse content structure and determine rendering approach (must be before early return)
+  const parsedContent = useMemo(() => {
+    if (!sourceContent) return { lines: [], hasStructuredContent: false, tables: [] };
+    
+    const startLine = hasValidCitationLines ? citation?.chunk_lines_from : undefined;
+    const endLine = hasValidCitationLines ? citation?.chunk_lines_to : undefined;
+    
+    console.log('SourceContentViewer: Will highlight lines', { startLine, endLine });
+    
+    return parseContentStructure(sourceContent, startLine, endLine);
+  }, [sourceContent, hasValidCitationLines, citation?.chunk_lines_from, citation?.chunk_lines_to]);
+
+  // Detect content type for appropriate styling
+  const contentType = useMemo(() => {
+    if (!sourceContent) return 'document';
+    return detectContentType(sourceContent);
+  }, [sourceContent]);
+
   if (!citation || !sourceContent) {
     return (
       <div className="p-4 text-center text-gray-500">
@@ -149,50 +169,7 @@ const SourceContentViewer = ({
     );
   };
 
-  // Split content into lines for highlighting
-  const lines = sourceContent.split('\n');
-  
-  // Determine the highlight range based on whether we have valid citation line data
-  let startLine: number;
-  let endLine: number;
-  
-  if (hasValidCitationLines) {
-    // For real citations with valid line data, highlight the specific lines
-    startLine = citation.chunk_lines_from!;
-    endLine = citation.chunk_lines_to!;
-    console.log('SourceContentViewer: Will highlight lines', { startLine, endLine });
-  } else {
-    // For source list clicks or citations without line data, don't highlight
-    startLine = -1;
-    endLine = -1;
-    console.log('SourceContentViewer: No highlighting (no valid line data)');
-  }
 
-  const renderHighlightedContent = () => {
-    return lines.map((line, index) => {
-      const lineNumber = index + 1;
-      const isHighlighted = startLine > 0 && lineNumber >= startLine && lineNumber <= endLine;
-      const isFirstHighlightedLine = isHighlighted && lineNumber === startLine;
-      
-      return (
-        <div
-          key={index}
-          ref={isFirstHighlightedLine ? highlightedContentRef : null}
-          className={`py-2 px-3 rounded leading-relaxed ${
-            isHighlighted 
-              ? 'border-l-4' 
-              : 'hover:bg-gray-50'
-          }`}
-          style={isHighlighted ? { 
-            backgroundColor: '#eadef9', 
-            borderLeftColor: '#9333ea' 
-          } : {}}
-        >
-          <span className={isHighlighted ? 'font-medium' : ''}>{line}</span>
-        </div>
-      );
-    });
-  };
 
   return (
     <div className={`flex flex-col h-full overflow-hidden ${className}`}>
@@ -253,10 +230,11 @@ const SourceContentViewer = ({
 
       {/* Content */}
       <ScrollArea className="flex-1 h-full" ref={scrollAreaViewportRef}>
-        <div className="p-4">
-          <div className="prose prose-gray max-w-none space-y-1">
-            {renderHighlightedContent()}
-          </div>
+        <div className={`${contentType === 'document' ? 'p-0' : 'p-4'}`}>
+          <EnhancedContentRenderer 
+            parsedContent={parsedContent}
+            highlightedContentRef={highlightedContentRef}
+          />
         </div>
       </ScrollArea>
     </div>
