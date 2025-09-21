@@ -78,10 +78,15 @@ const transformMessage = (item: { id: string; session_id: string; message: unkno
             if (outputItem.citations && outputItem.citations.length > 0) {
               outputItem.citations.forEach((citation) => {
                 const sourceInfo = sourceMap.get(citation.chunk_source_id);
+                console.log('ChatMessages: Processing citation:', {
+                  chunk_source_id: citation.chunk_source_id,
+                  sourceInfo: sourceInfo,
+                  foundInMap: sourceMap.has(citation.chunk_source_id)
+                });
                 citations.push({
                   citation_id: citationIdCounter,
                   source_id: citation.chunk_source_id,
-                  source_title: sourceInfo?.title || 'Unknown Source',
+                  source_title: sourceInfo?.title || `Source Reference ${citation.chunk_source_id.substring(0, 8)}...`,
                   source_type: sourceInfo?.type || 'pdf',
                   chunk_lines_from: citation.chunk_lines_from,
                   chunk_lines_to: citation.chunk_lines_to,

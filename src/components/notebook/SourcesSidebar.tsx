@@ -61,13 +61,21 @@ const SourcesSidebar = ({
   // Get the source content for the selected citation
   const getSourceContent = (citation: Citation) => {
     const source = sources?.find(s => s.id === citation.source_id);
-    return source?.content || '';
+    if (!source) {
+      // Fallback content for stale/missing source references
+      return `Content not available for source reference ${citation.source_id.substring(0, 8)}...\n\nThis citation references lines ${citation.chunk_lines_from}-${citation.chunk_lines_to} from a source that may have been updated or removed.\n\nCitation details:\n- Source ID: ${citation.source_id}\n- Line range: ${citation.chunk_lines_from}-${citation.chunk_lines_to}\n- Source title: ${citation.source_title}`;
+    }
+    return source.content || '';
   };
 
   // Get the source summary for the selected citation
   const getSourceSummary = (citation: Citation) => {
     const source = sources?.find(s => s.id === citation.source_id);
-    return source?.summary || '';
+    if (!source) {
+      // Fallback summary for stale/missing source references
+      return `This citation references content from a source that is not currently available. The citation was created for "${citation.source_title}" but the source may have been updated or removed since this conversation was created.`;
+    }
+    return source.summary || '';
   };
 
   // Get the source URL for the selected citation
