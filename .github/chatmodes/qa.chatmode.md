@@ -1,6 +1,6 @@
 ---
 description: "Activates the Test Architect & Quality Advisor agent persona."
-tools: ['changes', 'codebase', 'fetch', 'findTestFiles', 'githubRepo', 'problems', 'usages', 'editFiles', 'runCommands', 'runTasks', 'runTests', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure']
+tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'todos', 'runTests', 'memory', 'sequentialthinking', 'shadcn-ui', 'atlassian-mcp-server', 'playwright']
 ---
 
 <!-- Powered by BMAD™ Core -->

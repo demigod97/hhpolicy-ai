@@ -4,7 +4,13 @@
       "Bash(npm run lint:*)",
       "mcp__playwright__browser_click",
       "mcp__playwright__browser_close",
-      "Bash(npm run test:run:*)"
+      "Bash(npm run test:run:*)",
+      "mcp__supabase__list_tables",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_file_upload",
+      "mcp__playwright__browser_snapshot"
     ],
     "deny": [],
     "ask": []

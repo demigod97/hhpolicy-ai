@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
 // Types for role management
-export type UserRole = 'administrator' | 'executive' | 'super_admin';
+export type UserRole = 'administrator' | 'executive' | 'board';
 
 export interface UserRoleData {
   id: string;
@@ -150,10 +150,10 @@ export const hasRole = async (role: UserRole): Promise<boolean> => {
 };
 
 /**
- * Check if current user is super admin
+ * Check if current user is board member
  */
 export const isSuperAdmin = async (): Promise<boolean> => {
-  return hasRole('super_admin');
+  return hasRole('board');
 };
 
 /**
@@ -161,11 +161,16 @@ export const isSuperAdmin = async (): Promise<boolean> => {
  */
 export const getCurrentUserRole = async (): Promise<UserRole | null> => {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
+    // First, ensure we have a valid session
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !sessionData.session) {
+      console.log('getCurrentUserRole: No valid session found');
       return null;
     }
+
+    const user = sessionData.session.user;
+    console.log('getCurrentUserRole: User ID:', user.id, 'Email:', user.email);
 
     const { data, error } = await supabase
       .from('user_roles')
@@ -174,15 +179,19 @@ export const getCurrentUserRole = async (): Promise<UserRole | null> => {
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error('getCurrentUserRole: Database error:', error);
       throw error;
     }
 
+    console.log('getCurrentUserRole: Query result:', data);
+
     if (!data || data.length === 0) {
+      console.log('getCurrentUserRole: No roles found for user');
       return null;
     }
 
-    // Return highest priority role (super_admin > administrator > executive)
-    const roleHierarchy: UserRole[] = ['super_admin', 'administrator', 'executive'];
+    // Return highest priority role (board > administrator > executive)
+    const roleHierarchy: UserRole[] = ['board', 'administrator', 'executive'];
 
     for (const role of roleHierarchy) {
       if (data.some(r => r.role === role)) {

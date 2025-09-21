@@ -1,0 +1,236 @@
+[
+    {
+      "metadata": {
+        "source": "blob",
+        "blobType": "application/json",
+        "loc": {
+          "lines": {
+            "from": 1,
+            "to": 23
+          }
+        },
+        "notebook_id": "c5427220-ee16-4dd9-8305-63508a2873f9",
+        "source_id": "c832549c-f90c-475f-b8b4-53b8b5485149",
+        "policyType": "Admin",
+        "policyDate": "February-2024",
+        "policyName": "Aged Receivables Policy"
+      },
+      "pageContent": "# HUMAN HABITATS \n\n## Aged Receivables\n\n## Administrative Policy February 2024\n\n## Policy Summary\n\nPolicy Name: Aged Receivables Policy\n\nAttributable to: Client Managers, Client Partners, Accounts, CEO\n\nHuman Habitats is committed to maintaining effective control over receivables through prompt invoicing, regular monitoring, and consistent collection efforts.\n\nThe purpose of this policy is to establish clear guidelines for managing, tracking, and collecting aged receivables to ensure timely payments, maintain cash flow, and reduce the risk of bad debts.\n\nThis policy applies to all receivables owed to Human Habitats by clients, partners, and other entities. A dedicated Accounts Receivable (AR) person will prepare a list of all receivables and related invoices ready to conduct individual meetings with Client Partners.\n\n## Procedures\n\n## Invoicing\n\nAll invoices must be issued within 2 business days of major milestones, or on the 8th day of each month during an ongoing project."
+    },
+    {
+      "metadata": {
+        "source": "blob",
+        "blobType": "application/json",
+        "loc": {
+          "lines": {
+            "from": 19,
+            "to": 41
+          }
+        },
+        "notebook_id": "c5427220-ee16-4dd9-8305-63508a2873f9",
+        "source_id": "c832549c-f90c-475f-b8b4-53b8b5485149",
+        "policyType": "Admin",
+        "policyDate": "February-2024",
+        "policyName": "Aged Receivables Policy"
+      },
+      "pageContent": "## Procedures\n\n## Invoicing\n\nAll invoices must be issued within 2 business days of major milestones, or on the 8th day of each month during an ongoing project.\n\n## Aged Receivables Report\n\nAged receivables reports will be generated every Tuesday and Friday mornings, categorising outstanding invoices by their age.\n\n## Aged Receivables Meetings (with Client Partner's/CEO)\n\nThe person responsible in Accounts for Aged Receivables will organise a regular time every Tuesday \\& Friday with every Client Partner. It is compulsory for each Client Partner to attend a 15 minute meeting or reschedule for the same day if there is a VCAT or other similar.\n\nNo Client Partner is to schedule any meetings ahead of this meeting unless unavoidable (e.g. VCAT).\n\n## Payment Plans\n\nClients with financial difficulties may request a payment plan, subject to approval by the Finance Department.\n\n## Write-Offs\n\nUncollectible receivables will be reviewed quarterly and require CEO approval for write-off."
+    },
+    {
+      "metadata": {
+        "source": "blob",
+        "blobType": "application/json",
+        "loc": {
+          "lines": {
+            "from": 39,
+            "to": 54
+          }
+        },
+        "notebook_id": "c5427220-ee16-4dd9-8305-63508a2873f9",
+        "source_id": "c832549c-f90c-475f-b8b4-53b8b5485149",
+        "policyType": "Admin",
+        "policyDate": "February-2024",
+        "policyName": "Aged Receivables Policy"
+      },
+      "pageContent": "## Write-Offs\n\nUncollectible receivables will be reviewed quarterly and require CEO approval for write-off.\n\n## Stop-Work Criteria\n\nHuman Habitats reserves the right to halt work if outstanding debt exceeds a specified threshold. The criteria for holding work are as follows:\n\n1. If a client's outstanding debt exceeds $\\$ 20,000$. Where this occurs an immediate a Stop-Work will be issued. Discretion lies with Accounts and CEO in allowing works to continue work based on a solid case mounted by the Client Partner.\n\n2. If the debt is $60+$ days past due, discretion lies with Accounts and CEO in allowing works to continue work based on a solid case mounted by the Client Partner.\n3. If the debt is $90+$ days past due, an immediate stop work order is issued.\n\n# Aged Receivables Meetings Actions \n\n0-30 Days overdue"
+    },
+    {
+      "metadata": {
+        "source": "blob",
+        "blobType": "application/json",
+        "loc": {
+          "lines": {
+            "from": 52,
+            "to": 66
+          }
+        },
+        "notebook_id": "c5427220-ee16-4dd9-8305-63508a2873f9",
+        "source_id": "c832549c-f90c-475f-b8b4-53b8b5485149",
+        "policyType": "Admin",
+        "policyDate": "February-2024",
+        "policyName": "Aged Receivables Policy"
+      },
+      "pageContent": "# Aged Receivables Meetings Actions \n\n0-30 Days overdue\n\n| Responsible Parties: | - Client Managers, Accounts |\n| :--: | :--: |\n| Actions: | - Accounts sends a direct email to the Client with statement and separate invoices attached. <br> - Accounts copies Client Managers for their reference. <br> - If the Client does not respond to emails from Accounts, Accounts will contact the Client Manager and request that they contact the client directly with outstanding Statement/Invoice. |\n\n$30+$ Days overdue\n\n| Responsible Parties: | - Client Partners, Accounts |\n| :--: | :--: |\n| Actions: | - Client Partners must follow up on overdue accounts direct with the Client and their accounts department. Client Partners must send Invoices/Statement direct to Client and copy HH Accounts. <br> - The Client Partner should communicate any concerns to Accounts through the Aged Receivables Meeting. |\n\n$60+$ Days overdue"
+    },
+    {
+      "metadata": {
+        "source": "blob",
+        "blobType": "application/json",
+        "loc": {
+          "lines": {
+            "from": 66,
+            "to": 72
+          }
+        },
+        "notebook_id": "c5427220-ee16-4dd9-8305-63508a2873f9",
+        "source_id": "c832549c-f90c-475f-b8b4-53b8b5485149",
+        "policyType": "Admin",
+        "policyDate": "February-2024",
+        "policyName": "Aged Receivables Policy"
+      },
+      "pageContent": "$60+$ Days overdue\n\n| Responsible Parties: | - Client Partners, Accounts, CEO |\n| :--: | :--: |\n| Actions: | - If payment is not received after 60 days overdue, Accounts will block the project (On Hold - Finance) and the Client Partner must communicate the stop work to Colleagues and the Client. <br> - When communicating the Stop-Work, Client Partners must still send invoices/statements direct to the Client and their Accounts department and copy HH Accounts. <br> - Discretion lies with Accounts and CEO in allowing works to continue if a solid case is mounted by the Client Partner. |\n\n$90+$ Days overdue"
+    },
+    {
+      "metadata": {
+        "source": "blob",
+        "blobType": "application/json",
+        "loc": {
+          "lines": {
+            "from": 72,
+            "to": 81
+          }
+        },
+        "notebook_id": "c5427220-ee16-4dd9-8305-63508a2873f9",
+        "source_id": "c832549c-f90c-475f-b8b4-53b8b5485149",
+        "policyType": "Admin",
+        "policyDate": "February-2024",
+        "policyName": "Aged Receivables Policy"
+      },
+      "pageContent": "$90+$ Days overdue\n\n| Responsible Parties: | - Client Partners, Accounts, CEO |\n| :--: | :--: |\n| Actions: | - Immediate stop work order issued. <br> - Client debt is registered as a payment default with CreditorWatch until payment is received. The CEO provides final approval before formal lodging. <br> Client Partners must communicate the Stop Work and CreditorWatch default to the client and must send invoices/statements direct to the Client and their Accounts department and copy HH Accounts. |\n\n120+ Days overdue (for debts over \\$750)\nResponsible Parties: ・ Accounts, CEO\nActions: $\\quad$ Lodge debt with VCAT for formal recovery proceedings.\nIf a receivable remains unpaid beyond 120 days, the following process must be followed for lodging at VCAT:"
+    },
+    {
+      "metadata": {
+        "source": "blob",
+        "blobType": "application/json",
+        "loc": {
+          "lines": {
+            "from": 83,
+            "to": 91
+          }
+        },
+        "notebook_id": "c5427220-ee16-4dd9-8305-63508a2873f9",
+        "source_id": "c832549c-f90c-475f-b8b4-53b8b5485149",
+        "policyType": "Admin",
+        "policyDate": "February-2024",
+        "policyName": "Aged Receivables Policy"
+      },
+      "pageContent": "1. Accounts compiles all necessary documentation, including invoices, payment reminders, and communication records.\n2. CEO formally reviews the outstanding receivable and approves lodging with VCAT.\n3. CEO provides final approval before formal proceedings begin.\n4. Accounts submits the required application and supporting documents to VCAT.\n5. CEO (or nominated staff) is responsible for attending VCAT hearings.\n\n# Lodging with CreditorWatch \n\nIf a receivable remains unpaid beyond 60 days (or assessed as being required after 90 days), the following process must be followed for lodging with CreditorWatch:"
+    },
+    {
+      "metadata": {
+        "source": "blob",
+        "blobType": "application/json",
+        "loc": {
+          "lines": {
+            "from": 89,
+            "to": 102
+          }
+        },
+        "notebook_id": "c5427220-ee16-4dd9-8305-63508a2873f9",
+        "source_id": "c832549c-f90c-475f-b8b4-53b8b5485149",
+        "policyType": "Admin",
+        "policyDate": "February-2024",
+        "policyName": "Aged Receivables Policy"
+      },
+      "pageContent": "# Lodging with CreditorWatch \n\nIf a receivable remains unpaid beyond 60 days (or assessed as being required after 90 days), the following process must be followed for lodging with CreditorWatch:\n\n1. The Accounts Receivable (AR) person compiles all necessary documentation.\n2. The Accounts team submits the required application and supporting documents to CreditorWatch.\n3. The CEO provides final approval before formal lodging.\n4. Client debt is registered as a payment default with CreditorWatch until payment is received. The CEO provides final approval before formal lodging.\n5. Where a CreditorWatch default is registered:\n\n- Accounts will block the project (On Hold - Finance) and the Client Partner communicate the stop work to Colleagues and the Client; and\n- A formal notice will be issued to the Client by Accounts, informing them of the suspension of work until payment is received.\n\n6. The CEO and Accounts will coordinate with the client to determine a resolution plan if required."
+    },
+    {
+      "metadata": {
+        "source": "blob",
+        "blobType": "application/json",
+        "loc": {
+          "lines": {
+            "from": 102,
+            "to": 119
+          }
+        },
+        "notebook_id": "c5427220-ee16-4dd9-8305-63508a2873f9",
+        "source_id": "c832549c-f90c-475f-b8b4-53b8b5485149",
+        "policyType": "Admin",
+        "policyDate": "February-2024",
+        "policyName": "Aged Receivables Policy"
+      },
+      "pageContent": "6. The CEO and Accounts will coordinate with the client to determine a resolution plan if required.\n\n## Lodging at VCAT\n\nIf a receivable remains unpaid beyond 120 days, the following process must be followed for lodging at VCAT:\n\n1. Accounts compiles all necessary documentation, including invoices, payment reminders, and communication records.\n2. The Client Partner formally reviews the outstanding receivable and approves lodging with VCAT.\n3. Accounts submits the required application and supporting documents to VCAT.\n4. The CEO is responsible for attending VCAT hearings.\n\n# Appendix 1 \n\nAged Receivables Process \\& Actions\n\n## Post-Invoicing\n\nAccounts needs to ensure all invoices are marked as sent in Xero once invoicing is completed so that automated reminders are sent."
+    },
+    {
+      "metadata": {
+        "source": "blob",
+        "blobType": "application/json",
+        "loc": {
+          "lines": {
+            "from": 113,
+            "to": 141
+          }
+        },
+        "notebook_id": "c5427220-ee16-4dd9-8305-63508a2873f9",
+        "source_id": "c832549c-f90c-475f-b8b4-53b8b5485149",
+        "policyType": "Admin",
+        "policyDate": "February-2024",
+        "policyName": "Aged Receivables Policy"
+      },
+      "pageContent": "# Appendix 1 \n\nAged Receivables Process \\& Actions\n\n## Post-Invoicing\n\nAccounts needs to ensure all invoices are marked as sent in Xero once invoicing is completed so that automated reminders are sent.\n\n1. Log into Xero.\n2. Go to Business tab and select invoices.\n3. Select awaiting payment tab.\n4. Organise invoices by sent heading.\n5. Select all invoices that are showing as not sent and select print.\n6. Select button to show invoices as sent\n\n## Sending Monthly Statements\n\nAll clients are to receive statement from Xero.\n\n1. Go to Business tab and select invoices\n2. Select 'Send Statements' tab.\n3. Set Statement type to 'Outstanding' and choose todays date.\n4. Organise clients by 'Overdue' heading.\n5. Select clients ( 50 can be selected at a time).\n6. Select 'Email' and chose template' Statement: HH Statement' to sent\n7. Double check list to ensure emails are included for clients.\n8. Send.\n\n## Running AR Report"
+    },
+    {
+      "metadata": {
+        "source": "blob",
+        "blobType": "application/json",
+        "loc": {
+          "lines": {
+            "from": 141,
+            "to": 155
+          }
+        },
+        "notebook_id": "c5427220-ee16-4dd9-8305-63508a2873f9",
+        "source_id": "c832549c-f90c-475f-b8b4-53b8b5485149",
+        "policyType": "Admin",
+        "policyDate": "February-2024",
+        "policyName": "Aged Receivables Policy"
+      },
+      "pageContent": "## Running AR Report\n\nThe AR report needs to be run on a Tuesday and Friday morning before the AR meetings with Client Partners. Before running the report ensure all reconciliations are completed in the 'HH Trust Regular Account' in Xero.\n\n1. Login into Workflow max\n2. Go to reports tab\n3. Run AR report named 3.11: Mngt - AR - Invoice Payments Due Report - 30+ Debtor Days\n4. Export report as CSV.\n5. Name report following example - 20250224 AR Report.\n6. Save file on the server as an excel worksheet. File to be saved in location - \\\\FILESERVER\\HH Executive Admin\\HH Finance Meetings\\Finance Meetings - FY25\\month of meeting\n7. In Excel review report and make sure any Suleman Group clients have Will Pearce as Client Partner and Any Kris Wilson/Wilcon jobs have Ryan O'Sullivan as Client Partner.\n8. Select all data and insert pivot table.\n\n9. In pivot table field set up table as below\n![img-0.jpeg](img-0.jpeg)"
+    },
+    {
+      "metadata": {
+        "source": "blob",
+        "blobType": "application/json",
+        "loc": {
+          "lines": {
+            "from": 154,
+            "to": 169
+          }
+        },
+        "notebook_id": "c5427220-ee16-4dd9-8305-63508a2873f9",
+        "source_id": "c832549c-f90c-475f-b8b4-53b8b5485149",
+        "policyType": "Admin",
+        "policyDate": "February-2024",
+        "policyName": "Aged Receivables Policy"
+      },
+      "pageContent": "9. In pivot table field set up table as below\n![img-0.jpeg](img-0.jpeg)\n\nDrag fields between areas below:\n![img-1.jpeg](img-1.jpeg)\n10. Create an individual tabs for each Director\n11. See previous Excel spreadsheet from last meeting for notes and previous actions taken\n12. AR meeting is held with each Director and any actions taken is noted in the column.\n\n# Sending invoices to clients \n\nClients who have outstanding invoices are to have a direct email from Accounts with all outstanding invoices and a current statement attached. Client Managers for the job are to be copied in the email and if no response in a week, then Client Managers are to contact the client directly.\n\n## Lodging a payment default on CreditorWatch\n\nWhen a client has not paid their invoices over 90 days and there has been no communication with the Client Partner a credit default is lodged on CreditorWatch."
+    },
+    {
+      "metadata": {
+        "source": "blob",
+        "blobType": "application/json",
+        "loc": {
+          "lines": {
+            "from": 169,
+            "to": 185
+          }
+        },
+        "notebook_id": "c5427220-ee16-4dd9-8305-63508a2873f9",
+        "source_id": "c832549c-f90c-475f-b8b4-53b8b5485149",
+        "policyType": "Admin",
+        "policyDate": "February-2024",
+        "policyName": "Aged Receivables Policy"
+      },
+      "pageContent": "When a client has not paid their invoices over 90 days and there has been no communication with the Client Partner a credit default is lodged on CreditorWatch.\n\n1. Login into CreditorWatch\n2. Select view customer list\n3. Select 'Add \\& Remove Customers'\n4. Search by clients ABN details\n5. Select 'Monitor' for correct customer\n6. From client list, select client\n7. Select 'Report Actions' and then register a default.\n8. Invoices are to be uploaded as proof of debt\n9. Once approval email from CreditorWatch is received, Accounts will communicate with the client.\n\n## Lodging a failure to pay at VCAT\n\nIf a receivable remains unpaid beyond 120 days, the following process must be followed for lodging at VCAT:\n\n1. TBC"
+    }
+  ]
