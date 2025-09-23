@@ -321,12 +321,7 @@ const SourcesSidebar = ({
           <h2 className="text-lg font-medium text-gray-900">Sources</h2>
         </div>
         
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm" className="flex-1" onClick={() => setShowAddSourcesDialog(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add
-          </Button>
-        </div>
+        {/* Add Source button hidden for demo - development feature only */}
       </div>
 
       <ScrollArea className="flex-1 h-full">
