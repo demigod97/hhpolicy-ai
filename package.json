@@ -9,6 +9,9 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
     "bmad:refresh": "bmad-method install -f -i codex",
     "bmad:list": "bmad-method list:agents",
     "bmad:validate": "bmad-method validate"

@@ -1,0 +1,1572 @@
+# Comprehensive Guide to Inline JavaScript and the Code Node in n8n
+
+This comprehensive guide explores the utilization of **inline JavaScript transformations** and the **Code node** within n8n workflows. It is structured to provide a seamless understanding of both methods, their functionalities, built-in transformation functions, variables, and best practices. By the end of this guide, you'll be equipped to harness the full potential of JavaScript within your n8n automation workflows.
+
+---
+
+## Table of Contents
+
+1. [Introduction](#1-introduction)
+2. [Inline Expressions vs. Code Node](#2-inline-expressions-vs-code-node)
+   - [2.1 Key Differences](#21-key-differences)
+   - [2.2 Tournament Templating Engine](#22-tournament-templating-engine)
+3. [Inline Expressions and Built-in Transformations](#3-inline-expressions-and-built-in-transformations)
+   - [3.1 Inline JavaScript Basics](#31-inline-javascript-basics)
+   - [3.2 Data Transformation Functions](#32-data-transformation-functions)
+     - [3.2.1 String Transformations](#321-string-transformations)
+     - [3.2.2 Array Transformations](#322-array-transformations)
+     - [3.2.3 Number Transformations](#323-number-transformations)
+     - [3.2.4 Object Transformations](#324-object-transformations)
+     - [3.2.5 Boolean Transformations](#325-boolean-transformations)
+     - [3.2.6 Date & Time Transformations (Luxon)](#326-date--time-transformations-luxon)
+   - [3.3 Combining Inline JS Methods](#333-combining-inline-js-methods)
+4. [The Code Node](#4-the-code-node)
+   - [4.1 Multiple Languages (JavaScript & Python)](#41-multiple-languages-javascript--python)
+   - [4.2 Accessing the Current Node’s Input: `$input`](#42-accessing-the-current-nodes-input-input)
+   - [4.3 Writing JavaScript in the Code Node](#43-writing-javascript-in-the-code-node)
+     - [4.3.1 Accessing Input Data](#431-accessing-input-data)
+     - [4.3.2 Modifying Data](#432-modifying-data)
+     - [4.3.3 Returning Output Data](#433-returning-output-data)
+   - [4.4 Using External npm Modules](#44-using-external-npm-modules)
+   - [4.5 Debugging and Testing Your Code](#45-debugging-and-testing-your-code)
+   - [4.6 Best Practices](#46-best-practices)
+     - [4.6.1 Data Structure Awareness](#461-data-structure-awareness)
+     - [4.6.2 Error Handling](#462-error-handling)
+     - [4.6.3 Performance Considerations](#463-performance-considerations)
+   - [4.7 Limitations of the Code Node](#47-limitations-of-the-code-node)
+5. [Built-in Methods & Their Availability](#5-built-in-methods--their-availability)
+   - [5.1 `$evaluateExpression`](#51-evaluateexpression)
+   - [5.2 `$ifEmpty`](#52-ifempty)
+   - [5.3 `$if`](#53-if)
+   - [5.4 `$max` and `$min`](#54-max-and-min)
+6. [Built-in Variables & Execution Metadata](#6-built-in-variables--execution-metadata)
+   - [6.1 Workflow & Execution Details](#61-workflow--execution-details)
+   - [6.2 HTTP Request Node–Specific Variables](#62-http-request-node-specific-variables)
+   - [6.3 Global Variables: `$vars`](#63-global-variables-vars)
+7. [Accessing Data from Other Nodes](#7-accessing-data-from-other-nodes)
+   - [7.1 `$("NodeName").all(), .first(), .last(), etc.`](#71-nodenameall-first-last-etc)
+   - [7.2 `$("NodeName").item`](#72-nodenameitem)
+   - [7.3 `$("NodeName").itemMatching(index)`](#73-nodenameitemmatchingindex)
+8. [Using JMESPath: `$jmespath`](#8-using-jmespath-jmespath)
+9. [Data Transformation Functions (Inline Expressions)](#9-data-transformation-functions-inline-expressions)
+   - [9.1 String Transformations](#91-string-transformations)
+   - [9.2 Array Transformations](#92-array-transformations)
+   - [9.3 Number Transformations](#93-number-transformations)
+   - [9.4 Object Transformations](#94-object-transformations)
+   - [9.5 Boolean Transformations](#95-boolean-transformations)
+   - [9.6 Date & Time Transformations (Luxon)](#96-date--time-transformations-luxon)
+10. [Putting It All Together: Examples](#10-putting-it-all-together-examples)
+    - [10.1 Inline Example: LinkedIn URL Extraction](#101-inline-example-linkedin-url-extraction)
+    - [10.2 Part 1 Example: Processing User Data](#102-part-1-example-processing-user-data)
+    - [10.3 Part 2 Example: Generating Personalized Invoices](#103-part-2-example-generating-personalized-invoices)
+    - [10.4 Code Node Example: Looping & Transforming Items](#104-code-node-example-looping--transforming-items)
+    - [10.5 Code Node + JMESPath Example](#105-code-node--jmespath-example)
+11. [Frequently Asked Questions (FAQ)](#11-frequently-asked-questions-faq)
+12. [Practical Q&A and Tips](#12-practical-qa-and-tips)
+13. [Further Reading and Resources](#13-further-reading-and-resources)
+14. [Conclusion](#14-conclusion)
+
+---
+
+## 1. Introduction
+
+**n8n** is a robust, open-source workflow automation tool that enables users to connect various applications and services, facilitating automated tasks without the need for extensive coding. Among its versatile nodes, the **Code node** and **inline JavaScript transformations** empower users to implement custom logic and data manipulations, enhancing the flexibility and power of workflows.
+
+This guide is designed to provide a comprehensive understanding of these JavaScript integration methods, enabling you to harness their full potential within your n8n workflows. Whether you're performing simple data formatting or implementing complex business logic, mastering both inline expressions and the Code node will significantly enhance your automation capabilities.
+
+---
+
+## 2. Inline Expressions vs. Code Node
+
+Understanding the distinction between **Inline Expressions** and the **Code Node** is crucial for effectively leveraging JavaScript within n8n workflows. Each method serves different purposes and is suited to different types of tasks.
+
+### 2.1 Key Differences
+
+| Aspect                        | Inline Expressions                                     | Code Node                                  |
+|-------------------------------|--------------------------------------------------------|--------------------------------------------|
+| **Where**                     | Directly in node parameters (toggle “Fixed / Expression”) | As a separate node in the workflow         |
+| **Syntax**                    | Single‐line JavaScript wrapped in `{{ }}`               | Full multi‐line JavaScript (or Python)     |
+| **Ideal Use Case**            | Quick transformations (like `.isEmail()`, `.sum()`)      | More complex logic (loops, conditionals, multiple variables) |
+| **Access to n8n Helpers**     | Some helpers are inline‐only (`$if()`, `$itemIndex`)     | Many helpers are available, but not all (e.g., `$if()` is not) |
+| **Data Handling**             | Must remain on a single line                             | No line limits; can perform multi‐step code |
+
+### 2.2 Tournament Templating Engine
+
+Starting in n8n **v1.9.0**, expressions use an enhanced engine nicknamed “**Tournament**,” which provides built‐in **data transformation functions** out of the box. These functions allow you to perform operations like `.isEmail()`, `.extractDomain()`, `.removeDuplicates()`, and more directly on your data types (strings, arrays, numbers, etc.) within inline expressions.
+
+---
+
+## 3. Inline Expressions and Built-in Transformations
+
+Inline Expressions in n8n allow you to embed JavaScript directly within node parameters, enabling dynamic data manipulation without the need for separate nodes. This section delves into the basics of inline expressions, their syntax, and the powerful transformation functions available.
+
+### 3.1 Inline JavaScript Basics
+
+Whenever you have a node parameter that can switch between *Fixed* and *Expression* modes, you can insert code in the form:
+
+```text
+{{ <your JavaScript here> }}
+```
+
+- **Single-line**: All logic must fit on one line.
+- **JavaScript Features**: You can use standard JS string or array methods (e.g., `.split()`, `.join()`, `.map()`) alongside n8n’s built-in “data transformation functions” if the data type matches (string, array, etc.).
+- **Chaining**: You can chain multiple functions (both built-in and vanilla JS) on a single value.
+
+**Example:**
+
+```text
+{{ "hello@example.com".isEmail() }}
+// => true
+```
+
+Here, `.isEmail()` is a built-in transformation function available for **strings**.
+
+### 3.2 Data Transformation Functions
+
+n8n's **Tournament Templating Engine** introduces a suite of **data transformation functions** categorized by data type. These functions can be chained and combined with standard JavaScript methods to perform complex transformations within inline expressions.
+
+#### 3.2.1 String Transformations
+
+- **`.isEmail()`**: Checks if the string is a valid email.
+- **`.extractDomain()`**: Extracts the domain from a URL.
+- **`.removeTags()`**: Removes HTML tags from text.
+- **`.base64Encode()` / `.base64Decode()`**: Encodes or decodes the string in Base64.
+- **`.toSnakeCase()`** / `.toCamelCase()`**: Converts the string to snake_case or camelCase.
+- **`.extractUrlPath()`**: Extracts the path from a URL.
+
+**Examples:**
+
+```text
+{{ "john.doe@example.com".isEmail() }}
+// Returns: true
+
+{{ "https://www.example.com/path".extractDomain() }}
+// Returns: "www.example.com"
+
+{{ "<p>Sample Text</p>".removeTags() }}
+// Returns: "Sample Text"
+
+{{ "Hello World!".toSnakeCase() }}
+// Returns: "hello_world!"
+```
+
+#### 3.2.2 Array Transformations
+
+- **`.sum()`**: Sums all numerical elements in the array.
+- **`.removeDuplicates()`**: Eliminates duplicate elements.
+- **`.merge(array)`**: Merges another array into the current one.
+- **`.isEmpty()`**: Checks if the array has no elements.
+- **`.randomItem()`**: Retrieves a random element from the array.
+- **`.first()`** / **`.last()`**: Retrieves the first or last element.
+
+**Examples:**
+
+```text
+{{ [1, 2, 2, 4].removeDuplicates() }}
+// Returns: [1, 2, 4]
+
+{{ [10, 20, 30].sum() }}
+// Returns: 60
+
+{{ [1, 2, 3].merge([4, 5]) }}
+// Returns: [1, 2, 3, 4, 5]
+```
+
+#### 3.2.3 Number Transformations
+
+- **`.round(decimalPlaces)`**: Rounds the number to the specified decimal places.
+- **`.toBoolean()`**: Converts the number to a boolean (`0` → `false`, any other number → `true`).
+- **`.format(locale)`**: Formats the number according to the specified locale.
+- **`.isEven()`** / **`.isOdd()`**: Checks if the number is even or odd.
+
+**Examples:**
+
+```text
+{{ 123.456.round(2) }}
+// Returns: 123.46
+
+{{ 0.toBoolean() }}
+// Returns: false
+
+{{ 10.isEven() }}
+// Returns: true
+```
+
+#### 3.2.4 Object Transformations
+
+- **`.isEmpty()`**: Checks if the object has no keys.
+- **`.removeField(key)`**: Removes a specified key from the object.
+- **`.merge(object)`**: Merges another object into the current one.
+- **`.toJsonString()`**: Converts the object to a JSON string.
+
+**Examples:**
+
+```text
+{{ { "name": "Alice", "age": 30 }.isEmpty() }}
+// Returns: false
+
+{{ { "name": "Alice" }.removeField("age") }}
+// Returns: { "name": "Alice" }
+
+{{ { "name": "Alice" }.merge({ "age": 30, "city": "New York" }) }}
+// Returns: { "name": "Alice", "age": 30, "city": "New York" }
+```
+
+#### 3.2.5 Boolean Transformations
+
+- **`.toInt()`**: Converts `true` to `1` and `false` to `0`.
+
+**Examples:**
+
+```text
+{{ true.toInt() }}
+// Returns: 1
+
+{{ false.toInt() }}
+// Returns: 0
+```
+
+#### 3.2.6 Date & Time Transformations (Luxon)
+
+n8n integrates the [Luxon](https://moment.github.io/luxon/) library for comprehensive date operations within inline expressions.
+
+- **`.toDateTime()`**: Parses a string into a Luxon `DateTime` object.
+- **`.plus(amount, unit)`**: Adds a specified amount of time.
+- **`.minus(amount, unit)`**: Subtracts a specified amount of time.
+- **`.format(formatString)`**: Formats the date according to the given pattern.
+- **`.isWeekend()`**: Checks if the date falls on a weekend.
+
+**Examples:**
+
+```text
+{{ "2025-01-03".toDateTime().plus(3, "days").format("yyyy-MM-dd") }}
+// Returns: "2025-01-06"
+
+{{ "2025-01-03".toDateTime().isWeekend() }}
+// Returns: false (assuming January 3, 2025, is a Friday)
+
+{{ "2025-01-03".toDateTime().minus(1, "week").format("MMMM dd, yyyy") }}
+// Returns: "December 27, 2024"
+```
+
+### 3.3 Combining Inline JS Methods
+
+You can mix **built-in transformations** with standard JavaScript methods to perform more intricate data manipulations.
+
+**Examples:**
+
+```text
+{{ "https://example.com/path".extractDomain().toUpperCase() }}
+// Returns: "EXAMPLE.COM"
+
+{{ $("NodeName").item.json.someArray
+   .removeDuplicates()
+   .join(", ")
+   .toUpperCase() }}
+// Returns a string of unique array elements joined by commas and in uppercase
+```
+
+This flexibility allows for powerful one-liner transformations that can handle complex data processing tasks directly within node parameters.
+
+---
+
+## 4. The Code Node
+
+When your workflow requires more elaborate logic—such as multiple lines of code, loops, conditionals, or the use of external libraries—the **Code node** is the ideal choice. This section explores the functionalities and best practices associated with the Code node.
+
+### 4.1 Multiple Languages (JavaScript & Python)
+
+The Code node supports writing scripts in **JavaScript** and optionally **Python**. While JavaScript is the primary language, Python support allows for leveraging Python's extensive libraries and functionalities within your workflows.
+
+- **JavaScript**: Offers full multi-line scripting capabilities, access to n8n's built-in helpers, and the ability to write complex logic.
+- **Python**: Provides an alternative for those more comfortable with Python, though it lacks direct access to n8n's JavaScript-specific transformations.
+
+**Note**: Switching to Python means you won't have access to JavaScript-specific built-in transformation functions like `.isEmail()` or `.sum()`.
+
+### 4.2 Accessing the Current Node’s Input: `$input`
+
+Inside the Code node, `$input` is the primary way to access the data flowing into the node. Depending on the execution mode, you can retrieve all input items or process each item individually.
+
+| Property / Method            | Purpose                                                                 | In Code Node? |
+|------------------------------|-------------------------------------------------------------------------|---------------|
+| `$input.item`                | Current item (in “Run Once for Each Item” mode).                       | ✓             |
+| `$input.all()`               | Array of all input items.                                               | ✓             |
+| `$input.first()`             | The first item.                                                         | ✓             |
+| `$input.last()`              | The last item.                                                          | ✓             |
+| `$input.params`              | Node configuration parameters from previous steps.                     | ✓             |
+| `$json`                      | Shorthand for `$input.item.json` (if running once per item).           | ✓ (context)   |
+| `$input.context.noItemsLeft` | Use in loops to detect if no more items exist.                          | ✓             |
+
+**Example** (in a Code node running once per item):
+
+```javascript
+const current = $input.item; 
+const data = current.json;
+data.newField = "Hello!";
+return [{ json: data }];
+```
+
+### 4.3 Writing JavaScript in the Code Node
+
+Once the Code node is added and configured, you can begin writing your JavaScript code. This involves accessing input data, modifying it as needed, and returning the processed data.
+
+#### 4.3.1 Accessing Input Data
+
+Depending on the execution mode, you can access all input items or the current item being processed.
+
+- **Run Once for All Items**:
+
+  ```javascript
+  const items = $input.all();
+  ```
+
+  - **Explanation**: Fetches all incoming items into an array called `items`. Each item typically contains a `json` property with the data.
+
+- **Run Once for Each Item**:
+
+  ```javascript
+  const item = $input.item;
+  ```
+
+  - **Explanation**: Retrieves the current item being processed. Useful when the node is set to execute once per item.
+
+**Example**:
+
+```javascript
+// Code Node (JavaScript)
+
+// For "Run Once for All Items" mode
+const items = $input.all();
+
+// For "Run Once for Each Item" mode
+const item = $input.item;
+```
+
+#### 4.3.2 Modifying Data
+
+You can manipulate the data as needed, whether processing all items collectively or handling each item individually.
+
+- **Processing All Items Together**:
+
+  ```javascript
+  const processedItems = items.map(item => {
+    // Example: Add a new field
+    item.json.newField = 'New Value';
+    return item;
+  });
+  ```
+
+- **Processing Each Item Individually**:
+
+  ```javascript
+  // Example: Modify a specific field
+  item.json.existingField = item.json.existingField.toUpperCase();
+  return item;
+  ```
+
+**Example**:
+
+```javascript
+// Code Node (JavaScript)
+
+// Run Once for All Items
+const processedItems = items.map(item => {
+  // Add a timestamp to each item
+  item.json.processedAt = new Date().toISOString();
+  return item;
+});
+
+return processedItems;
+
+// Run Once for Each Item
+item.json.processedAt = new Date().toISOString();
+return item;
+```
+
+#### 4.3.3 Returning Output Data
+
+After processing, ensure your code returns the modified data in the expected format.
+
+- **For "Run Once for All Items"**:
+
+  ```javascript
+  return processedItems;
+  ```
+
+- **For "Run Once for Each Item"**:
+
+  ```javascript
+  return item;
+  ```
+
+**Example**:
+
+```javascript
+// Code Node (JavaScript)
+
+// Run Once for All Items
+return processedItems;
+
+// Run Once for Each Item
+return item;
+```
+
+### 4.4 Using External npm Modules
+
+Leveraging external npm modules can significantly enhance the capabilities of your Code node. However, this feature is **only available if you are self-hosting n8n**.
+
+#### Enabling External Modules
+
+1. **Self-Hosted Requirement**:
+   - Ensure you are running a self-hosted instance of n8n. Cloud-hosted versions might not support this feature due to security restrictions.
+
+2. **Install Modules**:
+   - Navigate to your n8n installation directory.
+   - Use `npm` or `yarn` to install the desired module. For example:
+
+     ```bash
+     npm install lodash
+     ```
+
+#### Importing and Using Modules
+
+Once the module is installed, you can import and use it within the Code node.
+
+```javascript
+const _ = require('lodash');
+
+const items = $input.all();
+
+const processedItems = items.map(item => {
+  // Example: Use lodash to clone the item
+  const clonedItem = _.cloneDeep(item.json);
+  clonedItem.newField = 'Cloned Value';
+  return { json: clonedItem };
+});
+
+return processedItems;
+```
+
+**Example: Using Axios for HTTP Requests**
+
+```javascript
+const axios = require('axios');
+
+const items = $input.all();
+
+const processedItems = await Promise.all(items.map(async item => {
+  const response = await axios.get(`https://api.example.com/data/${item.json.id}`);
+  item.json.externalData = response.data;
+  return item;
+}));
+
+return processedItems;
+```
+
+*This script fetches additional data from an external API for each item.*
+
+**Note**: Always ensure that the modules you use are compatible with the Node.js version running n8n.
+
+### 4.5 Debugging and Testing Your Code
+
+Ensuring your code works as intended is crucial. n8n provides tools to aid in debugging:
+
+#### Logging
+
+- **Use `console.log()`**:
+  - Outputs messages and data to the n8n logs, which can be viewed in the workflow execution details.
+
+  ```javascript
+  console.log('Input Items:', items);
+  ```
+
+- **Example**:
+
+  ```javascript
+  // Code Node (JavaScript)
+  console.log('Processing the following items:', items);
+  
+  const processedItems = items.map(item => {
+    item.json.processed = true;
+    return item;
+  });
+  
+  return processedItems;
+  ```
+
+#### Testing with Sample Data
+
+- **Execute Workflow Manually**:
+  - Run the workflow with test data to observe how the Code node processes it.
+  - Check the output data to verify correctness.
+
+- **Handle Errors Gracefully**:
+  - Implement error handling to catch and log issues without breaking the entire workflow.
+
+  ```javascript
+  try {
+    // Your code logic
+  } catch (error) {
+    console.error('An error occurred:', error);
+    // Optionally, you can throw the error to stop the workflow
+    throw error;
+  }
+  ```
+
+**Example**:
+
+```javascript
+// Code Node (JavaScript)
+
+try {
+  const items = $input.all();
+  const processedItems = items.map(item => {
+    if (!item.json.email) {
+      throw new Error('Email is missing for item ID: ' + item.json.id);
+    }
+    item.json.email = item.json.email.toLowerCase();
+    return item;
+  });
+  return processedItems;
+} catch (error) {
+  console.error('Processing error:', error);
+  throw error; // This will stop the workflow and mark it as failed
+}
+```
+
+### 4.6 Best Practices
+
+Adhering to best practices ensures your Code node scripts are efficient, maintainable, and error-resistant.
+
+#### 4.6.1 Data Structure Awareness
+
+- **Understand Input Data**:
+  - Familiarize yourself with the structure of incoming data (`item.json`) to manipulate it effectively.
+
+- **Consistent Output Structure**:
+  - Ensure the output data maintains a consistent structure to prevent issues in downstream nodes.
+
+**Example**:
+
+```javascript
+// Ensure 'user' field exists before modifying
+if (item.json.user && typeof item.json.user === 'object') {
+  item.json.user.isActive = true;
+} else {
+  item.json.user = { isActive: true };
+}
+return item;
+```
+
+#### 4.6.2 Error Handling
+
+- **Implement Try-Catch Blocks**:
+  - Capture and handle potential errors to prevent workflow failures.
+
+  ```javascript
+  try {
+    // Code that might throw an error
+  } catch (error) {
+    console.error('Error processing item:', error);
+    // Decide whether to throw the error or handle it
+    throw error;
+  }
+  ```
+
+- **Validate Data**:
+  - Check for the existence of necessary fields before processing to avoid undefined errors.
+
+  ```javascript
+  if (!item.json.requiredField) {
+    throw new Error('requiredField is missing');
+  }
+  ```
+
+**Example**:
+
+```javascript
+// Code Node (JavaScript)
+try {
+  const items = $input.all();
+  const processedItems = items.map(item => {
+    if (!item.json.email) {
+      throw new Error('Email is missing for user: ' + item.json.name);
+    }
+    item.json.email = item.json.email.toLowerCase();
+    return item;
+  });
+  return processedItems;
+} catch (error) {
+  console.error('Processing error:', error);
+  throw error;
+}
+```
+
+#### 4.6.3 Performance Considerations
+
+- **Optimize Loops**:
+  - Use efficient looping methods like `.map()` or `.forEach()` instead of traditional `for` loops where possible.
+
+- **Limit External Calls**:
+  - Minimize API calls or database queries within the Code node to enhance performance, especially in "Run Once for All Items" mode.
+
+- **Avoid Blocking Operations**:
+  - Ensure that your code doesn't include long-running synchronous operations that can delay workflow execution.
+
+**Example**:
+
+```javascript
+// Code Node (JavaScript)
+
+// Efficiently map over items without unnecessary operations
+const processedItems = items.map(item => {
+  item.json.processed = true;
+  return item;
+});
+
+return processedItems;
+```
+
+### 4.7 Limitations of the Code Node
+
+While the Code Node is a powerful tool, it's essential to be aware of its limitations to set appropriate expectations and design workflows accordingly.
+
+1. **Execution Environment**:
+   - The Code Node runs in a sandboxed environment with certain restrictions for security reasons. Some Node.js APIs or modules might not be available.
+
+2. **Resource Constraints**:
+   - Intensive computations or processing large datasets can impact performance. Always test and optimize your code for efficiency.
+
+3. **External Modules (Self-Hosted Only)**:
+   - The ability to use external npm modules is limited to self-hosted n8n instances. Cloud-hosted versions typically do not support this feature.
+
+4. **Error Propagation**:
+   - Unhandled errors within the Code Node can cause the entire workflow to fail. Implement robust error handling to mitigate this.
+
+5. **State Persistence**:
+   - The Code Node does not maintain state between executions. Each run is stateless unless you explicitly store and retrieve state using external storage solutions.
+
+6. **Security Concerns**:
+   - Executing custom code can introduce security vulnerabilities. Ensure that your code is secure, especially when handling sensitive data or integrating with external systems.
+
+**Example of a Limitation**:
+
+```javascript
+// Attempting to use a restricted Node.js module
+const fs = require('fs'); // This will throw an error as 'fs' is not allowed
+```
+
+*This script will fail because the `fs` module is restricted in n8n's sandboxed environment.*
+
+---
+
+## 5. Built-in Methods & Their Availability
+
+n8n provides a suite of **built-in helper methods** that simplify data manipulation within both inline expressions and the Code node. Understanding their availability and proper usage is key to effective workflow automation.
+
+### 5.1 `$evaluateExpression(expression: string, itemIndex?: number)`
+
+**Availability**: **Yes** in Code node
+
+- **Purpose**: Interprets a string as an **inline** n8n expression from within a Code node.
+- **Usage**:
+  
+  ```javascript
+  // Evaluate with default item index = 0
+  const result = $evaluateExpression('{{$json.property}}');
+
+  // Evaluate with item index = 2
+  const result2 = $evaluateExpression('{{$json.property}}', 2);
+  ```
+
+**Example**:
+
+```javascript
+// Code Node (JavaScript)
+
+// Evaluate an inline expression for the current item
+let greeting = $evaluateExpression('{{ "Hello, " + $json.firstName + "!" }}', i);
+```
+
+### 5.2 `$ifEmpty(value, defaultValue)`
+
+**Availability**: **Yes** in Code node
+
+- **Purpose**: Returns `defaultValue` if `value` is `null`, `undefined`, empty string, empty array, or empty object; otherwise returns `value`.
+- **Usage**:
+  
+  ```javascript
+  const fallbackName = $ifEmpty($json.username, 'GuestUser');
+  ```
+
+**Example**:
+
+```javascript
+// Code Node (JavaScript)
+const username = $ifEmpty(item.json.username, 'Guest');
+item.json.displayName = username;
+```
+
+### 5.3 `$if(condition, valueIfTrue, valueIfFalse)`
+
+**Availability**: **No** in Code node
+
+- **Purpose**: Inline‐only helper for quick ternary logic.
+- **Inline Expression Usage**:
+  
+  ```text
+  {{ $if($json.age > 18, "Adult", "Minor") }}
+  ```
+
+- **Code Node Alternative**:
+  
+  ```javascript
+  const status = condition ? valueIfTrue : valueIfFalse;
+  ```
+
+**Example**:
+
+```javascript
+// Code Node (JavaScript)
+const status = (item.json.score >= 70) ? "Pass" : "Fail";
+item.json.status = status;
+```
+
+### 5.4 `$max` and `$min`
+
+**Availability**: **No** in Code node
+
+- **Purpose**: Inline‐only helpers to determine the maximum or minimum value among provided numbers.
+- **Inline Expression Usage**:
+  
+  ```text
+  {{ $max(10, 20, 30) }}
+  {{ $min(10, 20, 30) }}
+  ```
+
+- **Code Node Alternative**:
+  
+  ```javascript
+  const maxValue = Math.max(10, 20, 30);
+  const minValue = Math.min(10, 20, 30);
+  ```
+
+**Example**:
+
+```javascript
+// Code Node (JavaScript)
+const highestScore = Math.max(item.json.score1, item.json.score2, item.json.score3);
+item.json.highestScore = highestScore;
+```
+
+---
+
+## 6. Built-in Variables & Execution Metadata
+
+n8n provides a range of **global variables** and **execution metadata** that can be accessed within both inline expressions and the Code node. These variables offer valuable context about the workflow's execution, environment, and state.
+
+### 6.1 Workflow & Execution Details
+
+| Variable                        | Description                                                              | In Code Node? |
+|---------------------------------|--------------------------------------------------------------------------|---------------|
+| `$workflow.id`                  | Unique identifier of the workflow.                                       | ✓             |
+| `$workflow.name`                | Name of the workflow.                                                     | ✓             |
+| `$workflow.active`              | Indicates if the workflow is active (`true`) or inactive (`false`).      | ✓             |
+| `$execution.id`                 | Unique ID of the current workflow run.                                   | ✓             |
+| `$execution.mode`               | Execution mode: `test` or `production`.                                  | ✓             |
+| `$execution.resumeUrl`          | URL to resume a workflow waiting at a Wait node.                         | ✓             |
+| `$execution.customData`         | Custom data you can store for this execution.                            | ✓             |
+| `$env`                          | Accesses environment variables of the n8n instance.                      | ✓             |
+| `$secrets`                      | Accesses your [External secrets](https://docs.n8n.io/credentials/external-secrets/) configuration. | ✓             |
+| `$getWorkflowStaticData(type)`  | Retrieves persisted data (`global` or `node`).                           | ✓             |
+
+**Inline-Expression-Only Variables**:
+
+- `$itemIndex`: Index of the current item in inline expressions. **Not** valid in the Code node.
+- `$version`: Alias for node version in inline expressions. **Not** valid in the Code node.
+
+### 6.2 HTTP Request Node–Specific Variables
+
+Only accessible **inside the HTTP Request node’s inline expressions**:
+
+| Variable      | Description                                                    |
+|---------------|----------------------------------------------------------------|
+| `$pageCount`  | Number of pages fetched so far (with built-in pagination).     |
+| `$request`    | The outgoing request object (headers, method, etc.).           |
+| `$response`   | The response object (body, headers, statusCode).               |
+
+**Note**: These variables **do not** exist in the Code node or other nodes.
+
+### 6.3 Global Variables: `$vars`
+
+You can define **global variables** in the n8n **Variables** panel (left sidebar). Once created, they are accessible anywhere (including the Code node):
+
+```javascript
+const val = $vars.myVariable; 
+// All $vars are read‐only strings
+```
+
+- **Read-only** at runtime.
+- If you need to store data persistently, consider using `$getWorkflowStaticData('global')` or `$getWorkflowStaticData('node')`.
+
+**Example**:
+
+```javascript
+// Code Node (JavaScript)
+const defaultShipping = $vars.defaultShipping || 'Standard';
+item.json.shippingMethod = $ifEmpty(item.json.shippingMethod, defaultShipping);
+```
+
+---
+
+## 7. Accessing Data from Other Nodes
+
+n8n expressions and Code nodes allow referencing data from **other nodes** using the `$("<node-name>")` syntax. This capability is essential for creating dynamic and interconnected workflows.
+
+### 7.1 `$("NodeName").all(), .first(), .last(), etc.`
+
+These methods allow you to retrieve data from a specified node.
+
+- **`.all(bIdx?, rIdx?)`**: Retrieves **all items** from the node’s output.
+- **`.first(bIdx?, rIdx?)`**: Retrieves the **first item** from the node.
+- **`.last(bIdx?, rIdx?)`**: Retrieves the **last item** from the node.
+
+**Examples**:
+
+- **Inline Expression**:
+
+  ```text
+  {{ $("HTTP Request1").item.json.someField }}
+  ```
+
+- **Code Node**:
+
+  ```javascript
+  const httpItems = $("HTTP Request1").all(); // Array of items
+  const firstItem = $("HTTP Request1").first();
+  ```
+
+### 7.2 `$("NodeName").item`
+
+- **Availability**: **Inline expressions only**.
+- **Purpose**: Retrieves the item aligned with the current `$itemIndex`.
+  
+**Example**:
+
+```text
+{{ $("UserFetcher").item.json.email }}
+```
+
+### 7.3 `$("NodeName").itemMatching(index)`
+
+- **Availability**: **Code node–only**.
+- **Purpose**: Retrieves the item from the specified node that matches the current input item's index. Useful for correlated data retrieval in loop scenarios.
+
+**Example**:
+
+```javascript
+// Code Node (JavaScript)
+// Retrieving the matching order for the current user
+const matchingOrder = $("OrderFetcher").itemMatching($input.context.currentNodeInputIndex);
+item.json.orderDetails = matchingOrder.json;
+```
+
+---
+
+## 8. Using JMESPath: `$jmespath`
+
+**JMESPath** is a powerful query language for JSON. In n8n, you can use the `$jmespath` function within the Code node to filter or transform data based on JMESPath queries.
+
+**Example**:
+
+```javascript
+// Code node example
+const data = {
+  users: [
+    { name: 'Alice', age: 30 },
+    { name: 'Bob', age: 25 }
+  ]
+};
+
+const result = $jmespath(data, 'users[?age > `25`].name'); 
+// => ["Alice"]
+
+return [{ json: { result } }];
+```
+
+This script filters users older than 25 and extracts their names.
+
+---
+
+## 9. Data Transformation Functions (Inline Expressions)
+
+The “Tournament” engine in n8n provides **chainable** transformation functions for various data types—strings, arrays, numbers, objects, booleans, and dates—within inline expressions. These functions simplify complex data manipulations into concise, readable expressions.
+
+### 9.1 String Transformations
+
+- **`.isEmail()`**: Check if the string is a valid email.
+- **`.extractDomain()`**: Extract the domain from a URL.
+- **`.removeTags()`**: Remove HTML tags from text.
+- **`.base64Encode()` / `.base64Decode()`**: Encode or decode the string in Base64.
+- **`.toSnakeCase()` / `.toCamelCase()`**: Convert the string to snake_case or camelCase.
+- **`.extractUrlPath()`**: Extract the path from a URL.
+
+**Example**:
+
+```text
+{{ "john@example.com".isEmail() }}
+// => true
+
+{{ "https://www.example.com/path".extractDomain() }}
+// => "www.example.com"
+
+{{ "<p>Sample Text</p>".removeTags() }}
+// => "Sample Text"
+
+{{ "Hello World!".toSnakeCase() }}
+// => "hello_world!"
+```
+
+### 9.2 Array Transformations
+
+- **`.sum()`**: Sum all numbers in the array.
+- **`.removeDuplicates()`**: Eliminate duplicate elements.
+- **`.merge(arr2, arr3, ...)`**: Merge multiple arrays.
+- **`.isEmpty()`**: Check if the array has no elements.
+- **`.randomItem()`**: Retrieve a random element from the array.
+- **`.first()`** / **`.last()`**: Retrieve the first or last element.
+
+**Example**:
+
+```text
+{{ [1, 2, 2, 4].removeDuplicates() }}
+// => [1, 2, 4]
+
+{{ [10, 20, 30].sum() }}
+// => 60
+
+{{ [1, 2, 3].merge([4, 5]) }}
+// => [1, 2, 3, 4, 5]
+```
+
+### 9.3 Number Transformations
+
+- **`.round(decimals)`**: Round to the specified number of decimal places.
+- **`.toBoolean()`**: Convert the number to a boolean (`0` → `false`, nonzero → `true`).
+- **`.format(locale)`**: Format the number according to the specified locale.
+- **`.isEven()`** / **`.isOdd()`**: Check if the number is even or odd.
+
+**Example**:
+
+```text
+{{ 123.456.round(2) }}
+// => 123.46
+
+{{ 0.toBoolean() }}
+// => false
+
+{{ 10.isEven() }}
+// => true
+```
+
+### 9.4 Object Transformations
+
+- **`.isEmpty()`**: Check if the object has no keys.
+- **`.removeField(key)`**: Remove a specified key from the object.
+- **`.merge(object2)`**: Merge another object into the current one.
+- **`.toJsonString()`**: Convert the object to a JSON string.
+
+**Example**:
+
+```text
+{{ { "email": "john@example.com", "name": "John" }.removeField("name") }}
+// => { "email": "john@example.com" }
+
+{{ { "name": "Alice" }.merge({ "age": 30, "city": "New York" }) }}
+// => { "name": "Alice", "age": 30, "city": "New York" }
+```
+
+### 9.5 Boolean Transformations
+
+- **`.toInt()`**: Convert `true` to `1` and `false` to `0`.
+
+**Example**:
+
+```text
+{{ true.toInt() }}
+// => 1
+
+{{ false.toInt() }}
+// => 0
+```
+
+### 9.6 Date & Time Transformations (Luxon)
+
+Leveraging the Luxon library, n8n allows comprehensive date and time manipulations within inline expressions.
+
+- **`.toDateTime()`**: Parse a string into a Luxon `DateTime` object.
+- **`.plus(amount, unit)`**: Add a specified amount of time.
+- **`.minus(amount, unit)`**: Subtract a specified amount of time.
+- **`.format(formatString)`**: Format the date according to the given pattern.
+- **`.isWeekend()`**: Check if the date falls on a weekend.
+
+**Example**:
+
+```text
+{{ "2025-01-03".toDateTime().plus(3, "days").format("yyyy-MM-dd") }}
+// => "2025-01-06"
+
+{{ "2025-01-03".toDateTime().isWeekend() }}
+// => false (assuming January 3, 2025, is a Friday)
+
+{{ "2025-01-03".toDateTime().minus(1, "week").format("MMMM dd, yyyy") }}
+// => "December 27, 2024"
+```
+
+---
+
+## 10. Putting It All Together: Examples
+
+To solidify your understanding, let's walk through several practical examples that demonstrate how to apply inline expressions and the Code node in real-world scenarios.
+
+### 10.1 Inline Example: LinkedIn URL Extraction
+
+**Scenario**: Extract the numeric ID from a LinkedIn activity URL.
+
+**Input Data**:
+
+```json
+{
+  "query": {
+    "url": "https://www.linkedin.com/feed/update/urn:li:activity:7281671012738314240/"
+  }
+}
+```
+
+**Inline Expression**:
+
+```text
+{{ $("LinkedIn").item.json.query.url.extractUrlPath()
+   .split(":")[3]
+   .replace('/', '') }}
+```
+
+**Explanation**:
+
+1. `.extractUrlPath()` → returns `"/feed/update/urn:li:activity:7281671012738314240/"`
+2. `.split(":")` → splits the string by `":"`, resulting in `["/feed/update/urn", "li", "activity", "7281671012738314240/"]`
+3. `[3]` → selects the fourth element: `"7281671012738314240/"`
+4. `.replace('/', '')` → removes the trailing slash, yielding `"7281671012738314240"`
+
+**Result**:
+
+```
+7281671012738314240
+```
+
+### 10.2 Part 1 Example: Processing User Data
+
+To illustrate the concepts of **inline JavaScript transformations**, let's walk through a practical example where we process user data to ensure data integrity and enhance profiles.
+
+#### Scenario
+
+You receive a list of user profiles from a previous node. Each user profile may have missing or improperly formatted data. Your tasks are:
+
+1. **Ensure Every User Has an Email**:
+   - If the email is missing, set it to `unknown@example.com`.
+
+2. **Assign a Default Role**:
+   - If the user's roles array is empty, assign a default role of `"guest"`.
+
+3. **Format User Names**:
+   - Combine `firstName` and `lastName` into a `fullName` property in snake_case.
+
+#### Input Data
+
+```json
+[
+  { "firstName": "John", "lastName": "Doe", "email": "john.doe@example.com", "roles": ["user"] },
+  { "firstName": "Jane", "lastName": "Smith", "roles": [] },
+  { "firstName": "Emily", "lastName": "Jones", "email": "emily.jones@example.com" }
+]
+```
+
+#### Objectives
+
+- **Set Default Email**:
+  - Use `$ifEmpty` to ensure every user has an email address.
+
+- **Assign Default Role**:
+  - Use `$ifEmpty` to assign a default role if the roles array is empty.
+
+- **Create Full Name in Snake Case**:
+  - Combine `firstName` and `lastName`, then convert to snake_case using `.toSnakeCase()`.
+
+#### Inline Expressions Implementation
+
+**1. Set Default Email**:
+
+```text
+{{ $ifEmpty($json.email, 'unknown@example.com') }}
+```
+
+**2. Assign Default Role**:
+
+```text
+{{ $ifEmpty($json.roles, ['guest']) }}
+```
+
+**3. Create Full Name in Snake Case**:
+
+```text
+{{ ($json.firstName + " " + $json.lastName).toSnakeCase() }}
+```
+
+#### Applying Inline Expressions in Node Parameters
+
+Assume you're using a **Set** node to define new fields based on the transformations.
+
+- **Set Email**:
+  - **Field Name:** `email`
+  - **Value:**
+    ```text
+    {{ $ifEmpty($json.email, 'unknown@example.com') }}
+    ```
+
+- **Set Roles**:
+  - **Field Name:** `roles`
+  - **Value:**
+    ```text
+    {{ $ifEmpty($json.roles, ['guest']) }}
+    ```
+
+- **Set Full Name**:
+  - **Field Name:** `fullName`
+  - **Value:**
+    ```text
+    {{ ($json.firstName + " " + $json.lastName).toSnakeCase() }}
+    ```
+
+#### Resulting Output
+
+```json
+[
+  {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "roles": ["user"],
+    "fullName": "john_doe"
+  },
+  {
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "email": "unknown@example.com",
+    "roles": ["guest"],
+    "fullName": "jane_smith"
+  },
+  {
+    "firstName": "Emily",
+    "lastName": "Jones",
+    "email": "emily.jones@example.com",
+    "roles": ["guest"],
+    "fullName": "emily_jones"
+  }
+]
+```
+
+**Explanation**:
+
+- **User 1 (John Doe)**:
+  - Email exists and remains unchanged.
+  - Roles are already assigned as `["user"]`.
+  - `fullName` is formatted as `"john_doe"`.
+
+- **User 2 (Jane Smith)**:
+  - Email is missing; set to `"unknown@example.com"`.
+  - Roles array is empty; assigned default role `["guest"]`.
+  - `fullName` is formatted as `"jane_smith"`.
+
+- **User 3 (Emily Jones)**:
+  - Email exists and remains unchanged.
+  - Roles are missing; assigned default role `["guest"]`.
+  - `fullName` is formatted as `"emily_jones"`.
+
+### 10.3 Part 2 Example: Generating Personalized Invoices
+
+In this example, we'll utilize the **Code Node** to generate personalized invoices for users based on their order data. This process involves complex data manipulation, conditional logic, and the integration of multiple transformation methods.
+
+#### Scenario
+
+You receive a list of user orders from a previous node. Each order contains user information and a list of purchased items. Your tasks are:
+
+1. **Generate a Personalized Greeting**:
+   - Create a greeting message for each user based on their first and last names.
+
+2. **Calculate Total Order Amount**:
+   - Sum the total cost of all items in the order.
+
+3. **Assign a Shipping Method**:
+   - If the shipping method is missing, assign a default shipping method of `"Standard"`.
+
+4. **Extract Product Names**:
+   - Use JMESPath to extract a list of product names from the order items.
+
+5. **Add Timestamps and Workflow Metadata**:
+   - Add a timestamp indicating when the invoice was processed.
+   - Include the workflow ID for reference.
+
+6. **Handle Missing Data Gracefully**:
+   - Use `$ifEmpty` to manage missing fields and ensure data integrity.
+
+#### Input Data
+
+```json
+[
+  {
+    "customer": { "firstName": "Alice", "lastName": "Wonderland", "email": "alice@example.com" },
+    "items": [
+      { "product": "Book", "quantity": 2, "price": 15.99 },
+      { "product": "Pen", "quantity": 5, "price": 1.99 }
+    ],
+    "shippingMethod": "Express"
+  },
+  {
+    "customer": { "firstName": "Bob", "lastName": "Builder", "email": "" },
+    "items": [
+      { "product": "Hammer", "quantity": 1, "price": 25.50 }
+    ]
+    // Missing shippingMethod
+  }
+]
+```
+
+#### Objectives
+
+1. **Generate Personalized Greeting**:
+   - Use `$evaluateExpression` to create a greeting like `"Dear Alice Wonderland,"`.
+
+2. **Calculate Total Order Amount**:
+   - Sum the products of `quantity` and `price` for all items.
+
+3. **Assign Default Shipping Method**:
+   - Use `$ifEmpty` to set shipping method to `"Standard"` if it's missing.
+
+4. **Extract Product Names**:
+   - Use JMESPath to retrieve an array of product names.
+
+5. **Add Timestamps and Workflow Metadata**:
+   - Add `processedAt` timestamp.
+   - Include `workflowId`.
+
+6. **Handle Missing Data Gracefully**:
+   - Ensure that if the email is missing or empty, it’s handled appropriately.
+
+#### Code Node Implementation
+
+```javascript
+// Code Node (JavaScript)
+
+// Retrieve all incoming items
+const items = $input.all();
+
+// Retrieve workflow ID from metadata
+const workflowId = $workflow.id;
+
+// Retrieve custom data or set default
+const customData = $execution.customData.invoiceData || 'No custom data set';
+
+// Retrieve global variable for default shipping
+const defaultShipping = $vars.defaultShipping || 'Standard';
+
+// Initialize array to hold processed items
+let newItems = [];
+
+// Iterate over each item
+for (let i = 0; i < items.length; i++) {
+  let item = items[i].json;
+
+  try {
+    // 1. Generate Personalized Greeting
+    let greeting = $evaluateExpression('{{"Dear " + $json.customer.firstName + " " + $json.customer.lastName + ","}}', i);
+
+    // 2. Calculate Total Order Amount
+    let totalAmount = item.items.reduce((acc, currentItem) => acc + (currentItem.quantity * currentItem.price), 0);
+    totalAmount = totalAmount.toFixed(2); // Format to two decimal places
+
+    // 3. Assign Default Shipping Method if missing
+    let shippingMethod = $ifEmpty(item.shippingMethod, defaultShipping);
+
+    // 4. Extract Product Names using JMESPath
+    let productNames = $jmespath(item, 'items[].product');
+
+    // 5. Add Timestamps and Workflow Metadata
+    let processedAt = new Date().toISOString();
+
+    // 6. Handle Missing Email
+    let email = $ifEmpty(item.customer.email, 'no-reply@example.com');
+
+    // Update the item with new fields
+    item.greeting = greeting;
+    item.totalAmount = totalAmount;
+    item.shippingMethod = shippingMethod;
+    item.productNames = productNames;
+    item.processedAt = processedAt;
+    item.workflowId = workflowId;
+    item.email = email;
+    item.customData = customData;
+
+    // Add the updated item to the newItems array
+    newItems.push({
+      json: item,
+    });
+  } catch (error) {
+    console.error('Error processing item:', error);
+    // Optionally, add error details to the item
+    item.error = error.message;
+    newItems.push({
+      json: item,
+    });
+  }
+}
+
+// Return the array of processed items
+return newItems;
+```
+
+#### Explanation
+
+1. **Retrieve Input Data and Metadata**:
+   - `const items = $input.all();` fetches all incoming items.
+   - `const workflowId = $workflow.id;` gets the current workflow's ID.
+   - `const customData = $execution.customData.invoiceData || 'No custom data set';` retrieves custom execution data or sets a default.
+
+2. **Global Variable for Default Shipping**:
+   - `const defaultShipping = $vars.defaultShipping || 'Standard';` accesses a global variable or defaults to `"Standard"`.
+
+3. **Processing Each Item**:
+   - **Personalized Greeting**:
+     - Utilizes `$evaluateExpression` to dynamically create a greeting message.
+   - **Total Order Amount**:
+     - Uses `.reduce()` to calculate the sum of all items (`quantity * price`).
+     - Formats the total to two decimal places using `.toFixed(2)`.
+   - **Default Shipping Method**:
+     - Applies `$ifEmpty` to assign `"Standard"` if `shippingMethod` is missing.
+   - **Extract Product Names**:
+     - Employs JMESPath to extract an array of product names.
+   - **Timestamps and Metadata**:
+     - Adds a `processedAt` timestamp.
+     - Includes `workflowId` for reference.
+   - **Handle Missing Email**:
+     - Uses `$ifEmpty` to set a default email if the user's email is missing or empty.
+
+4. **Error Handling**:
+   - Implements a `try-catch` block to handle and log errors without stopping the entire workflow.
+   - Adds an `error` field to the item if an exception occurs.
+
+5. **Returning Processed Items**:
+   - The modified items are returned for use in subsequent nodes.
+
+#### Resulting Output
+
+```json
+[
+  {
+    "customer": { "firstName": "Alice", "lastName": "Wonderland", "email": "alice@example.com" },
+    "items": [
+      { "product": "Book", "quantity": 2, "price": 15.99 },
+      { "product": "Pen", "quantity": 5, "price": 1.99 }
+    ],
+    "shippingMethod": "Express",
+    "greeting": "Dear Alice Wonderland,",
+    "totalAmount": "37.93",
+    "productNames": ["Book", "Pen"],
+    "processedAt": "2025-01-05T12:34:56.789Z",
+    "workflowId": "wf_123456789",
+    "email": "alice@example.com",
+    "customData": "No custom data set"
+  },
+  {
+    "customer": { "firstName": "Bob", "lastName": "Builder", "email": "" },
+    "items": [
+      { "product": "Hammer", "quantity": 1, "price": 25.50 }
+    ],
+    "shippingMethod": "Standard",
+    "greeting": "Dear Bob Builder,",
+    "totalAmount": "25.50",
+    "productNames": ["Hammer"],
+    "processedAt": "2025-01-05T12:34:56.789Z",
+    "workflowId": "wf_123456789",
+    "email": "no-reply@example.com",
+    "customData": "No custom data set"
+  }
+]
+```
+
+**Explanation**:
+
+- **User 1 (Alice Wonderland)**:
+  - **Greeting**: `"Dear Alice Wonderland,"`
+  - **Total Amount**: `$37.93` calculated from `(2 * 15.99) + (5 * 1.99)`
+  - **Shipping Method**: `"Express"`
+  - **Product Names**: `["Book", "Pen"]`
+  - **Processed At**: Timestamp when the invoice was generated.
+  - **Workflow ID**: Identifier of the workflow execution.
+  - **Email**: `"alice@example.com"` remains unchanged.
+
+- **User 2 (Bob Builder)**:
+  - **Greeting**: `"Dear Bob Builder,"`
+  - **Total Amount**: `$25.50` calculated from `(1 * 25.50)`
+  - **Shipping Method**: `"Standard"` assigned by default as it was missing.
+  - **Product Names**: `["Hammer"]`
+  - **Processed At**: Timestamp when the invoice was generated.
+  - **Workflow ID**: Identifier of the workflow execution.
+  - **Email**: `"no-reply@example.com"` assigned by default due to missing or empty email.
+
+### 10.4 Code Node Example: Looping & Transforming Items
+
+Below is a **JavaScript** Code node script that:
+
+- Loops over all input items.
+- Uses `$evaluateExpression` to dynamically process inline expressions.
+- Uses `$ifEmpty` to provide fallback values.
+- Reads global variables via `$vars`.
+- Attaches new fields to each item.
+
+```javascript
+// Code node (JavaScript)
+
+const items = $input.all();          // all incoming items
+const workflowId = $workflow.id;     // workflow metadata
+const customData = $execution.customData.myCustomKey || 'None set';
+
+let newItems = [];
+
+for (let i = 0; i < items.length; i++) {
+  let itemData = items[i].json;
+
+  // Evaluate an inline expression on item i
+  let computedValue = $evaluateExpression('{{ "Hello " + $json.name }}', i);
+
+  // Fallback if itemData.name is empty
+  let safeName = $ifEmpty(itemData.name, 'Unknown');
+
+  // Attach new fields
+  itemData.computedValue = computedValue;
+  itemData.workflowId    = workflowId;
+  itemData.globalVar     = $vars.myGlobalVal; // from Variables panel
+  itemData.customData    = customData;
+  itemData.finalName     = safeName;
+
+  newItems.push({ json: itemData });
+}
+
+return newItems;
+```
+
+### 10.5 Code Node + JMESPath Example
+
+```javascript
+// Code node (JavaScript)
+const data = {
+  products: [
+    { name: "Laptop", price: 1000, category: "electronics" },
+    { name: "Banana", price: 1, category: "food" },
+    { name: "Headphones", price: 200, category: "electronics" }
+  ]
+};
+
+// Filter only electronics, then get their prices
+const electronicsPrices = $jmespath(data, 'products[?category == `electronics`].price');
+// => [1000, 200]
+
+return [{ json: { electronicsPrices } }];
+```
+
+**Explanation**:
+
+This script filters products in the "electronics" category and extracts their prices, resulting in an array `[1000, 200]`.
+
+---
+
+## 11. Frequently Asked Questions (FAQ)
+
+1. **Can I write multi-line JavaScript in inline expressions?**
+   - **No.** Inline expressions must be single-line. For multi-line logic, use a **Code Node** or **Function Node**.
+
+2. **Do built-in transformation functions replace standard JavaScript methods?**
+   - **No.** They are complementary. You can still use standard JavaScript methods like `.split()`, `.map()`, `.replace()` alongside built-in transformation functions.
+
+3. **Why isn’t my inline expression working?**
+   - **Possible Reasons:**
+     - Ensure the parameter is in **Expression mode** (toggle from *Fixed* to *Expression*).
+     - Verify the expression is enclosed within `{{ ... }}`.
+     - Check for syntax errors such as unclosed parentheses or multi-line code.
+     - Confirm the data type is appropriate for the methods being called.
+
+4. **Does n8n support languages other than JavaScript for inline expressions?**
+   - **No.** Inline expressions are JavaScript-only. However, the **Code Node** also supports Python for more extensive scripting needs.
+
+5. **How do I handle undefined variables in expressions?**
+   - Use functions like `$ifEmpty()` to provide default values when variables might be undefined or null.
+
+6. **Can I modify global variables at runtime?**
+   - **No.** `$vars` are read-only at runtime. To persist changes, use `$getWorkflowStaticData()` within the Code Node.
+
+7. **How can I debug my Code Node scripts?**
+   - Utilize `console.log()` statements within your Code Node to output intermediate values. These logs can be viewed in the n8n execution logs for troubleshooting.
+
+8. **Can I use external libraries in the Code Node?**
+   - **JavaScript Code Node:** Limited to built-in Node.js modules. For additional libraries, you may need to use HTTP requests or other integration methods.
+   - **Python Code Node:** Allows importing and using standard Python libraries.
+
+---
+
+## 12. Practical Q&A and Tips
+
+1. **Can I write multi-line JS in node parameters?**
+   - **No.** Inline expressions must remain one line. Use a Code node for multi-line.
+
+2. **Do the built-in transformations replace normal JavaScript methods?**
+   - **Not at all.** They are just convenient shortcuts. You can still do `.split()`, `.map()`, `.join()`, or any native JS.
+
+3. **What if `$if(...)` or `$max(...)` is not available in the Code node?**
+   - Use standard JavaScript equivalents: the ternary operator for `$if()`, `Math.max()` for `$max()`, etc.
+
+4. **Why is my inline expression not working?**
+   - Make sure you toggled to **Expression** mode.
+   - Wrap the code in `{{ ... }}`.
+   - Avoid multi-line or unbalanced parentheses.
+
+5. **Does n8n support other languages for expressions?**
+   - **Inline expressions** are JS‐only. The Code node can do JavaScript or Python, but the built‐in transformations (`.isEmail()`, etc.) are available only for JavaScript.
+
+6. **What about `$vars`? Can I change them mid‐execution?**
+   - `$vars` are read‐only at runtime. For persistent changes, use `$getWorkflowStaticData('global')` or `'node'`.
+
+7. **What are `$now` and `$today`?**
+   - `$now` → A Luxon `DateTime` for the current time.
+   - `$today` → A Luxon `DateTime` set to midnight of the current day.
+   - Both can be used in the Code node (JavaScript) or inline expressions for date calculations.
+
+**Additional Tips**:
+
+- **Use Descriptive Variable Names**: Enhance readability by using clear and descriptive names for variables and functions.
+- **Modularize Your Code**: Break down complex scripts into smaller, reusable functions within the Code node.
+- **Leverage Comments**: Document your code with comments to explain complex logic or transformations.
+- **Test Incrementally**: Build and test your scripts incrementally to identify and fix issues early.
+- **Secure Your Workflows**: Avoid exposing sensitive data within your scripts. Use n8n's secret management features where necessary.
+
+---
+
+## 13. Further Reading and Resources
+
+- **n8n Documentation:** [Expressions](https://docs.n8n.io/)
+- **JMESPath Documentation:** [jmespath.org](https://jmespath.org/)
+- **Luxon Library Documentation:** [moment.github.io/luxon](https://moment.github.io/luxon/)
+- **n8n GitHub Repository:** [github.com/n8n-io/n8n](https://github.com/n8n-io/n8n)
+- **n8n Community Forum:** [community.n8n.io](https://community.n8n.io/)
+- **JMESPath Tutorial:** [JMESPath Tutorial](https://jmespath.org/tutorial.html)
+- **Luxon Tutorial:** [Luxon Tutorial](https://moment.github.io/luxon/docs/manual/tutorial.html)
+- **JavaScript MDN Guide:** [MDN JavaScript Guide](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide)
+- **npm Documentation:** [npm Docs](https://docs.npmjs.com/)
