@@ -7,6 +7,7 @@ import { PDFViewer } from '@/components/pdf/PDFViewer';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
 import { SecondaryNavigationBar } from '@/components/navigation/SecondaryNavigationBar';
 import { DocumentUploader } from '@/components/document/DocumentUploader';
+import { UserGreetingCard } from '@/components/dashboard/UserGreetingCard';
 import { useNotebooks } from '@/hooks/useNotebooks';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -53,6 +54,13 @@ const Dashboard = () => {
     console.log('Upload complete, source IDs:', sourceIds);
     setShowUploader(false);
   };
+
+  // Listen for upload dialog event from UserGreetingCard
+  useEffect(() => {
+    const handleOpenUpload = () => setShowUploader(true);
+    window.addEventListener('open-upload-dialog', handleOpenUpload);
+    return () => window.removeEventListener('open-upload-dialog', handleOpenUpload);
+  }, []);
 
   const handleDocumentSelect = async (documentId: string) => {
     setSelectedDocumentId(documentId);
@@ -112,29 +120,18 @@ const Dashboard = () => {
     const bucket = data?.pdf_storage_bucket || 'sources'; // Default to 'sources' bucket
 
     if (filePath) {
-      // Get signed URL from Supabase Storage
-      // Storage policies will also check RLS permissions
-      const { data: urlData, error: urlError } = await supabase.storage
+      // Get public URL from Supabase Storage
+      // Buckets are public, security is enforced via sources table RLS
+      const { data: urlData } = supabase.storage
         .from(bucket)
-        .createSignedUrl(filePath, 3600); // 1 hour expiry
+        .getPublicUrl(filePath);
 
-      if (urlError) {
-        console.error('Error creating signed URL:', urlError);
-
-        // Check if it's a permissions error
-        if (urlError.message?.includes('permission') || urlError.message?.includes('access')) {
-          toast({
-            title: 'Access Denied',
-            description: 'You do not have permission to view this PDF file.',
-            variant: 'destructive',
-          });
-        } else {
-          toast({
-            title: 'Error',
-            description: 'Failed to load PDF file. The file may be corrupted or inaccessible.',
-            variant: 'destructive',
-          });
-        }
+      if (!urlData?.publicUrl) {
+        toast({
+          title: 'Error',
+          description: 'Failed to load PDF file. The file may be corrupted or inaccessible.',
+          variant: 'destructive',
+        });
         setSelectedDocument(null);
         return;
       }
@@ -142,7 +139,7 @@ const Dashboard = () => {
       setSelectedDocument({
         id: data.id,
         title: data.title,
-        url: urlData?.signedUrl,
+        url: urlData.publicUrl,
       });
     } else {
       toast({
@@ -197,41 +194,9 @@ const Dashboard = () => {
       {/* Secondary Navigation (role-based) */}
       <SecondaryNavigationBar />
 
-      {/* Header with title and action buttons */}
-      <div className="bg-white border-b border-gray-200 px-8 py-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-normal text-gray-900">Policy Documents</h1>
-            <p className="text-gray-600 mt-1">Browse and view policy documents</p>
-          </div>
-          <div className="flex items-center gap-3">
-            {/* New Chat Button - Always visible for all authenticated users */}
-            <Button
-              variant="default"
-              size="lg"
-              className="gap-2"
-              onClick={handleNewChat}
-              disabled={createSession.isPending}
-            >
-              <MessageSquarePlus className="h-5 w-5" />
-              {createSession.isPending ? 'Creating...' : 'New Chat'}
-            </Button>
-
-            {/* Upload Button - Only for authorized roles */}
-            {canUpload && (
-              <Button
-                variant="outline"
-                size="lg"
-                className="gap-2"
-                onClick={() => setShowUploader(true)}
-                disabled={!defaultNotebookId}
-              >
-                <Upload className="h-5 w-5" />
-                Upload Document
-              </Button>
-            )}
-          </div>
-        </div>
+      {/* User Greeting Card */}
+      <div className="bg-gray-50 px-8 py-6">
+        <UserGreetingCard />
       </div>
 
       {/* Split View Layout */}

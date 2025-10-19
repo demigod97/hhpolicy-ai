@@ -42,7 +42,17 @@
       "Bash(npx supabase migration new fix_storage_access_permissions)",
       "Bash(npx supabase migration new simplify_storage_policies)",
       "Bash(npx supabase migration new temp_make_storage_public_for_testing)",
-      "Bash(npx supabase migration new revert_buckets_to_private)"
+      "Bash(npx supabase migration new revert_buckets_to_private)",
+      "Bash(npx shadcn@latest add card avatar separator skeleton table checkbox dropdown-menu select alert-dialog popover command scroll-area input label tabs breadcrumb)",
+      "Bash(npx shadcn@latest add avatar --yes)",
+      "Bash(npx shadcn@latest add separator skeleton table checkbox dropdown-menu select alert-dialog popover command scroll-area input label tabs breadcrumb --yes)",
+      "Bash(findstr /R \"\\.tsx$\")",
+      "mcp__chrome-devtools__fill_form",
+      "Bash(npx supabase migration new fix_storage_policy_check_both_paths)",
+      "Bash(npx supabase migration new fix_storage_policy_fully_qualify_file_path)",
+      "Bash(npx supabase functions deploy get-pdf-url --no-verify-jwt)",
+      "Bash(npx supabase migration new remove_storage_policies_use_public_buckets)",
+      "Bash(npx supabase migration new drop_all_remaining_storage_policies)"
     ],
     "deny": [],
     "ask": []
