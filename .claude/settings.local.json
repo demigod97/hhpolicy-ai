@@ -37,7 +37,12 @@
       "Bash(npx supabase migration repair --status applied 20251019000001 --password \"Coral@123\")",
       "Bash(npx supabase migration list --password \"Coral@123\")",
       "Bash(npx supabase db pull --password \"Coral@123\" --schema storage)",
-      "Bash(npx supabase migration new fix_sources_metadata_and_storage)"
+      "Bash(npx supabase migration new fix_sources_metadata_and_storage)",
+      "Bash(npx supabase migration new check_and_fix_storage_configuration)",
+      "Bash(npx supabase migration new fix_storage_access_permissions)",
+      "Bash(npx supabase migration new simplify_storage_policies)",
+      "Bash(npx supabase migration new temp_make_storage_public_for_testing)",
+      "Bash(npx supabase migration new revert_buckets_to_private)"
     ],
     "deny": [],
     "ask": []
