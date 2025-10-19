@@ -1,120 +1,211 @@
+/**
+ * Process Document Edge Function
+ *
+ * Handles document processing by:
+ * 1. Receiving source ID, file path, and source type
+ * 2. Creating a signed URL for the file
+ * 3. Calling external N8N webhook for document processing
+ * 4. Handling success/failure and updating source status
+ *
+ * Environment Variables:
+ * - DOCUMENT_PROCESSING_WEBHOOK_URL: N8N webhook URL for document processing
+ * - NOTEBOOK_GENERATION_AUTH: Optional auth header for webhook
+ * - SUPABASE_URL: Auto-populated by Supabase
+ * - SUPABASE_SERVICE_ROLE_KEY: Auto-populated by Supabase
+ */
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+interface ProcessDocumentRequest {
+  sourceId: string;
+  filePath: string;
+  sourceType: string;
 }
 
-serve(async (req) => {
+Deno.serve(async (req: Request) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const { sourceId, filePath, sourceType } = await req.json()
+    // Parse and validate request body
+    const { sourceId, filePath, sourceType }: ProcessDocumentRequest = await req.json();
 
     if (!sourceId || !filePath || !sourceType) {
       return new Response(
-        JSON.stringify({ error: 'sourceId, filePath, and sourceType are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+        JSON.stringify({
+          error: 'Missing required fields',
+          details: 'sourceId, filePath, and sourceType are required'
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
-    console.log('Processing document:', { source_id: sourceId, file_path: filePath, source_type: sourceType });
+    console.log('Processing document:', {
+      source_id: sourceId,
+      file_path: filePath,
+      source_type: sourceType
+    });
 
     // Get environment variables
-    const webhookUrl = Deno.env.get('DOCUMENT_PROCESSING_WEBHOOK_URL')
-    const authHeader = Deno.env.get('NOTEBOOK_GENERATION_AUTH')
+    const webhookUrl = Deno.env.get('DOCUMENT_PROCESSING_WEBHOOK_URL');
+    const authHeader = Deno.env.get('NOTEBOOK_GENERATION_AUTH');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
     if (!webhookUrl) {
-      console.error('Missing DOCUMENT_PROCESSING_WEBHOOK_URL environment variable')
-      
+      console.error('Missing DOCUMENT_PROCESSING_WEBHOOK_URL environment variable');
+
       // Initialize Supabase client to update status
-      const supabaseClient = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-      )
+      const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
 
       // Update source status to failed
       await supabaseClient
         .from('sources')
         .update({ processing_status: 'failed' })
-        .eq('id', sourceId)
+        .eq('id', sourceId);
 
       return new Response(
-        JSON.stringify({ error: 'Document processing webhook URL not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+        JSON.stringify({
+          error: 'Configuration error',
+          details: 'Document processing webhook URL not configured'
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     console.log('Calling external webhook:', webhookUrl);
 
-    // Create the file URL for public access
-    const fileUrl = `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/sources/${filePath}`
+    // Initialize Supabase client for creating signed URL
+    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Prepare the payload for the webhook with correct variable names
-    const payload = {
-      source_id: sourceId,
-      file_url: fileUrl,
-      file_path: filePath,
-      source_type: sourceType,
-      callback_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/process-document-callback`
-    }
+    // Determine the storage bucket (default to 'sources')
+    const { data: sourceData } = await supabaseClient
+      .from('sources')
+      .select('pdf_storage_bucket')
+      .eq('id', sourceId)
+      .single();
 
-    console.log('Webhook payload:', payload);
+    const bucket = sourceData?.pdf_storage_bucket || 'sources';
 
-    // Call external webhook with proper headers
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    }
+    // Create a signed URL for secure access (1 hour expiry)
+    const { data: signedUrlData, error: signedUrlError } = await supabaseClient
+      .storage
+      .from(bucket)
+      .createSignedUrl(filePath, 3600);
 
-    if (authHeader) {
-      headers['Authorization'] = authHeader
-    }
-
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(payload)
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Webhook call failed:', response.status, errorText);
-      
-      // Initialize Supabase client to update status
-      const supabaseClient = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-      )
+    if (signedUrlError || !signedUrlData) {
+      console.error('Failed to create signed URL:', signedUrlError);
 
       // Update source status to failed
       await supabaseClient
         .from('sources')
         .update({ processing_status: 'failed' })
-        .eq('id', sourceId)
+        .eq('id', sourceId);
 
       return new Response(
-        JSON.stringify({ error: 'Document processing failed', details: errorText }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+        JSON.stringify({
+          error: 'Storage error',
+          details: 'Failed to create signed URL for document'
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
-    const result = await response.json()
+    // Prepare the payload for the webhook
+    const payload = {
+      source_id: sourceId,
+      file_url: signedUrlData.signedUrl,
+      file_path: filePath,
+      source_type: sourceType,
+      callback_url: `${supabaseUrl}/functions/v1/process-document-callback`
+    };
+
+    console.log('Webhook payload prepared:', {
+      source_id: payload.source_id,
+      source_type: payload.source_type,
+      has_file_url: !!payload.file_url
+    });
+
+    // Prepare headers for webhook call
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
+
+    // Call external webhook for processing
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Webhook call failed:', response.status, errorText);
+
+      // Update source status to failed
+      await supabaseClient
+        .from('sources')
+        .update({ processing_status: 'failed' })
+        .eq('id', sourceId);
+
+      return new Response(
+        JSON.stringify({
+          error: 'Processing failed',
+          details: `Webhook returned ${response.status}: ${errorText}`
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const result = await response.json();
     console.log('Webhook response:', result);
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Document processing initiated', result }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+      JSON.stringify({
+        success: true,
+        message: 'Document processing initiated',
+        result
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
 
   } catch (error) {
-    console.error('Error in process-document function:', error)
+    console.error('Error in process-document function:', error);
+
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+      JSON.stringify({
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
   }
-})
+});

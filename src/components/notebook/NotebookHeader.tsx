@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useLogout } from '@/services/authService';
 import Logo from '@/components/ui/Logo';
+import FeatureToggle from './FeatureToggle';
 
 interface NotebookHeaderProps {
   title: string;
@@ -93,6 +94,7 @@ const NotebookHeader = ({ title, notebookId }: NotebookHeaderProps) => {
         
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
+            <FeatureToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="p-0">

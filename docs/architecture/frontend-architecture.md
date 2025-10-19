@@ -4,7 +4,7 @@ This document provides a comprehensive overview of the PolicyAi frontend archite
 
 ## Overview
 
-The PolicyAi frontend is a React-based Single Page Application (SPA) built with TypeScript, using modern React patterns including hooks, context, and TanStack Query for state management. The application has been transformed from a traditional policy document management system to a **chat-first interface** focused on conversational interaction with policy documents. The application implements role-based access control (RBAC) with three user roles: `administrator`, `executive`, and `board`.
+The PolicyAi frontend is a React-based Single Page Application (SPA) built with TypeScript, using modern React patterns including hooks, context, and TanStack Query for state management. The application has been transformed from a traditional policy document management system to a **chat-first interface** focused on conversational interaction with policy documents. The application implements role-based access control (RBAC) with five user roles: `system_owner`, `company_operator`, `board`, `administrator`, and `executive`, featuring advanced AI integration with AG-UI Protocol and CopilotKit.
 
 ## Architecture Transformation (January 2025)
 
@@ -82,9 +82,11 @@ graph TD
 
 | Role | Permissions | UI Access |
 |------|-------------|-----------|
-| **Board** | Full system access, user management | All features, admin panel |
-| **Administrator** | Policy management, document upload, user assignment | Policy management, document upload, role assignment |
-| **Executive** | Document access, chat with policies | Document viewing, chat interface |
+| **System Owner** | Full system control, user limit management, all features | All features + system config |
+| **Company Operator** | User role management, API key configuration, token monitoring | User management, settings, dashboards |
+| **Board** | Full document access | All documents, standard features |
+| **Administrator** | Policy management, document upload, admin document management | Upload, chat with admin docs |
+| **Executive** | Document access, chat | View docs, chat interface |
 
 ### Role-Based UI Components
 
@@ -121,7 +123,7 @@ const { userRole, hasRole, isAdministrator, isExecutive, isSuperAdmin } = useUse
 
 ## Component Architecture
 
-### Core Components Structure
+### Enhanced Component Structure (40+ New Components)
 
 ```text
 src/
@@ -135,25 +137,86 @@ src/
 │   │   ├── NotebookCard.tsx        # Clean chat cards (simplified)
 │   │   ├── NotebookGrid.tsx        # Chat grid display (streamlined)
 │   │   └── NotebookTitleEditor.tsx # Title/description editor (new)
-│   ├── chat/                # Core chat interface
-│   │   ├── ChatInterface.tsx
-│   │   ├── MessageList.tsx
-│   │   ├── MessageInput.tsx
-│   │   └── SourcesSidebar.tsx
+│   ├── chat/                # AG-UI + CopilotKit chat interface
+│   │   ├── AgUiChatProvider.tsx           # AG-UI protocol context
+│   │   ├── CopilotKitProvider.tsx         # CopilotKit runtime wrapper
+│   │   ├── StreamingChatInterface.tsx     # Main chat UI with streaming
+│   │   ├── MessageBubble.tsx              # Individual message display
+│   │   ├── CitationInline.tsx             # In-message citations
+│   │   ├── ChatInputBar.tsx               # Enhanced input with CopilotTextarea
+│   │   ├── TypingIndicator.tsx            # Real-time streaming indicator
+│   │   ├── ChatHistorySidebar.tsx         # Previous chat sessions
+│   │   ├── ContextDocumentsList.tsx       # Active documents in context
+│   │   ├── CopilotSidebarWrapper.tsx      # CopilotKit sidebar component
+│   │   ├── CopilotActionsPanel.tsx        # Available actions display
+│   │   ├── AgentStateIndicator.tsx        # Current agent state visualization
+│   │   ├── ToolCallDisplay.tsx            # Show tool execution (TOOL_CALL events)
+│   │   ├── FormSubmitHandler.tsx          # Handle FORM_SUBMIT events
+│   │   ├── ActionCallButton.tsx           # Trigger ACTION_CALL events
+│   │   └── StreamingProgressBar.tsx       # Visual progress during streaming
+│   ├── admin/               # Administration & User Management
+│   │   ├── UserManagementDashboard.tsx    # Main admin interface
+│   │   ├── UserTable.tsx                  # Sortable user list
+│   │   ├── RoleAssignmentDialog.tsx       # Role management
+│   │   ├── UserLimitEditor.tsx            # Quota configuration
+│   │   └── BulkActionBar.tsx              # Multi-select operations
+│   ├── settings/            # Settings & Configuration
+│   │   ├── SettingsHub.tsx                # Main settings interface
+│   │   ├── ApiKeyManager.tsx              # Key CRUD operations
+│   │   ├── ApiKeyDialog.tsx               # Add/edit modal
+│   │   ├── KeyTestInterface.tsx           # Test API keys
+│   │   └── EncryptionIndicator.tsx        # Security status display
+│   ├── monitoring/          # Token Usage & Analytics
+│   │   ├── TokenUsageDashboard.tsx        # Main monitoring interface
+│   │   ├── UsageOverviewCard.tsx          # Statistics cards
+│   │   ├── UserUsageTable.tsx             # Per-user breakdown
+│   │   ├── TokenTrendChart.tsx            # Recharts visualization
+│   │   ├── UsageAlertBanner.tsx           # Limit warnings
+│   │   └── CostProjectionWidget.tsx       # Cost estimates
+│   ├── document/            # PDF Document Viewing
+│   │   ├── PdfViewer.tsx                  # react-pdf wrapper
+│   │   ├── PdfNavigationBar.tsx           # Page controls
+│   │   ├── PdfThumbnailSidebar.tsx        # Thumbnail navigation
+│   │   ├── PdfSearchBar.tsx               # Search within PDF
+│   │   ├── CitationHighlighter.tsx        # Highlight cited text
+│   │   └── DocumentMetadataPanel.tsx      # Policy information
+│   ├── navigation/          # Enhanced Navigation
+│   │   ├── PrimaryNavigationBar.tsx       # Top navigation bar
+│   │   ├── SecondaryNavigationBar.tsx     # Context navigation
+│   │   ├── NavigationBreadcrumb.tsx       # Location breadcrumbs
+│   │   ├── QuickAccessMenu.tsx            # Shortcut menu
+│   │   └── NotificationBadge.tsx          # Alert indicators
 │   ├── notebook/            # Chat notebook management
 │   │   ├── NotebookList.tsx
 │   │   ├── NotebookViewer.tsx
 │   │   ├── SourcesSidebar.tsx    # Enhanced with fallback citation logic
 │   │   └── SourceItem.tsx
-│   ├── admin/               # Admin-only components (background)
-│   │   ├── UserManagement.tsx
-│   │   └── SystemSettings.tsx
 │   └── ui/                  # Reusable UI components
 │       ├── Button.tsx
 │       ├── Input.tsx
 │       ├── Card.tsx
 │       ├── Dialog.tsx
 │       └── UserGreetingCard.tsx
+```
+
+### New Hooks Architecture (14 New Hooks)
+
+```text
+src/hooks/
+├── useTokenUsage.tsx                        # Token tracking
+├── useApiKeys.tsx                           # Key management
+├── useUserLimits.tsx                        # Quota checks
+├── useAgUiChat.tsx                          # AG-UI protocol integration
+├── useCopilotKit.tsx                        # CopilotKit integration
+├── useCopilotAction.tsx                     # Define agent actions
+├── useCopilotReadable.tsx                   # Expose context to AI
+├── useUserManagement.tsx                    # User operations
+├── usePdfViewer.tsx                         # PDF operations
+├── useRolePermissions.tsx                   # Permission checks
+├── useTokenMonitoring.tsx                   # Real-time monitoring
+├── useAgUiEvents.tsx                        # Subscribe to AG-UI events
+├── useCopilotContext.tsx                    # Access CopilotKit context
+└── useStreamingResponse.tsx                 # Handle streaming messages
 ```
 
 ### Component Transformation Details

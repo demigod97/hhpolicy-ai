@@ -321,8 +321,8 @@ describe('Role-Based Security Unit Tests', () => {
         error: null
       });
 
-      let mockEq = vi.fn(() => ({ single: mockSingle1 }));
-      let mockSelect = vi.fn(() => ({ eq: mockEq }));
+      const mockEq = vi.fn(() => ({ single: mockSingle1 }));
+      const mockSelect = vi.fn(() => ({ eq: mockEq }));
 
       (supabase.from as any).mockReturnValue({
         select: mockSelect

@@ -1,0 +1,724 @@
+{
+  "name": "PolicyAi - Upsert to Vector Store",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "19566c6c-e0a5-4a8f-ba1a-5203c2b663b7",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -960,
+        -160
+      ],
+      "id": "e80f97df-d2a3-40e5-8ebe-05e7123482ee",
+      "name": "Webhook",
+      "webhookId": "19566c6c-e0a5-4a8f-ba1a-5203c2b663b7",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GnNeqFZb61lotAW5",
+          "name": "PolicyAI-Header-Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.1,
+      "position": [
+        768,
+        -64
+      ],
+      "id": "8a9a6814-b5db-4f2e-8877-a62633c042d8",
+      "name": "Supabase Vector Store",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "Vs06msxZevlHsCXv",
+          "name": "PolicyAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "notebook_id",
+                "value": "={{ $('Code').item.json.notebook_id }}"
+              },
+              {
+                "name": "source_id",
+                "value": "={{ $('Code').item.json.source_id }}"
+              },
+              {
+                "name": "policyType",
+                "value": "={{ $('Generate Title & Description').item.json.output.policyType }}"
+              },
+              {
+                "name": "policyDate",
+                "value": "={{ $('Generate Title & Description').item.json.output.policyDate }}"
+              },
+              {
+                "name": "policyName",
+                "value": "={{ $('Generate Title & Description').item.json.output.policyName }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        864,
+        160
+      ],
+      "id": "bdc647ec-d262-46ae-b96b-47577f237dc4",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        944,
+        368
+      ],
+      "id": "66adf3a1-e086-4562-b5d3-5e700a49dc14",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        736,
+        160
+      ],
+      "id": "aa1fc9fb-8942-4aa1-9fcc-525595accaf7",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "iR0rNLW6TRv96zXe",
+          "name": "Demi Policy AITesting"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dab34521-ffef-41db-9eb3-8985fd108466",
+              "name": "text",
+              "value": "={{ $('Code').item.json.extracted_text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        512,
+        -64
+      ],
+      "id": "e0233d37-8a61-4ad6-b0b8-1209b7da0ec5",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Example: run this in an n8n Code node (JavaScript)\n\nlet notebook_id;\nlet source_id;\n\ntry {\n  const webhookData = $('Webhook').first();\n  if (webhookData && webhookData.json?.body?.file_path) {\n    const path = webhookData.json.body.file_path;\n    notebook_id = path.split('/')[0];\n    source_id = webhookData.json.body.source_id;\n  }\n} catch (e) {\n  // Webhook not executed or doesn't exist in this context\n  notebook_id = $input.first().json.notebook_id;\n  source_id = $input.first().json.source_id;\n}\n\nconst extracted_text = $input.first().json.extracted_text;\n\nreturn [\n  {\n    json: {\n      notebook_id,\n      extracted_text,\n      source_id\n    },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        -64
+      ],
+      "id": "89e5c09e-6321-4c66-94f8-d1bdb6cccd99",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vnmsyofypuhxjlzwnuhh.supabase.co/functions/v1/process-document-callback",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"source_id\": \"{{ $('Code').item.json.source_id }}\",\n  \"status\": \"completed\"\n}\n",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1456,
+        -64
+      ],
+      "id": "01a9b118-2d17-4637-98f7-4fe309c7cc54",
+      "name": "HTTP Request",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Vs06msxZevlHsCXv",
+          "name": "PolicyAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.extracted_text }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a specialized document analysis AI designed to extract structured metadata from policy documents for a compliance management system. Your role is to analyze policy documents and extract key information that enables proper categorization, access control, and compliance tracking.\n\n### Key Responsibilities:\n* **Metadata Extraction**: Extract policy date, type, and name from unstructured policy documents\n* **Content Analysis**: Generate appropriate title and summary for policy documents\n* **Document Classification**: Determine policy type based on content analysis\n* **Compliance Tracking**: Identify document dates for outdated policy flagging\n* **Role-Based Categorization**: Classify policies for appropriate access levels\n\n### Analysis Approach:\n1. **Content Scanning**: Thoroughly analyze the document text for policy metadata\n2. **Pattern Recognition**: Identify date formats, policy type indicators, and naming conventions\n3. **Context Analysis**: Use document structure and content to infer missing information\n4. **Validation**: Ensure extracted data is consistent and logical\n\n### Specific Extraction Tasks:\n\n#### Policy Date Extraction:\n- Look for dates in formats: \"Month Year\" (e.g., \"March 2019\", \"May 2025\")\n- Check document headers, footers, and signature blocks\n- Identify effective dates, revision dates, or publication dates\n- Default to document creation date if no policy date found\n- Handle various date formats: \"March 2019\", \"May-2025\", \"03/2019\", etc.\n\n#### Policy Type Classification:\n- **board**: Documents from board of directors, board resolutions, corporate governance\n- **executive**: Executive policies, C-level decisions, strategic policies\n- **administrator**: Administrative policies, operational procedures, HR policies\n- **Not Provided**: When policy type cannot be determined from content\n\n#### Policy Name Extraction:\n- Extract the main policy title or document name\n- Look for \"Policy Name:\", \"Title:\", or similar indicators\n- Use document headers or first major heading if no explicit name\n- Clean and standardize the extracted name\n\n#### Title Generation:\n- Create a clear, descriptive title for the policy document\n- Use the policy name if available, or generate from document content\n- Ensure the title reflects the policy's purpose and scope\n- Keep titles concise but informative (ideally under 100 characters)\n\n#### Summary Generation:\n- Create a comprehensive summary of the policy document\n- Include key points, purpose, scope, and important requirements\n- Highlight critical compliance elements and responsibilities\n- Keep summary to one paragraph (100-200 words)\n- Focus on actionable information for policy users\n\n### Output Format:\nAlways output in JSON format with the following structure:\n\n```json\n{\n  \"title\": \"Generated or extracted policy title\",\n  \"summary\": \"One paragraph policy summary (100-200 words)\",\n  \"policyDate\": \"Month-Year format (e.g., March-2019)\",\n  \"policyType\": \"board|executive|administrator|Not Provided\",\n  \"policyName\": \"Extracted policy name\",\n  \"extractionConfidence\": \"High|Medium|Low\",\n  \"extractionNotes\": \"Any relevant notes about the extraction process\"\n}\n```\n\n### Quality Standards:\n- **Accuracy**: Ensure extracted dates are correctly formatted\n- **Consistency**: Use standardized policy type classifications\n- **Completeness**: Extract all available metadata fields including title and summary\n- **Reliability**: Provide confidence levels for extraction quality\n- **Clarity**: Generate clear, actionable titles and comprehensive summaries\n- **Relevance**: Focus on compliance-critical information in summaries\n\n### Edge Cases and Handling:\n- **Missing Dates**: Use \"Not Provided\" and note in extractionNotes\n- **Ambiguous Types**: Use \"Not Provided\" and explain reasoning\n- **Multiple Dates**: Use the most recent or most relevant date\n- **Unclear Names**: Extract the best available title and note uncertainty\n- **Missing Titles**: Generate descriptive titles based on policy content and purpose\n- **Complex Documents**: Create summaries that capture the most important compliance elements\n- **Long Documents**: Focus summary on key requirements and responsibilities\n\n### Additional Considerations:\n- **Document Structure**: Pay attention to headers, footers, and document structure\n- **Language Patterns**: Look for policy-specific terminology and formatting\n- **Context Clues**: Use surrounding text to infer missing information\n- **Validation**: Cross-reference extracted data for logical consistency\n\nRemember: Your extraction accuracy directly impacts the compliance management system's ability to properly categorize and secure policy documents. Prioritize accuracy over completeness, and always provide confidence indicators for your extractions.\n\n## Example Usage\n\n### Input Document:\n```\n# HH Gym: Company Responsibilities \n\nExecutive Policy<br>May 2025\n\nPolicy Summary\n\n| Policy Name: | HH Gym Company Responsibilities Policy |\n| :-- | :-- |\n| Attributable to: | Operations & Executive |\n```\n\n### Expected Output:\n```json\n{\n  \"title\": \"HH Gym Company Responsibilities Policy\",\n  \"summary\": \"This Executive Policy outlines Human Habitats' responsibilities and governance position regarding the office gym facility. It establishes the company's duty of care under WHS laws, including risk assessments, equipment maintenance, and safety protocols. The policy covers insurance and legal risk management, access control, emergency preparedness, and maintenance of hygiene standards. It also addresses medical fitness requirements, cultural considerations for mental well-being, and establishes review and governance procedures. The policy ensures compliance with Victorian Work Health and Safety legislation while maintaining a safe, inclusive, and non-judgmental fitness environment for employees.\",\n  \"policyDate\": \"May-2025\",\n  \"policyType\": \"Executive\",\n  \"policyName\": \"HH Gym Company Responsibilities Policy\",\n  \"extractionConfidence\": \"High\",\n  \"extractionNotes\": \"Clear policy type and date indicators found in document header\"\n}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        -64,
+        -64
+      ],
+      "id": "88660990-81f1-4ed0-aaa8-c64c1ba1d2cf",
+      "name": "Generate Title & Description"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"title\": \"Generated or extracted policy title\",\n  \"summary\": \"One paragraph policy summary (100-200 words)\",\n  \"policyDate\": \"Month-Year format (e.g., March-2019)\",\n  \"policyType\": \"board|executive|administrator|Not Provided\",\n  \"policyName\": \"Extracted policy name\",\n  \"extractionConfidence\": \"High|Medium|Low\",\n  \"extractionNotes\": \"Any relevant notes about the extraction process\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        160
+      ],
+      "id": "3a83ea73-73e8-4f74-90ad-b55aadc5c8a3",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        160
+      ],
+      "id": "e16a04be-5702-4d01-92f5-45af5f90b97a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "iR0rNLW6TRv96zXe",
+          "name": "Demi Policy AITesting"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "sources",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Set Fields').item.json.source_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $('Code').item.json.extracted_text }}"
+            },
+            {
+              "fieldId": "summary",
+              "fieldValue": "={{ $json.output.summary }}"
+            },
+            {
+              "fieldId": "display_name",
+              "fieldValue": "={{ $json.output.title }}"
+            },
+            {
+              "fieldId": "notebook_id",
+              "fieldValue": "={{ $('Code').item.json.notebook_id }}"
+            },
+            {
+              "fieldId": "processing_status",
+              "fieldValue": "pending"
+            },
+            {
+              "fieldId": "created_at",
+              "fieldValue": "={{ $now.toString() }}"
+            },
+            {
+              "fieldId": "updated_at",
+              "fieldValue": "={{ $now.toString() }}"
+            },
+            {
+              "fieldId": "policyType",
+              "fieldValue": "={{ $json.output.policyType }}"
+            },
+            {
+              "fieldId": "policyDate",
+              "fieldValue": "={{ $json.output.policyDate }}"
+            },
+            {
+              "fieldId": "policyName",
+              "fieldValue": "={{ $json.output.policyName }}"
+            },
+            {
+              "fieldId": "url",
+              "fieldValue": "={{ $('Set Fields').item.json.file_url }}"
+            },
+            {
+              "fieldId": "target_role",
+              "fieldValue": "={{ $json.output.policyType }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        288,
+        -64
+      ],
+      "id": "0487c4af-d2b5-4208-bbfa-06af8ebb8ee5",
+      "name": "Supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Vs06msxZevlHsCXv",
+          "name": "PolicyAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "5EtFIipnqTD5m9tu",
+          "mode": "list",
+          "cachedResultName": "PolicyAi - Extract Text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "filePath": "={{ $json.file_path }}"
+          },
+          "matchingColumns": [
+            "filePath"
+          ],
+          "schema": [
+            {
+              "id": "filePath",
+              "displayName": "filePath",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -512,
+        -160
+      ],
+      "id": "5b4ae6b1-e39f-452f-a46b-9832f7b346bc",
+      "name": "Extract Text"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "notebook_id"
+            },
+            {
+              "name": "extracted_text"
+            },
+            {
+              "name": "source_id"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -512,
+        32
+      ],
+      "id": "fb8ef16d-0ba1-4659-ab05-d3a53fc155cc",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        -64
+      ],
+      "id": "effe2ff2-00bc-4f74-bc50-6078685dcfd5",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "10646eae-ae46-4327-a4dc-9987c2d76173",
+              "name": "source_id",
+              "value": "={{ $json.body.source_id }}",
+              "type": "string"
+            },
+            {
+              "id": "f4536df5-d0b1-4392-bf17-b8137fb31a44",
+              "name": "file_url",
+              "value": "={{ $json.body.file_url }}",
+              "type": "string"
+            },
+            {
+              "id": "77d782de-169d-4a46-8a8e-a3831c04d90f",
+              "name": "file_path",
+              "value": "={{ $json.body.file_path }}",
+              "type": "string"
+            },
+            {
+              "id": "9bde4d7f-e4f3-4ebd-9338-dce1350f9eab",
+              "name": "source_type",
+              "value": "={{ $json.body.source_type }}",
+              "type": "string"
+            },
+            {
+              "id": "2ae0c638-9423-486b-83ba-f6c29af1799c",
+              "name": "callback_url",
+              "value": "={{ $json.body.callback_url }}",
+              "type": "string"
+            },
+            {
+              "id": "3ecee285-574d-4810-80e2-4eb371f26c16",
+              "name": "webhookUrl",
+              "value": "={{ $json.webhookUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "dd8cd35d-ba69-4ebc-b928-4cd5dab0ecf6",
+              "name": "execution_id",
+              "value": "={{ $execution.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4834800a-acb0-4be6-9b41-0a03c1924652",
+      "name": "Set Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -736,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE public.documents \nSET \n  \"source_id\" = (metadata->>'source_id')::uuid,\n  \"policyType\" = metadata->>'policyType',\n  \"policyDate\" = metadata->>'policyDate',\n  \"policyName\" = metadata->>'policyName'\nWHERE \n  metadata->>'source_id' IS NOT NULL \n  AND (source_id IS NULL OR \"policyType\" IS NULL OR \"policyDate\" IS NULL OR \"policyName\" IS NULL);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1680,
+        -64
+      ],
+      "id": "5386156e-b306-4908-8107-37f328141a11",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "V7h6U5W9dPz5FhO6",
+          "name": "Policy-AI-Postgres"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-prod.coralshades.ai",
+            "user-agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.69.4)",
+            "content-length": "426",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "*",
+            "authorization": "Wdt?1997",
+            "cdn-loop": "cloudflare; loops=1",
+            "cf-connecting-ip": "2406:da1c:136:5d06:708e:51e6:bd0f:4b3",
+            "cf-ipcountry": "AU",
+            "cf-ray": "9826f869f9dea83e-SYD",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-warp-tag-id": "774aee85-1e40-4488-a591-0185a1f32cce",
+            "connection": "keep-alive",
+            "content-type": "application/json",
+            "x-forwarded-for": "2406:da1c:136:5d06:708e:51e6:bd0f:4b3",
+            "x-forwarded-proto": "https"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "source_id": "10f245c4-2cb4-495c-86bc-4c8b7abe1407",
+            "file_url": "https://vnmsyofypuhxjlzwnuhh.supabase.co/storage/v1/object/public/sources/bd42dbb3-8787-4184-b5d1-9b30e924813f/10f245c4-2cb4-495c-86bc-4c8b7abe1407.pdf",
+            "file_path": "bd42dbb3-8787-4184-b5d1-9b30e924813f/10f245c4-2cb4-495c-86bc-4c8b7abe1407.pdf",
+            "source_type": "pdf",
+            "callback_url": "https://vnmsyofypuhxjlzwnuhh.supabase.co/functions/v1/process-document-callback"
+          },
+          "webhookUrl": "https://n8n-prod.coralshades.ai/webhook/19566c6c-e0a5-4a8f-ba1a-5203c2b663b7",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Generate Title & Description",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Title & Description",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Title & Description",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Title & Description": {
+      "main": [
+        [
+          {
+            "node": "Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Fields": {
+      "main": [
+        [
+          {
+            "node": "Extract Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e12c59ad-afc7-4c61-82a7-bcf484502fa1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1611a0f2d6b428cf9dbc76c998e83bf12ee9b56fcdc3e5a977e5ca4acf1cbdb0"
+  },
+  "id": "OYsxnxUWqCZ9IROV",
+  "tags": []
+}
