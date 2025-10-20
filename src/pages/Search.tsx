@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
-import { SecondaryNavigationBar } from '@/components/navigation/SecondaryNavigationBar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Search as SearchIcon, ArrowLeft } from 'lucide-react';
@@ -14,7 +13,6 @@ const Search = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <DashboardHeader userEmail={user?.email} />
       <PrimaryNavigationBar />
-      <SecondaryNavigationBar />
 
       <main className="flex-1 flex items-center justify-center p-8">
         <div className="text-center max-w-md">

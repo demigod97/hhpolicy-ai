@@ -187,14 +187,27 @@ export const useChatMessages = (notebookId?: string) => {
         .order('id', { ascending: true });
 
       if (error) throw error;
-      
-      // Also fetch sources to get proper source titles
-      const { data: sourcesData } = await supabase
-        .from('sources')
-        .select('id, title, type')
-        .eq('notebook_id', notebookId);
-      
-      const sourceMap = new Map(sourcesData?.map(s => [s.id, s]) || []);
+
+      // Fetch sources via the chat_session_documents junction table
+      const { data: sessionDocs } = await supabase
+        .from('chat_session_documents')
+        .select(`
+          source_id,
+          sources (
+            id,
+            title,
+            type
+          )
+        `)
+        .eq('chat_session_id', notebookId);
+
+      // Build source map from junction table results
+      const sourceMap = new Map(
+        sessionDocs?.map(doc => {
+          const source = doc.sources as unknown as { id: string; title: string; type: string };
+          return [source.id, source];
+        }).filter(([id]) => id) || []
+      );
       
       console.log('Raw data from database:', data);
       console.log('Sources map:', sourceMap);
@@ -213,8 +226,10 @@ export const useChatMessages = (notebookId?: string) => {
 
     console.log('Setting up Realtime subscription for notebook:', notebookId);
 
+    // Use unique channel name per session to prevent conflicts
+    const channelName = `chat-messages-${notebookId}`;
     const channel = supabase
-      .channel('chat-messages')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -225,14 +240,27 @@ export const useChatMessages = (notebookId?: string) => {
         },
         async (payload) => {
           console.log('Realtime: New message received:', payload);
-          
-          // Fetch sources for proper transformation
-          const { data: sourcesData } = await supabase
-            .from('sources')
-            .select('id, title, type')
-            .eq('notebook_id', notebookId);
-          
-          const sourceMap = new Map(sourcesData?.map(s => [s.id, s]) || []);
+
+          // Fetch sources via the chat_session_documents junction table
+          const { data: sessionDocs } = await supabase
+            .from('chat_session_documents')
+            .select(`
+              source_id,
+              sources (
+                id,
+                title,
+                type
+              )
+            `)
+            .eq('chat_session_id', notebookId);
+
+          // Build source map from junction table results
+          const sourceMap = new Map(
+            sessionDocs?.map(doc => {
+              const source = doc.sources as unknown as { id: string; title: string; type: string };
+              return [source.id, source];
+            }).filter(([id]) => id) || []
+          );
           
           // Transform the new message
           const newMessage = transformMessage(payload.new, sourceMap);

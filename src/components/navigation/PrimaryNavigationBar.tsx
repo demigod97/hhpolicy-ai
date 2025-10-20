@@ -1,20 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from '@/components/ui/navigation-menu';
+import { Button } from '@/components/ui/button';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
-  FileText,
   MessageSquare,
-  Search,
-  Settings,
+  Upload,
+  Users,
   HelpCircle,
 } from 'lucide-react';
 
@@ -22,58 +15,63 @@ interface NavItem {
   title: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  permission?: keyof ReturnType<typeof useRolePermissions>['permissions'];
+  showForRoles: ('board' | 'executive' | 'administrator' | 'company_operator' | 'system_owner')[];
 }
 
-const PRIMARY_NAV_ITEMS: NavItem[] = [
+// Minimal navigation focused on core RAG functionality
+const NAV_ITEMS: NavItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Policies',
     href: '/',
     icon: LayoutDashboard,
-    permission: 'canAccessDashboard',
+    showForRoles: ['board', 'executive', 'administrator', 'company_operator', 'system_owner'],
   },
   {
     title: 'Chat',
     href: '/chat',
     icon: MessageSquare,
-    permission: 'canAccessDashboard', // Same permission as dashboard
+    showForRoles: ['board', 'executive', 'administrator', 'company_operator', 'system_owner'],
   },
   {
-    title: 'Search',
-    href: '/search',
-    icon: Search,
-    permission: 'canAccessSearch',
+    title: 'Upload',
+    href: '/upload',
+    icon: Upload,
+    showForRoles: ['company_operator', 'system_owner'], // Only System Owner and Company Operator can upload
   },
   {
-    title: 'Settings',
-    href: '/settings',
-    icon: Settings,
-    permission: 'canAccessSettings',
+    title: 'Users',
+    href: '/admin/user-management', // Links to UserManagement page
+    icon: Users,
+    showForRoles: ['company_operator', 'system_owner'],
   },
   {
     title: 'Help',
     href: '/help',
     icon: HelpCircle,
-    permission: 'canAccessHelp',
+    showForRoles: ['board', 'executive', 'administrator', 'company_operator', 'system_owner'],
   },
 ];
 
 export const PrimaryNavigationBar = () => {
   const location = useLocation();
-  const { permissions, isLoading } = useRolePermissions();
+  const { userRole, isLoading } = useRolePermissions();
 
-  // Filter navigation items based on permissions
-  const visibleNavItems = PRIMARY_NAV_ITEMS.filter((item) => {
-    if (!item.permission) return true;
-    return permissions[item.permission];
+  // Filter navigation items based on user role
+  const visibleNavItems = NAV_ITEMS.filter((item) => {
+    if (!userRole) return false;
+    return item.showForRoles.includes(userRole);
   });
 
   if (isLoading) {
     return (
-      <div className="h-12 bg-white border-b flex items-center px-6">
-        <div className="animate-pulse flex space-x-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-8 w-24 bg-gray-200 rounded"></div>
+      <div className="h-14 bg-white border-b flex items-center justify-between px-6">
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-5 w-24 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+        <div className="flex gap-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-9 w-20 bg-gray-200 rounded animate-pulse"></div>
           ))}
         </div>
       </div>
@@ -81,34 +79,44 @@ export const PrimaryNavigationBar = () => {
   }
 
   return (
-    <div className="bg-white border-b">
+    <nav className="bg-white border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6">
-        <NavigationMenu className="max-w-none justify-start">
-          <NavigationMenuList>
+        <div className="flex items-center justify-between h-14">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2">
+            <div className="h-8 w-8 bg-primary rounded flex items-center justify-center">
+              <span className="text-white font-bold text-sm">PA</span>
+            </div>
+            <span className="font-semibold text-lg">PolicyAi</span>
+          </Link>
+
+          {/* Navigation Items */}
+          <div className="flex items-center gap-1">
             {visibleNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href;
 
               return (
-                <NavigationMenuItem key={item.href}>
+                <Button
+                  key={item.href}
+                  variant={isActive ? 'secondary' : 'ghost'}
+                  size="sm"
+                  asChild
+                  className={cn(
+                    'gap-2',
+                    isActive && 'bg-secondary'
+                  )}
+                >
                   <Link to={item.href}>
-                    <NavigationMenuLink
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        'gap-2',
-                        isActive && 'bg-accent text-accent-foreground'
-                      )}
-                    >
-                      <Icon className="h-4 w-4" />
-                      {item.title}
-                    </NavigationMenuLink>
+                    <Icon className="h-4 w-4" />
+                    <span className="hidden sm:inline">{item.title}</span>
                   </Link>
-                </NavigationMenuItem>
+                </Button>
               );
             })}
-          </NavigationMenuList>
-        </NavigationMenu>
+          </div>
+        </div>
       </div>
-    </div>
+    </nav>
   );
 };

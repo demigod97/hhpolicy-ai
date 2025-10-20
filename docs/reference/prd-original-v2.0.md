@@ -1,5 +1,42 @@
 # PolicyAi Product Requirements Document (PRD)
 
+---
+
+## ⚠️ ARCHIVED DOCUMENT
+
+**Status**: ARCHIVED - Historical Reference Only
+**Date Archived**: 2025-10-20
+**Reason**: PRD v2.0 describes aspirational future state. Actual implementation differs significantly.
+
+**Important Notes**:
+- This document represents the **planned vision** for PolicyAi, not the current implementation
+- **Only ~40% of features described here are actually implemented**
+- Many architectural decisions have changed (e.g., no AG-UI/CopilotKit, still using N8N)
+- For **current project state**, see:
+  - [docs/current/features-implemented.md](../current/features-implemented.md) - What actually works
+  - [docs/current/roadmap.md](../current/roadmap.md) - Planned features with realistic estimates
+  - [docs/current/known-issues.md](../current/known-issues.md) - Active bugs
+
+**Use This Document For**:
+- ✅ Understanding long-term product vision
+- ✅ Reference for future feature planning
+- ✅ Understanding original architectural intent
+
+**Do NOT Use This Document For**:
+- ❌ Understanding current system capabilities
+- ❌ Writing user documentation
+- ❌ Estimating development timelines
+- ❌ Describing implemented features to users
+
+**Version History**:
+- v1.0 (2025-09-17): Initial PRD draft
+- v2.0 (2025-10-16): Major update with 5-role hierarchy, AG-UI+CopilotKit, SaaS features
+- **Archived** (2025-10-20): Document moved to reference archive
+
+---
+
+# PolicyAi Product Requirements Document (PRD)
+
 ### Goals and Background Context
 
 #### Goals

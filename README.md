@@ -5,8 +5,12 @@
 
 **PolicyAi** is a specialized application designed to help administrators and executives navigate complex organizational policies with AI-powered search and question-answering capabilities. It provides a centralized platform for policy document management with advanced RAG (Retrieval-Augmented Generation) technology to ensure accurate, source-grounded responses.
 
+**Status**: v1.0-beta (Core features functional)
+**Last Updated**: 2025-10-20
 
-## About The Project
+---
+
+## 🎯 About The Project
 
 PolicyAi addresses the critical challenge organizations face in managing and accessing their policy documents effectively. Traditional policy management often results in scattered documents, inconsistent interpretations, and difficulty finding relevant information when needed.
 
@@ -14,121 +18,437 @@ This application provides a centralized, AI-powered solution that transforms how
 
 The system is designed to be self-hostable and customizable, allowing organizations to maintain complete control over their sensitive policy data while benefiting from cutting-edge AI assistance.
 
+---
 
-<p align="center">
-  <img src="https://www.theaiautomators.com/wp-content/uploads/2025/07/Group-2652.png" alt="The AI Automators Logo" width="500"/>
-</p>
+## ✨ Key Features (Currently Working)
 
+### Core Functionality
+* **📤 Document Upload Pipeline**: Drag-and-drop PDF upload with real-time processing status
+* **🔄 Automated Document Processing**: N8N-powered workflow extracts text, metadata, and generates summaries
+* **📄 PDF Document Viewer**: Built-in PDF viewer with page navigation and zoom controls
+* **💬 AI-Powered Q&A**: Natural language chat interface powered by N8N workflows and OpenAI/Gemini
+* **🔒 Role-Based Access Control**: Three user roles (Board Member, Administrator, Executive) with strict data segregation
+* **✅ Verifiable Citations**: Every AI response includes source document references
+* **⚡ Real-Time Updates**: Live status updates via Supabase Realtime subscriptions
 
-## Fully Local Version
+### Security & Data Management
+* **🛡️ Row-Level Security (RLS)**: Database-level access control enforced by PostgreSQL
+* **🔐 Secure Authentication**: Supabase Auth with session management
+* **🏠 Self-Hosted**: Complete control over your sensitive policy data
+* **📊 Document Organization**: Organized by notebooks with metadata and status tracking
 
-This version of InsightsLM relies on cloud AI services like OpenAI and Gemini.
+### What Makes PolicyAi Different
+* Purpose-built for compliance and policy management
+* Strict role-based access ensures data segregation
+* AI responses always grounded in source documents
+* Real-time processing status tracking
+* Self-hostable for maximum security
 
-If you'd like to setup a fully local version of this that uses Ollama and Qwen3 along with Whisper and CoquiTTS, then check out our other repo below
+---
 
-[Fully Local InsightsLM](https://github.com/theaiautomators/insights-lm-local-package)
+## 🏗️ Architecture
 
-## Join Our Community
+PolicyAi uses a modern, serverless architecture:
 
-If you're interested in learning how to customize InsightsLM or build similar applications, join our community, The AI Automators.
+```
+┌─────────────┐
+│   Browser   │ (React + TypeScript + Vite)
+│  (Frontend) │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────────────────┐
+│        Supabase Platform        │
+├─────────────────────────────────┤
+│ • Authentication                │
+│ • PostgreSQL Database (RLS)     │
+│ • Storage (PDF files)           │
+│ • Edge Functions                │
+│ • Realtime Subscriptions        │
+└──────┬──────────────────────────┘
+       │
+       ▼
+┌─────────────┐
+│ N8N Cloud   │ (Workflow Automation)
+├─────────────┤
+│ • Document Processing           │
+│ • Text Extraction               │
+│ • AI Chat                       │
+│ • Metadata Extraction           │
+└─────────────┘
+```
 
-https://www.theaiautomators.com/
+**Key Technologies**:
+- **Frontend**: React 18, TypeScript, Vite, shadcn/ui, Tailwind CSS
+- **Backend**: Supabase (Auth, Database, Storage, Edge Functions)
+- **Workflows**: N8N (document processing, AI chat)
+- **Database**: PostgreSQL with Row Level Security (RLS)
+- **AI**: OpenAI/Gemini (via N8N workflows)
+- **PDF Rendering**: react-pdf
 
+---
 
-## Key Features
+## 🚀 Getting Started
 
-* **Policy Document Q&A:** Upload policy documents and get instant, context-aware answers to compliance questions.
-* **Verifiable Citations:** Jump directly to the source policy text to ensure accurate interpretation and compliance.
-* **Administrator Experience:** Streamlined interface designed for policy administrators to manage and organize documents.
-* **Executive Dashboard:** High-level overview and advanced search capabilities for executive decision-making.
-* **Private and Self-Hosted:** Maintain complete control over sensitive policy data by hosting it yourself.
-* **Customizable and Extensible:** Built with modern, accessible tools, making it easy to tailor to your organization's needs.
+### Prerequisites
 
+Before you begin, you'll need:
+- **Node.js** (v18+) and npm
+- **Supabase Account** (free tier available)
+- **N8N Instance** (cloud or self-hosted)
+- **OpenAI or Gemini API Key** (for AI functionality)
+- **Git** for version control
 
-## Demo & Walkthrough
+---
 
-For a complete demonstration of InsightsLM, an overview of its architecture, and a step-by-step guide on how to set it up, check out our YouTube video:
+### Step 1: Clone Repository
 
-<p>
-  <a target="_blank" href="https://www.youtube.com/watch?v=IXJEGjfZRBE"><img src="https://raw.githubusercontent.com/theaiautomators/insights-lm-public/main/public/video.png" alt="Video" width="500"/></a>
-</p>
+```bash
+git clone https://github.com/yourusername/policyai.git
+cd policyai
+npm install
+```
 
+---
 
-## Built With
+### Step 2: Set Up Supabase
 
-This project is built with a modern, powerful stack:
-* **Frontend:** 
-    * [Loveable](https://theaiautomators.com/go/loveable)
-    * [Vite](https://vitejs.dev/)
-    * [React](https://react.dev/)
-    * [TypeScript](https://www.typescriptlang.org/)
-    * [shadcn-ui](https://ui.shadcn.com/)
-    * [Tailwind CSS](https://tailwindcss.com/)
-* **Backend:**
-    * [Supabase](https://supabase.com/) - for database, authentication, and storage.
-    * [N8N](https://theaiautomators.com/go/n8n) - for workflow automation and backend logic.
+1. **Create Supabase Project**
+   - Go to [supabase.com](https://supabase.com)
+   - Create a new project
+   - Save your database password
 
+2. **Run Database Migrations**
+   ```bash
+   npx supabase link --project-ref your-project-ref
+   npx supabase db push --password your-database-password
+   ```
 
-## Getting Started: A Guide for No-Coders to Test and Customize
+3. **Configure Storage**
+   - Create a storage bucket named `sources` (for PDF files)
+   - RLS policies are automatically created by migrations
 
-This guide provides the quickest way to get InsightsLM up and running so you can test, customize, and experiment.
+4. **Deploy Edge Functions**
+   ```bash
+   npx supabase functions deploy process-document
+   npx supabase functions deploy process-document-callback
+   ```
 
-I recommend you following along from 17:53 in our video here for the full step by step guide - [https://youtu.be/IXJEGjfZRBE?t=1073](https://youtu.be/IXJEGjfZRBE?t=1073)
+---
 
-You will need a notepad file open to copy and paste in various credentials and details.
+### Step 3: Configure N8N Workflows
 
-1.  **Create Supabase Account and Project**
-    * Go to [Supabase.com](https://supabase.com/) and create a free account.
-    * Create a new project. Paste in your `database password` into your open notepad file as you will need this later.
-2.  **Create GitHub Account & Repo from Template**
-    * If you don't have one, create a free account on [GitHub](https://github.com/).
-    * Navigate to the InsightsLM template repository here: [**github.com/theaiautomators/insights-lm-public**](https://github.com/theaiautomators/insights-lm-public)
-    * Click the `Use this template` button to create a copy of the repository in your own GitHub account. Fill out the form.
-3.  **Import into an AI-Coding Editor (Bolt.new)**
-    * Create an account on [Bolt.new](https://bolt.new/) as it supports Supabase integration. (While the project was built on Loveable, it is currently quite difficult to import existing Github projects into Loveable)
-    * Import your newly created GitHub repository into your Bolt project. You will need to link your Github account to Bolt. Choose the repo and import.
-    * Now click Integrations on the top and connect your Supabase project. You will need to link your Supabase account to Bolt.
-    * Once connected, the Supabase Edge Functions will auto-deploy. You will need to approve the running of the migration script to create the data structures in Supabase.
-4.  **Import and Configure N8N Workflows**
-    * The `/n8n` directory in this repository contains the JSON files for the required N8N workflows. There are 2 approaches here.
-        1. The easiest is to import the "Import_Insights_LM_Workflows.json" file into a new workflow in n8n and follow the steps in the video. This includes configuring an n8n API key which will be used to auto-create all workflows needed by the system. You will also need to set various credentials.
-        2. Instead of using the above workflow importer, you can instead download and import the 6 JSON workflows in this directory. You will need to go node by node in each workflow to configure them for your services. (e.g. Supabase, OpenAI, Gemini, Sub-Workflows etc). Follow the TODOs in each workflow.
-5.  **Add N8N Webhooks to Supabase Secrets**
-    * Your N8N workflows are triggered by webhooks from the Supabase Edge Functions. If you used the workflow importer, you will have the list of N8N secrets to create. Otherwise you'll need to gather these from the various workflows.
-    * In your Supabase project dashboard, navigate to `Edge Functions` -> `Secrets` and add the following secrets. This allows the Supabase Edge Functions to securely call your N8N workflows.
-    * These are the secrets that need to be created
-        * NOTEBOOK_CHAT_URL
-        * NOTEBOOK_GENERATION_URL
-        * AUDIO_GENERATION_WEBHOOK_URL
-        * DOCUMENT_PROCESSING_WEBHOOK_URL
-        * ADDITIONAL_SOURCES_WEBHOOK_URL
-        * NOTEBOOK_GENERATION_AUTH (This is the password for the custom Header Auth for each n8n Webhook)
-        * OPENAI_API_KEY (This is used in the Generate Note Title edge function)
-6.  **Test & Customize**
-    * That's it! Your instance of InsightsLM should now be live.
-    * You can now test the application, upload documents, and start chatting.
-    * Within Bolt.new you can also deploy this to Netlify
+1. **Import N8N Workflows**
+   - Workflows are in `/n8n` directory
+   - Import into your N8N instance
+   - Configure Supabase credentials
+   - Configure OpenAI/Gemini credentials
 
-## Contributing
+2. **Required Workflows**:
+   - `document-processing.json` - Extracts text and metadata from PDFs
+   - `chat.json` - Handles AI Q&A with RAG
+   - `process-document-callback.json` - Updates database after processing
 
-Contributions make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
+3. **Get Webhook URLs**
+   - Each workflow exposes a webhook URL
+   - Save these URLs for Supabase secrets
 
-- Fork the Project
-- Create your Feature Branch (git checkout -b feature/AmazingFeature)
-- Commit your Changes (git commit -m 'Add some AmazingFeature')
-- Push to the Branch (git push origin feature/AmazingFeature)
-- Open a Pull Request
+---
 
-## License
+### Step 4: Configure Supabase Secrets
 
-This codebase is distributed under the MIT License.
+Add the following secrets in Supabase Dashboard (Project Settings → Edge Functions → Secrets):
 
-## A Note on n8n's Sustainable Use License
+```bash
+DOCUMENT_PROCESSING_WEBHOOK_URL=https://your-n8n-instance.com/webhook/document-processing
+NOTEBOOK_GENERATION_AUTH=your-auth-token
+OPENAI_API_KEY=sk-...  # For edge functions that need direct AI access
+```
 
-While InsightsLM is fully open-sourced and Supabase is also open source, it's important to be aware that n8n, which powers much of the backend automation, is not open source in the traditional sense.
+---
 
-n8n is distributed under a [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md). This license allows free usage for internal business purposes, including hosting workflows within your company or organization.
+### Step 5: Configure Environment Variables
 
-However, if you plan to use InsightsLM as part of a commercial SaaS offering—such as reselling access or hosting a public version for multiple clients—you may need to obtain an n8n Enterprise License. We’re not lawyers, so we recommend that you review the n8n license and contacting their team if your use case falls into a commercial category.
+Create `.env.local` in the project root:
 
-Alternatives: If your use case is restricted by the n8n license, one potential option is to convert key workflows into Supabase Edge Functions. This would allow you to fully avoid using n8n in production.
+```bash
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+---
+
+### Step 6: Run Development Server
+
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:5173`
+
+---
+
+### Step 7: Create First User
+
+1. Sign up via the UI
+2. Manually assign user role via Supabase SQL Editor:
+   ```sql
+   INSERT INTO user_roles (user_id, role)
+   VALUES ('your-user-id', 'administrator');
+   ```
+
+---
+
+## 📖 Usage
+
+### For Administrators
+
+1. **Upload Documents**
+   - Navigate to Dashboard
+   - Click "Upload Documents"
+   - Drag and drop PDF files
+   - Wait for processing to complete
+
+2. **Assign Document Roles**
+   - Select a document
+   - Choose target role (Administrator, Executive, Board)
+   - Save changes
+
+3. **Monitor Processing**
+   - Real-time status updates
+   - Processing → Completed → Ready for chat
+
+### For All Users
+
+1. **Ask Questions**
+   - Navigate to Chat
+   - Type natural language questions
+   - Receive AI-generated answers with citations
+
+2. **View PDFs**
+   - Click on any document
+   - View PDF in built-in viewer
+   - Navigate pages, zoom, search
+
+---
+
+## 📚 Documentation
+
+Comprehensive documentation is available in the `/docs` directory:
+
+- **[Current Features](docs/current/features-implemented.md)** - What's actually implemented
+- **[Known Issues](docs/current/known-issues.md)** - Active bugs and workarounds
+- **[Architecture](docs/architecture/index.md)** - Technical architecture details
+- **[User Stories](docs/stories/)** - Development roadmap
+- **[QA Assessments](docs/qa/assessments/)** - Test plans and coverage
+
+**Quick Links**:
+- [Setup Guide](docs/guides/setup-guide.md) - Detailed setup instructions
+- [Troubleshooting](docs/guides/troubleshooting-guide.md) - Common issues and solutions
+- [Project Status](docs/project-management/current-status.md) - Current development status
+
+---
+
+## 🔧 Development
+
+### Project Structure
+
+```
+policyai/
+├── src/                    # React application source
+│   ├── components/         # React components
+│   ├── hooks/             # Custom React hooks
+│   ├── pages/             # Page components
+│   ├── contexts/          # React contexts (Auth, etc.)
+│   └── integrations/      # Supabase client
+├── supabase/
+│   ├── functions/         # Edge functions
+│   ├── migrations/        # Database migrations
+│   └── scripts/           # Utility SQL scripts
+├── n8n/                   # N8N workflow definitions
+├── docs/                  # Documentation
+└── public/                # Static assets
+```
+
+### Available Scripts
+
+```bash
+npm run dev        # Start development server
+npm run build      # Production build
+npm run preview    # Preview production build
+npm run lint       # Lint code
+```
+
+### Database Migrations
+
+```bash
+# Create new migration
+npx supabase migration new migration_name
+
+# Apply migrations
+npx supabase db push --password your-password
+
+# Reset database (destructive!)
+npx supabase db reset
+```
+
+---
+
+## 🐛 Known Issues
+
+**Minor Bugs** (tracked in [docs/current/known-issues.md](docs/current/known-issues.md)):
+- File size displays as "NaN MB" during upload (cosmetic)
+- Slow document list loading with 10+ documents (performance)
+- Document visibility delay after upload (cache invalidation)
+
+**Workarounds and fixes are available in the documentation.**
+
+---
+
+## 🗺️ Roadmap
+
+PolicyAi is under active development. Current focus areas:
+
+**Completed** ✅:
+- Core document upload and processing pipeline
+- PDF viewer with basic navigation
+- Role-based access control (3 roles)
+- Real-time status updates
+- AI-powered chat with citations
+
+**In Progress** 🔨:
+- Bug fixes for upload UI
+- Performance optimization for document loading
+- Enhanced chat session management
+
+**Planned** 📋:
+- Enhanced PDF features (search, thumbnails, citation highlighting)
+- 5-role hierarchy (add Company Operator, System Owner roles)
+- API key management UI
+- Token usage tracking and monitoring
+- Settings hub for configuration
+
+See [docs/current/features-implemented.md](docs/current/features-implemented.md) for detailed feature status.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Here's how you can help:
+
+1. **Fork the Project**
+   ```bash
+   git clone https://github.com/yourusername/policyai.git
+   cd policyai
+   git checkout -b feature/AmazingFeature
+   ```
+
+2. **Make Changes**
+   - Follow existing code style
+   - Add tests if applicable
+   - Update documentation
+
+3. **Submit Pull Request**
+   ```bash
+   git commit -m 'Add some AmazingFeature'
+   git push origin feature/AmazingFeature
+   ```
+   - Open a pull request on GitHub
+   - Describe your changes clearly
+   - Link related issues
+
+**Contribution Guidelines**:
+- Follow TypeScript and React best practices
+- Maintain database RLS policies for security
+- Add tests for new features
+- Update documentation for user-facing changes
+
+---
+
+## 🔐 Security
+
+PolicyAi takes security seriously:
+
+- **Database-Level Security**: All data access controlled by PostgreSQL RLS
+- **Role-Based Access**: Strict separation between user roles
+- **Secure Authentication**: Supabase Auth with session management
+- **Self-Hostable**: No third-party data access
+- **API Key Protection**: Secrets stored in Supabase, never in code
+
+**Reporting Security Issues**:
+Please report security vulnerabilities to [security@yourorg.com](mailto:security@yourorg.com)
+
+---
+
+## 📄 License
+
+This project is distributed under the MIT License. See `LICENSE` file for details.
+
+---
+
+## ⚖️ A Note on n8n's Sustainable Use License
+
+PolicyAi uses n8n for workflow automation. n8n is distributed under a [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md).
+
+**Key Points**:
+- ✅ **Free for internal business use** (hosting workflows within your company)
+- ⚠️ **Commercial SaaS may require license** (reselling access, hosting for multiple clients)
+- 📖 **Review the license** if your use case is commercial
+
+**Alternative**: Convert N8N workflows to Supabase Edge Functions if needed.
+
+---
+
+## 🙏 Acknowledgments
+
+PolicyAi evolved from the [InsightsLM](https://github.com/theaiautomators/insights-lm-public) project by The AI Automators. We're grateful for their foundational work.
+
+**Key Technologies**:
+- [Supabase](https://supabase.com) - Backend infrastructure
+- [N8N](https://n8n.io) - Workflow automation
+- [React](https://react.dev) - Frontend framework
+- [shadcn/ui](https://ui.shadcn.com) - UI components
+- [OpenAI](https://openai.com) / [Gemini](https://ai.google.dev) - AI models
+
+---
+
+## 📞 Support & Community
+
+**Need Help?**
+- 📖 Check [Documentation](docs/)
+- 🐛 Report bugs via [GitHub Issues](https://github.com/yourusername/policyai/issues)
+- 💬 Join [The AI Automators Community](https://www.theaiautomators.com/)
+
+**Resources**:
+- [Setup Guide](docs/guides/setup-guide.md)
+- [Troubleshooting](docs/guides/troubleshooting-guide.md)
+- [Known Issues](docs/current/known-issues.md)
+- [Architecture](docs/architecture/index.md)
+
+---
+
+## 📊 Project Status
+
+**Version**: v1.0-beta
+**Status**: Core features functional, active development
+**Last Updated**: 2025-10-20
+
+**What's Working**:
+- ✅ Document upload and processing
+- ✅ PDF viewer
+- ✅ AI-powered chat
+- ✅ Role-based access control
+- ✅ Real-time updates
+
+**What's Planned**:
+- Enhanced PDF features
+- Settings and administration UI
+- Token usage tracking
+- Advanced chat features
+
+See [docs/project-management/current-status.md](docs/project-management/current-status.md) for detailed status.
+
+---
+
+**Built with ❤️ for compliance and policy professionals**
+

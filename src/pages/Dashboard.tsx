@@ -6,7 +6,6 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { DocumentGrid } from '@/components/dashboard/DocumentGrid';
 import { PDFViewer } from '@/components/pdf/PDFViewer';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
-import { SecondaryNavigationBar } from '@/components/navigation/SecondaryNavigationBar';
 import { DocumentUploader } from '@/components/document/DocumentUploader';
 import { UserGreetingCard } from '@/components/dashboard/UserGreetingCard';
 import { useNotebooks } from '@/hooks/useNotebooks';
@@ -208,9 +207,6 @@ const Dashboard = () => {
 
       {/* Primary Navigation */}
       <PrimaryNavigationBar />
-
-      {/* Secondary Navigation (role-based) */}
-      <SecondaryNavigationBar />
 
       {/* User Greeting Card */}
       <div className="bg-gray-50 px-8 py-6">

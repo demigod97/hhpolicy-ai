@@ -3,17 +3,7 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Plus, FileText, CheckCircle, Loader2, File, Globe, Youtube } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-
-interface Source {
-  id: string;
-  title: string;
-  type: string;
-  processing_status: string;
-  created_at: string;
-  url?: string;
-}
+import { useChatSessionSources } from '@/hooks/useChatSessionSources';
 
 interface SourcesSidebarProps {
   chatSessionId?: string;
@@ -24,20 +14,8 @@ export const SourcesSidebar: React.FC<SourcesSidebarProps> = ({
   chatSessionId,
   onDocumentSelect,
 }) => {
-  // Fetch all documents accessible to the user (RLS will filter)
-  const { data: documents, isLoading } = useQuery<Source[]>({
-    queryKey: ['sources', 'accessible'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('sources')
-        .select('id, title, type, processing_status, created_at, url')
-        .eq('type', 'pdf')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as Source[];
-    },
-  });
+  // Fetch documents linked to this chat session
+  const { sources: documents, isLoading } = useChatSessionSources(chatSessionId);
 
   const getSourceIcon = (type: string) => {
     switch (type) {

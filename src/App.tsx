@@ -17,6 +17,7 @@ import ChatSessions from "./pages/ChatSessions";
 import Search from "./pages/Search";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
+import Upload from "./pages/Upload";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Unauthorized from "./pages/Error/Unauthorized";
@@ -140,6 +141,16 @@ const AppContent = () => {
         element={
           <ProtectedRoute fallback={<Auth />}>
             <Help />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/upload"
+        element={
+          <ProtectedRoute fallback={<Auth />}>
+            <PermissionGuard requiredRole="company_operator" redirectTo="/unauthorized">
+              <Upload />
+            </PermissionGuard>
           </ProtectedRoute>
         }
       />

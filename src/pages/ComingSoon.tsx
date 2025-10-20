@@ -6,7 +6,6 @@ import { Card } from '@/components/ui/card';
 import { ArrowLeft, Clock } from 'lucide-react';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
-import { SecondaryNavigationBar } from '@/components/navigation/SecondaryNavigationBar';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface ComingSoonProps {
@@ -93,7 +92,6 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
       {/* Header with navigation */}
       <DashboardHeader userEmail={user?.email} />
       <PrimaryNavigationBar />
-      <SecondaryNavigationBar />
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center p-6">

@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useChatMessages } from '@/hooks/useChatMessages';
-import { useSources } from '@/hooks/useSources';
+import { useChatSessionSources } from '@/hooks/useChatSessionSources';
 import MarkdownRenderer from '@/components/chat/MarkdownRenderer';
 import SaveToNoteButton from './SaveToNoteButton';
 import AddSourcesDialog from './AddSourcesDialog';
@@ -47,18 +47,18 @@ const ChatArea = ({
     deleteChatHistory,
     isDeletingChatHistory
   } = useChatMessages(notebookId);
-  
+
   const {
-    sources
-  } = useSources(notebookId);
-  
+    sources,
+    hasProcessedSources,
+    completedCount,
+    processingCount
+  } = useChatSessionSources(notebookId);
+
   const sourceCount = sources?.length || 0;
 
-  // Check if at least one source has been successfully processed
-  const hasProcessedSource = sources?.some(source => source.processing_status === 'completed') || false;
-
   // Chat should be disabled if there are no processed sources
-  const isChatDisabled = !hasProcessedSource;
+  const isChatDisabled = !hasProcessedSources;
 
   // Track when we send a message to show loading state
   const [lastMessageCount, setLastMessageCount] = useState(0);

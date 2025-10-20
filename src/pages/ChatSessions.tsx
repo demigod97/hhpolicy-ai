@@ -4,7 +4,6 @@ import { useChatSessions, useCreateChatSession } from '@/hooks/useChatSession';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
-import { SecondaryNavigationBar } from '@/components/navigation/SecondaryNavigationBar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -48,7 +47,6 @@ const ChatSessions = () => {
       {/* Header with navigation */}
       <DashboardHeader userEmail={user?.email} />
       <PrimaryNavigationBar />
-      <SecondaryNavigationBar />
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
