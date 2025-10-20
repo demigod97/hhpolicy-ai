@@ -1,24 +1,13 @@
-/**
- * Process Document Callback Edge Function
- *
- * Receives callbacks from N8N after document processing:
- * 1. Validates source_id in payload
- * 2. Updates source record with extracted content, summary, and status
- * 3. Handles both success and failure cases
- *
- * Environment Variables:
- * - SUPABASE_URL: Auto-populated by Supabase
- * - SUPABASE_SERVICE_ROLE_KEY: Auto-populated by Supabase
- */
 
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
 
-Deno.serve(async (req: Request) => {
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }

@@ -33,6 +33,12 @@ const PRIMARY_NAV_ITEMS: NavItem[] = [
     permission: 'canAccessDashboard',
   },
   {
+    title: 'Chat',
+    href: '/chat',
+    icon: MessageSquare,
+    permission: 'canAccessDashboard', // Same permission as dashboard
+  },
+  {
     title: 'Search',
     href: '/search',
     icon: Search,

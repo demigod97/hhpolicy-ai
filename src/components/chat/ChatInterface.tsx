@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useChatSession } from '@/hooks/useChatSession';
 import ChatArea from '@/components/notebook/ChatArea';
 import ChatHistorySidebar from '@/components/chat/ChatHistorySidebar';
+import { SourcesSidebar } from '@/components/chat/SourcesSidebar';
 import { Button } from '@/components/ui/button';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { ArrowLeft, Loader2, Menu, X } from 'lucide-react';
@@ -128,26 +129,41 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       {/* Main Content with Sidebar */}
       <div className="flex-1 overflow-hidden">
         {isDesktop ? (
-          /* Desktop: Resizable Panels */
+          /* Desktop: Three-Panel Resizable Layout */
           <ResizablePanelGroup direction="horizontal">
-            {/* Chat History Sidebar */}
-            <ResizablePanel defaultSize={25} minSize={20} maxSize={40}>
-              <ChatHistorySidebar
-                currentSessionId={sessionId}
-                onSessionSelect={(id) => navigate(`/chat/${id}`)}
-                className="h-full"
-              />
-            </ResizablePanel>
+            {/* Left: Chat History Sidebar */}
+            {showSidebar && (
+              <>
+                <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
+                  <ChatHistorySidebar
+                    currentSessionId={sessionId}
+                    onSessionSelect={(id) => navigate(`/chat/${id}`)}
+                    className="h-full"
+                  />
+                </ResizablePanel>
+                <ResizableHandle withHandle />
+              </>
+            )}
 
-            <ResizableHandle withHandle />
-
-            {/* Chat Area */}
-            <ResizablePanel defaultSize={75} minSize={60}>
+            {/* Center: Chat Area */}
+            <ResizablePanel defaultSize={50} minSize={40}>
               <ChatArea
                 notebookId={sessionId || ''}
                 notebook={chatSession}
                 onCitationClick={handleCitationClick}
                 hasSource={true}
+              />
+            </ResizablePanel>
+
+            {/* Right: Sources Sidebar */}
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={30} minSize={20} maxSize={40}>
+              <SourcesSidebar
+                chatSessionId={sessionId}
+                onDocumentSelect={(docId) => {
+                  // Navigate to dashboard with document selected
+                  navigate(`/dashboard?doc=${docId}`);
+                }}
               />
             </ResizablePanel>
           </ResizablePanelGroup>

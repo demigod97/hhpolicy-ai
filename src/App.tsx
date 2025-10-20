@@ -13,12 +13,14 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { PermissionGuard } from "@/components/navigation/PermissionGuard";
 import Dashboard from "./pages/Dashboard";
 import ChatInterface from "./components/chat/ChatInterface";
+import ChatSessions from "./pages/ChatSessions";
 import Search from "./pages/Search";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Unauthorized from "./pages/Error/Unauthorized";
+import ComingSoon from "./pages/ComingSoon";
 import UserManagementPage from "./pages/admin/UserManagement";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 
@@ -99,6 +101,14 @@ const AppContent = () => {
       />
 
       {/* Chat Routes */}
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute fallback={<Auth />}>
+            <ChatSessions />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/chat/:sessionId"
         element={
@@ -198,7 +208,10 @@ const AppContent = () => {
         element={
           <ProtectedRoute fallback={<Auth />}>
             <PermissionGuard requiredRole="system_owner" redirectTo="/unauthorized">
-              <div>System Settings Page (To be implemented)</div>
+              <ComingSoon
+                title="System Settings"
+                description="Configure system-wide settings and preferences."
+              />
             </PermissionGuard>
           </ProtectedRoute>
         }
@@ -208,7 +221,10 @@ const AppContent = () => {
         element={
           <ProtectedRoute fallback={<Auth />}>
             <PermissionGuard requiredRole="system_owner" redirectTo="/unauthorized">
-              <div>User Limits Page (To be implemented)</div>
+              <ComingSoon
+                title="User Limits"
+                description="Manage user limits and quotas for the system."
+              />
             </PermissionGuard>
           </ProtectedRoute>
         }
@@ -220,7 +236,10 @@ const AppContent = () => {
         element={
           <ProtectedRoute fallback={<Auth />}>
             <PermissionGuard requiredRole="board" redirectTo="/unauthorized">
-              <div>Board Overview Page (To be implemented)</div>
+              <ComingSoon
+                title="Board Overview"
+                description="Strategic overview and insights for board members."
+              />
             </PermissionGuard>
           </ProtectedRoute>
         }
@@ -230,7 +249,10 @@ const AppContent = () => {
         element={
           <ProtectedRoute fallback={<Auth />}>
             <PermissionGuard requiredRole="board" redirectTo="/unauthorized">
-              <div>Policy Analysis Page (To be implemented)</div>
+              <ComingSoon
+                title="Policy Analysis"
+                description="Comprehensive analysis of policies and compliance."
+              />
             </PermissionGuard>
           </ProtectedRoute>
         }
@@ -240,7 +262,10 @@ const AppContent = () => {
         element={
           <ProtectedRoute fallback={<Auth />}>
             <PermissionGuard requiredRole="board" redirectTo="/unauthorized">
-              <div>Risk Assessment Page (To be implemented)</div>
+              <ComingSoon
+                title="Risk Assessment"
+                description="Risk assessment and mitigation strategies."
+              />
             </PermissionGuard>
           </ProtectedRoute>
         }
@@ -250,7 +275,10 @@ const AppContent = () => {
         element={
           <ProtectedRoute fallback={<Auth />}>
             <PermissionGuard requiredRole="board" redirectTo="/unauthorized">
-              <div>System Alerts Page (To be implemented)</div>
+              <ComingSoon
+                title="System Alerts"
+                description="Critical system alerts and notifications for board members."
+              />
             </PermissionGuard>
           </ProtectedRoute>
         }

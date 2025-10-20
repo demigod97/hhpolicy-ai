@@ -25,3 +25,4 @@ dist-ssr
 .env
 # BMAD (local only)
 .mcp.json
+.mcp.json

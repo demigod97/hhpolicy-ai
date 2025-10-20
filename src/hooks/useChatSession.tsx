@@ -40,6 +40,7 @@ export const useChatSession = (sessionId?: string) => {
 
 /**
  * Hook to create a new chat session
+ * Automatically links all accessible completed documents to the chat
  */
 export const useCreateChatSession = () => {
   const queryClient = useQueryClient();
@@ -49,7 +50,8 @@ export const useCreateChatSession = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase
+      // 1. Create chat session
+      const { data: session, error: sessionError } = await supabase
         .from('chat_sessions')
         .insert({
           user_id: user.id,
@@ -58,11 +60,45 @@ export const useCreateChatSession = () => {
         .select()
         .single();
 
-      if (error) throw error;
-      return data as ChatSession;
+      if (sessionError) throw sessionError;
+
+      // 2. Get all accessible documents (RLS will filter by role)
+      // Note: No processing_status filter - link all documents regardless of processing state
+      const { data: documents, error: docsError } = await supabase
+        .from('sources')
+        .select('id')
+        .eq('type', 'pdf');
+
+      if (docsError) {
+        console.error('Error fetching documents for auto-link:', docsError);
+        // Don't fail the chat creation, just log the error
+      }
+
+      // 3. Auto-link all accessible documents to the chat session
+      if (documents && documents.length > 0) {
+        const links = documents.map(doc => ({
+          chat_session_id: session.id,
+          source_id: doc.id,
+          added_by_user_id: user.id,
+        }));
+
+        const { error: linkError } = await supabase
+          .from('chat_session_documents')
+          .insert(links);
+
+        if (linkError) {
+          console.error('Error linking documents to chat:', linkError);
+          // Don't fail the chat creation
+        } else {
+          console.log(`Auto-linked ${documents.length} documents to chat session ${session.id}`);
+        }
+      }
+
+      return session as ChatSession;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chat-sessions'] });
+      queryClient.invalidateQueries({ queryKey: ['chat-session-documents'] });
     },
   });
 };

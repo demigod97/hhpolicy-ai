@@ -11,7 +11,7 @@
         "--project-ref=vnmsyofypuhxjlzwnuhh"
       ],
       "env": {
-        "SUPABASE_ACCESS_TOKEN": "sbp_fc634db7cf3496f56ee8b82b4232395a2381007d"
+        "SUPABASE_ACCESS_TOKEN": "sbp_92c50820738abd3dc3725e21e8b0ce7ae473b6a9"
       }
     },
    "playwright": {

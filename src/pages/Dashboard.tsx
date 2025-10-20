@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { DocumentGrid } from '@/components/dashboard/DocumentGrid';
 import { PDFViewer } from '@/components/pdf/PDFViewer';
@@ -21,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { user, loading: authLoading, error: authError } = useAuth();
   const { notebooks } = useNotebooks();
   const { userRole } = useUserRole();
@@ -50,9 +52,25 @@ const Dashboard = () => {
     }
   };
 
-  const handleUploadComplete = (sourceIds: string[]) => {
+  const handleUploadComplete = async (sourceIds: string[]) => {
     console.log('Upload complete, source IDs:', sourceIds);
-    setShowUploader(false);
+
+    // Show success message immediately
+    toast({
+      title: 'Upload Complete',
+      description: `${sourceIds.length} document(s) uploaded successfully. Refreshing...`,
+    });
+
+    // Invalidate queries to refresh document list
+    await queryClient.invalidateQueries({ queryKey: ['notebooks'] });
+    await queryClient.invalidateQueries({ queryKey: ['sources'] });
+    await queryClient.invalidateQueries({ queryKey: ['documents'] });
+    await queryClient.invalidateQueries({ queryKey: ['document-stats'] });
+
+    // Wait a moment for queries to refetch before closing
+    setTimeout(() => {
+      setShowUploader(false);
+    }, 500);
   };
 
   // Listen for upload dialog event from UserGreetingCard

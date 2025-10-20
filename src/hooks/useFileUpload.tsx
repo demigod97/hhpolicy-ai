@@ -46,6 +46,7 @@ export const useFileUpload = () => {
           title: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension from title
           processing_status: 'pending',
           target_role: 'administrator', // Default role, can be changed
+          uploaded_by_user_id: user.id, // Required for RLS policies
           metadata: {
             file_name: file.name,
             file_size: file.size,
@@ -91,6 +92,7 @@ export const useFileUpload = () => {
       onProgress?.(60);
 
       // Step 3: Update source with file path and PDF metadata
+      // Mark as processing - edge function will update to 'completed' when done
       const { error: updateError } = await supabase
         .from('sources')
         .update({
@@ -106,10 +108,10 @@ export const useFileUpload = () => {
         console.error('Source update error:', updateError);
       }
 
-      onProgress?.(75);
+      onProgress?.(80);
 
-      // Step 4: Call process-document edge function
-      console.log('Calling process-document edge function');
+      // Step 4: Trigger edge function to process document
+      console.log('Invoking process-document edge function for:', sourceId);
 
       const { data: processData, error: processError } = await supabase.functions.invoke(
         'process-document',
@@ -124,23 +126,20 @@ export const useFileUpload = () => {
 
       if (processError) {
         console.error('Process document error:', processError);
-
-        // Update source status to failed
         await supabase
           .from('sources')
           .update({ processing_status: 'failed' })
           .eq('id', sourceId);
-
         throw new Error(`Processing failed: ${processError.message}`);
       }
 
       onProgress?.(100);
 
-      console.log('Document processing initiated:', processData);
+      console.log('Document uploaded and processing initiated:', processData);
 
       toast({
         title: 'Upload Successful',
-        description: `${file.name} has been uploaded and is being processed.`,
+        description: `${file.name} has been uploaded and processing initiated.`,
       });
 
       return {

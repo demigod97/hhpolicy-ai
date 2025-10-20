@@ -53,7 +53,8 @@ const ACCEPTED_FILE_TYPES = {
   'image/png': ['.png'],
 };
 
-const getFileIcon = (fileType: string) => {
+const getFileIcon = (fileType: string | undefined) => {
+  if (!fileType) return File;
   if (fileType.startsWith('image/')) return ImageIcon;
   if (fileType.includes('pdf')) return FileText;
   return File;
@@ -65,7 +66,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   notebookId,
   onUploadComplete,
   acceptedFileTypes = Object.keys(ACCEPTED_FILE_TYPES),
-  maxFiles = 5,
+  maxFiles = 20, // Increased from 5 to allow more documents
   maxSize = 10 * 1024 * 1024, // 10MB
 }) => {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
@@ -177,12 +178,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
       onUploadComplete(successfulUploads);
     }
 
-    // Auto-close after successful upload
-    if (successfulUploads.length === files.length) {
-      setTimeout(() => {
-        handleClose();
-      }, 1500);
-    }
+    // Don't auto-close - let parent component handle it via onUploadComplete
+    // This allows proper query invalidation before closing
   };
 
   const handleClose = () => {

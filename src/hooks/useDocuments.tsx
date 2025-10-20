@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
 
@@ -16,6 +17,7 @@ export interface Document {
 
 export const useDocuments = () => {
   const { userRole } = useUserRole();
+  const queryClient = useQueryClient();
 
   const { data: documents, isLoading, error } = useQuery({
     queryKey: ['documents', userRole],
@@ -44,6 +46,38 @@ export const useDocuments = () => {
       return hasProcessing ? 5000 : false;
     },
   });
+
+  // Set up real-time subscription for sources table updates
+  useEffect(() => {
+    if (!userRole) return;
+
+    console.log('Setting up real-time subscription for sources (documents)');
+
+    const channel = supabase
+      .channel('sources-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'sources',
+        },
+        (payload) => {
+          console.log('Real-time source update received:', payload);
+
+          // Invalidate and refetch documents when any change occurs
+          queryClient.invalidateQueries({ queryKey: ['documents', userRole] });
+          queryClient.invalidateQueries({ queryKey: ['sources'] });
+          queryClient.invalidateQueries({ queryKey: ['notebooks'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Cleaning up sources real-time subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [userRole, queryClient]);
 
   return {
     documents: documents || [],
