@@ -145,7 +145,10 @@
       "Bash(npx tsc --noEmit)",
       "Bash(npx supabase db pull --schema public --password \"Coral@123\")",
       "Bash(npx supabase migration new sync_n8n_chat_to_chat_sessions)",
-      "Bash(git rm \"D:\\ailocal\\hhpolicy-ai\\src\\components\\navigation\\SecondaryNavigationBar.tsx\")"
+      "Bash(git rm \"D:\\ailocal\\hhpolicy-ai\\src\\components\\navigation\\SecondaryNavigationBar.tsx\")",
+      "Bash(dir /B \"D:\\ailocal\\hhpolicy-ai\\docs\\backup_src\")",
+      "mcp__chrome-devtools__new_page",
+      "Bash(npx supabase migration new fix_n8n_chat_histories_rls_policies)"
     ],
     "deny": [],
     "ask": []

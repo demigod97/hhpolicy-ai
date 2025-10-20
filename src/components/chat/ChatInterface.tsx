@@ -4,12 +4,15 @@ import { useChatSession } from '@/hooks/useChatSession';
 import ChatArea from '@/components/notebook/ChatArea';
 import ChatHistorySidebar from '@/components/chat/ChatHistorySidebar';
 import { SourcesSidebar } from '@/components/chat/SourcesSidebar';
+import { PDFViewer } from '@/components/pdf/PDFViewer';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { ArrowLeft, Loader2, Menu, X } from 'lucide-react';
 import { Citation } from '@/types/message';
 import { useToast } from '@/hooks/use-toast';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ChatInterfaceProps {
   onCitationClick?: (citation: Citation) => void;
@@ -26,6 +29,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const { chatSession, isLoading, error } = useChatSession(sessionId);
   const isDesktop = useIsDesktop();
   const [showSidebar, setShowSidebar] = useState(isDesktop);
+
+  // PDF Viewer State
+  const [showPDFViewer, setShowPDFViewer] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<{
+    id: string;
+    title: string;
+    fileUrl: string;
+    pageNumber?: number;
+  } | null>(null);
 
   useEffect(() => {
     // If no session ID provided, redirect to dashboard
@@ -48,17 +60,62 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  const handleCitationClick = (citation: Citation) => {
+  const handleCitationClick = async (citation: Citation) => {
     if (onCitationClick) {
       onCitationClick(citation);
-    } else {
-      // Default behavior: navigate to dashboard with document ID
-      const sourceId = citation.source_id || citation.sourceId;
-      const pageNumber = citation.page_number || citation.pageNumber;
+      return;
+    }
 
-      if (sourceId) {
-        navigate(`/dashboard?doc=${sourceId}${pageNumber ? `&page=${pageNumber}` : ''}`);
+    // Open PDF viewer in modal instead of navigating to dashboard
+    const sourceId = citation.source_id || citation.sourceId;
+    const pageNumber = citation.page_number || citation.pageNumber;
+
+    if (sourceId) {
+      await openPDFViewer(sourceId, pageNumber);
+    }
+  };
+
+  const openPDFViewer = async (documentId: string, pageNumber?: number) => {
+    try {
+      // Fetch document details
+      const { data: source, error } = await supabase
+        .from('sources')
+        .select('id, title, pdf_file_path, pdf_storage_bucket')
+        .eq('id', documentId)
+        .single();
+
+      if (error || !source) {
+        toast({
+          title: "Error",
+          description: "Could not load document",
+          variant: "destructive",
+        });
+        return;
       }
+
+      // Get signed URL for PDF
+      const bucket = source.pdf_storage_bucket || 'sources';
+      const { data: signedUrlData } = await supabase
+        .storage
+        .from(bucket)
+        .createSignedUrl(source.pdf_file_path, 3600); // 1 hour
+
+      if (signedUrlData?.signedUrl) {
+        setSelectedDocument({
+          id: source.id,
+          title: source.title,
+          fileUrl: signedUrlData.signedUrl,
+          pageNumber,
+        });
+        setShowPDFViewer(true);
+      }
+    } catch (error) {
+      console.error('Error opening PDF:', error);
+      toast({
+        title: "Error",
+        description: "Failed to open PDF viewer",
+        variant: "destructive",
+      });
     }
   };
 
@@ -161,8 +218,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               <SourcesSidebar
                 chatSessionId={sessionId}
                 onDocumentSelect={(docId) => {
-                  // Navigate to dashboard with document selected
-                  navigate(`/dashboard?doc=${docId}`);
+                  // Open PDF viewer instead of navigating to dashboard
+                  openPDFViewer(docId);
                 }}
               />
             </ResizablePanel>
@@ -192,6 +249,24 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </div>
         )}
       </div>
+
+      {/* PDF Viewer Modal */}
+      <Sheet open={showPDFViewer} onOpenChange={setShowPDFViewer}>
+        <SheetContent side="right" className="w-full sm:w-[80vw] sm:max-w-4xl p-0">
+          <SheetHeader className="px-6 py-4 border-b">
+            <SheetTitle>{selectedDocument?.title || 'Document Viewer'}</SheetTitle>
+          </SheetHeader>
+          {selectedDocument && (
+            <div className="h-[calc(100vh-80px)]">
+              <PDFViewer
+                fileUrl={selectedDocument.fileUrl}
+                fileName={selectedDocument.title}
+                onCitationJump={selectedDocument.pageNumber}
+              />
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

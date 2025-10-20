@@ -55,6 +55,17 @@ const ChatArea = ({
     processingCount
   } = useChatSessionSources(notebookId);
 
+  // Debug logging
+  React.useEffect(() => {
+    console.log('========== ChatArea Component State ==========');
+    console.log('notebookId:', notebookId);
+    console.log('messages from hook:', messages);
+    console.log('messages.length:', messages?.length || 0);
+    console.log('sources.length:', sources?.length || 0);
+    console.log('hasProcessedSources:', hasProcessedSources);
+    console.log('==============================================');
+  }, [notebookId, messages, sources, hasProcessedSources]);
+
   const sourceCount = sources?.length || 0;
 
   // Chat should be disabled if there are no processed sources

@@ -175,6 +175,8 @@ export const useChatMessages = (notebookId?: string) => {
     data: messages = [],
     isLoading,
     error,
+    isSuccess,
+    isFetching,
   } = useQuery({
     queryKey: ['chat-messages', notebookId],
     queryFn: async () => {
@@ -209,11 +211,19 @@ export const useChatMessages = (notebookId?: string) => {
         }).filter(([id]) => id) || []
       );
       
+      console.log('========== useChatMessages Query Results ==========');
       console.log('Raw data from database:', data);
+      console.log('Number of messages:', data?.length || 0);
       console.log('Sources map:', sourceMap);
-      
+      console.log('Sources map size:', sourceMap.size);
+
       // Transform the data to match our expected format
-      return data.map((item) => transformMessage(item, sourceMap));
+      const transformed = data.map((item) => transformMessage(item, sourceMap));
+      console.log('Transformed messages:', transformed);
+      console.log('Returning', transformed.length, 'messages to component');
+      console.log('====================================================');
+
+      return transformed;
     },
     enabled: !!notebookId && !!user,
     refetchOnMount: true,
@@ -358,6 +368,16 @@ export const useChatMessages = (notebookId?: string) => {
         variant: "destructive",
       });
     }
+  });
+
+  // Debug: Log what we're returning to component
+  console.log('useChatMessages hook returning:', {
+    messagesCount: messages.length,
+    isLoading,
+    isSuccess,
+    isFetching,
+    error: error?.message,
+    notebookId
   });
 
   return {
