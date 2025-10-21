@@ -19,6 +19,8 @@ import Settings from "./pages/Settings";
 import Help from "./pages/Help";
 import Upload from "./pages/Upload";
 import Auth from "./pages/Auth";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import Unauthorized from "./pages/Error/Unauthorized";
 import ComingSoon from "./pages/ComingSoon";
@@ -81,6 +83,8 @@ const AppContent = () => {
     <Routes>
       {/* Public routes */}
       <Route path="/auth" element={<Auth />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       {/* Protected routes - accessible to all authenticated users */}
