@@ -15,13 +15,29 @@ interface GetUsersResponse {
   error?: string;
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 Deno.serve(async (req: Request) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders
+    });
+  }
+
   try {
     // Only allow GET requests
     if (req.method !== 'GET') {
       return new Response(
         JSON.stringify({ error: 'Method not allowed' }),
-        { status: 405, headers: { 'Content-Type': 'application/json' } }
+        {
+          status: 405,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
       );
     }
 
@@ -40,7 +56,7 @@ Deno.serve(async (req: Request) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: 'Authorization header required' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -52,55 +68,69 @@ Deno.serve(async (req: Request) => {
     if (authError || !user) {
       return new Response(
         JSON.stringify({ error: 'Invalid or expired token' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     // Check if current user has permission to view users
-    const { data: currentUserData, error: roleCheckError } = await supabase
-      .from('users')
+    const { data: currentUserRole, error: roleCheckError } = await supabase
+      .from('user_roles')
       .select('role')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
-    if (roleCheckError || !currentUserData) {
+    if (roleCheckError || !currentUserRole) {
       return new Response(
         JSON.stringify({
-          error: 'User role not found'
+          error: 'User role not found',
+          details: roleCheckError?.message
         }),
-        { status: 403, headers: { 'Content-Type': 'application/json' } }
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const currentUserRole = currentUserData.role;
     
     // Only system_owner and company_operator can view all users
-    if (!['system_owner', 'company_operator'].includes(currentUserRole)) {
+    if (!['system_owner', 'company_operator'].includes(currentUserRole.role)) {
       return new Response(
         JSON.stringify({
           error: 'Access denied. Only System Owners and Company Operators can view user lists.'
         }),
-        { status: 403, headers: { 'Content-Type': 'application/json' } }
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get all users
-    const { data: users, error: usersError } = await supabase
-      .from('users')
-      .select(`
-        id,
-        email,
-        name,
-        role,
-        created_at,
-        last_active,
-        is_active
-      `)
-      .order('created_at', { ascending: false });
+    // Get all users from auth.users using admin API
+    const { data: authUsers, error: authUsersError } = await supabase.auth.admin.listUsers();
 
-    if (usersError) {
-      throw usersError;
+    if (authUsersError) {
+      throw new Error(`Failed to fetch auth users: ${authUsersError.message}`);
     }
+
+    // Get all user roles
+    const { data: userRoles, error: rolesError } = await supabase
+      .from('user_roles')
+      .select('user_id, role, created_at, updated_at');
+
+    if (rolesError) {
+      throw new Error(`Failed to fetch user roles: ${rolesError.message}`);
+    }
+
+    // Create a map of user roles for quick lookup
+    const rolesMap = new Map(userRoles?.map(r => [r.user_id, r]) || []);
+
+    // Combine auth users with their roles
+    const users = authUsers.users.map(authUser => {
+      const userRole = rolesMap.get(authUser.id);
+      return {
+        id: authUser.id,
+        email: authUser.email || '',
+        name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Unknown',
+        role: userRole?.role || 'no_role',
+        created_at: authUser.created_at,
+        last_active: authUser.last_sign_in_at || authUser.created_at,
+        is_active: authUser.last_sign_in_at ? true : false
+      };
+    });
 
     const response: GetUsersResponse = {
       success: true,
@@ -111,7 +141,7 @@ Deno.serve(async (req: Request) => {
       JSON.stringify(response),
       {
         status: 200,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
 
@@ -123,7 +153,7 @@ Deno.serve(async (req: Request) => {
         error: 'Internal server error',
         details: error instanceof Error ? error.message : 'Unknown error'
       }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

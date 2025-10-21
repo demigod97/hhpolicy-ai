@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useChatSessions, useCreateChatSession } from '@/hooks/useChatSession';
+import { useChatSessions, useCreateChatSession, useDeleteChatSession } from '@/hooks/useChatSession';
 import { useAuth } from '@/contexts/AuthContext';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import {
   MessageSquarePlus,
   MessageSquare,
@@ -24,6 +33,10 @@ const ChatSessions = () => {
   const { toast } = useToast();
   const { sessions, isLoading } = useChatSessions();
   const createSession = useCreateChatSession();
+  const deleteSession = useDeleteChatSession();
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 
   const handleNewChat = async () => {
     try {
@@ -43,10 +56,36 @@ const ChatSessions = () => {
     navigate(`/chat/${sessionId}`);
   };
 
+  const handleDeleteClick = (sessionId: string) => {
+    setSessionToDelete(sessionId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!sessionToDelete) return;
+
+    try {
+      await deleteSession.mutateAsync(sessionToDelete);
+      setDeleteDialogOpen(false);
+      setSessionToDelete(null);
+
+      toast({
+        title: 'Success',
+        description: 'Chat session deleted successfully.',
+      });
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete chat session.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header with navigation */}
-      <DashboardHeader userEmail={user?.email} />
       <PrimaryNavigationBar />
 
       {/* Main Content */}
@@ -104,10 +143,11 @@ const ChatSessions = () => {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          // TODO: Implement delete
+                          handleDeleteClick(session.id);
                         }}
+                        className="hover:bg-red-50 hover:text-red-600"
                       >
-                        <Trash2 className="h-4 w-4 text-gray-400" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </Card>
@@ -134,6 +174,35 @@ const ChatSessions = () => {
         </div>
       </div>
       <Footer />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Chat Session?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this chat session and all its messages. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={deleteSession.isPending}
+            >
+              {deleteSession.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -13,6 +13,7 @@ export interface Document {
   pdf_file_path: string | null;
   target_role: 'administrator' | 'executive' | 'board' | 'company_operator' | 'system_owner';
   notebook_id: string | null;
+  policyDate?: string | null; // Format: "Month-Year" e.g., "February-2024"
 }
 
 export const useDocuments = () => {
@@ -24,7 +25,7 @@ export const useDocuments = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('sources')
-        .select('id, title, type, metadata, created_at, processing_status, pdf_file_path, target_role, notebook_id')
+        .select('id, title, type, metadata, created_at, processing_status, pdf_file_path, target_role, notebook_id, policyDate')
         .eq('type', 'pdf')
         // Show completed, processing, and pending documents
         .in('processing_status', ['completed', 'processing', 'pending'])

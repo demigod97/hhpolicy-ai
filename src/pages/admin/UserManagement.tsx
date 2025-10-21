@@ -1,10 +1,12 @@
 import React from 'react';
+import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
+import { Footer } from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Shield, 
-  Users, 
-  Settings, 
+import {
+  Shield,
+  Users,
+  Settings,
   Activity,
   AlertTriangle,
   CheckCircle
@@ -13,7 +15,10 @@ import UserManagementDashboard from '@/components/admin/UserManagementDashboard'
 
 const UserManagement = () => {
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="min-h-screen bg-background flex flex-col">
+      <PrimaryNavigationBar />
+
+      <div className="flex-1 container mx-auto py-6 space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -108,6 +113,9 @@ const UserManagement = () => {
 
       {/* Main Dashboard */}
       <UserManagementDashboard />
+      </div>
+
+      <Footer />
     </div>
   );
 };

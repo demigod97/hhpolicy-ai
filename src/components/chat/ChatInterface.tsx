@@ -5,6 +5,8 @@ import ChatArea from '@/components/notebook/ChatArea';
 import ChatHistorySidebar from '@/components/chat/ChatHistorySidebar';
 import { SourcesSidebar } from '@/components/chat/SourcesSidebar';
 import { PDFViewer } from '@/components/pdf/PDFViewer';
+import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
+import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
@@ -136,50 +138,51 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   if (isLoading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-600 mx-auto mb-3" />
-          <p className="text-gray-600">Loading chat session...</p>
-        </div>
+      <div className="min-h-screen bg-background flex flex-col">
+        <PrimaryNavigationBar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-gray-600 mx-auto mb-3" />
+            <p className="text-gray-600">Loading chat session...</p>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   if (error || !chatSession) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center space-y-4">
-          <div className="text-red-600 mb-4">
-            <p className="text-lg font-medium">Failed to load chat session</p>
-            <p className="text-sm text-gray-600 mt-2">
-              {error || 'The chat session could not be found.'}
-            </p>
+      <div className="min-h-screen bg-background flex flex-col">
+        <PrimaryNavigationBar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <div className="text-red-600 mb-4">
+              <p className="text-lg font-medium">Failed to load chat session</p>
+              <p className="text-sm text-gray-600 mt-2">
+                {error || 'The chat session could not be found.'}
+              </p>
+            </div>
+            <Button onClick={handleBackClick} variant="default">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
           </div>
-          <Button onClick={handleBackClick} variant="default">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Button>
-        </div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="h-screen bg-white flex flex-col">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleBackClick}
-          className="gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Primary Navigation */}
+      <PrimaryNavigationBar />
 
+      {/* Chat Session Header */}
+      <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4">
         <div className="flex-1">
-          <h1 className="text-2xl font-normal text-gray-900">
+          <h1 className="text-xl font-medium text-gray-900">
             {chatSession.title || 'New Chat'}
           </h1>
         </div>
@@ -284,6 +287,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

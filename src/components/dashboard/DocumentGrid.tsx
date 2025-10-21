@@ -88,6 +88,7 @@ export const DocumentGrid: React.FC<DocumentGridProps> = ({
               targetRole={doc.target_role}
               createdAt={doc.created_at}
               processingStatus={doc.processing_status}
+              policyDate={doc.policyDate}
               metadata={doc.metadata}
               isSelected={selectedDocumentId === doc.id}
               onClick={() => onDocumentSelect?.(doc.id)}

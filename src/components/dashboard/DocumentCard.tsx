@@ -1,8 +1,9 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Calendar, HardDrive, Loader2, Clock, CheckCircle } from 'lucide-react';
+import { FileText, Calendar, HardDrive, Loader2, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { isPolicyOutdated, formatPolicyDate, getPolicyAgeDescription } from '@/lib/policyDateUtils';
 
 interface DocumentCardProps {
   id: string;
@@ -10,6 +11,7 @@ interface DocumentCardProps {
   targetRole: 'administrator' | 'executive' | 'board' | 'company_operator' | 'system_owner';
   createdAt: string;
   processingStatus?: 'pending' | 'processing' | 'completed' | 'failed';
+  policyDate?: string | null; // Format: "Month-Year" e.g., "February-2024"
   metadata?: {
     file_size?: number;
     page_count?: number;
@@ -24,6 +26,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
   targetRole,
   createdAt,
   processingStatus = 'completed',
+  policyDate,
   metadata,
   isSelected,
   onClick,
@@ -91,6 +94,8 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
   };
 
   const isProcessing = processingStatus === 'pending' || processingStatus === 'processing';
+  const isOutdated = isPolicyOutdated(policyDate);
+  const ageDescription = getPolicyAgeDescription(policyDate);
 
   return (
     <Card
@@ -111,16 +116,33 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="text-sm text-gray-600 space-y-2">
-        {/* Processing Status Badge */}
-        <div className="flex items-center">
+        {/* Status Badges */}
+        <div className="flex items-center gap-2 flex-wrap">
           {getProcessingStatusBadge()}
+
+          {/* Outdated Policy Badge */}
+          {isOutdated && (
+            <Badge
+              variant="outline"
+              className="bg-amber-50 text-amber-700 border-amber-300"
+              title={ageDescription || 'Policy older than 18 months'}
+            >
+              <AlertTriangle className="h-3 w-3 mr-1" />
+              Outdated
+            </Badge>
+          )}
         </div>
 
         {/* Document metadata */}
-        <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4" />
-          <span>{formatDistanceToNow(new Date(createdAt), { addSuffix: true })}</span>
-        </div>
+        {policyDate && (
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span className="font-medium">{formatPolicyDate(policyDate)}</span>
+            {ageDescription && (
+              <span className="text-xs text-gray-500">({ageDescription})</span>
+            )}
+          </div>
+        )}
         {metadata?.file_size && (
           <div className="flex items-center gap-2">
             <HardDrive className="h-4 w-4" />

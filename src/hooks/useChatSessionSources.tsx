@@ -13,6 +13,7 @@ export interface ChatSessionSource {
   url?: string;
   metadata?: Record<string, unknown>;
   target_role?: string;
+  policyDate?: string; // Format: "Month-Year" e.g., "February-2024"
   created_at: string;
   updated_at: string;
   linked_at?: string; // When it was linked to this chat
@@ -47,6 +48,7 @@ export const useChatSessionSources = (chatSessionId?: string) => {
             url,
             metadata,
             target_role,
+            policyDate,
             created_at,
             updated_at
           )

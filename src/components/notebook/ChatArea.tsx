@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useChatSessionSources } from '@/hooks/useChatSessionSources';
+import { useGenerateChatTitle } from '@/hooks/useGenerateChatTitle';
 import MarkdownRenderer from '@/components/chat/MarkdownRenderer';
 import SaveToNoteButton from './SaveToNoteButton';
 import AddSourcesDialog from './AddSourcesDialog';
@@ -54,6 +55,46 @@ const ChatArea = ({
     completedCount,
     processingCount
   } = useChatSessionSources(notebookId);
+
+  // Title generation hook
+  const { generateTitle } = useGenerateChatTitle();
+  const [titleGenerated, setTitleGenerated] = useState(false);
+
+  // Auto-generate title after first AI response
+  useEffect(() => {
+    const shouldGenerateTitle =
+      !titleGenerated &&
+      notebookId &&
+      messages &&
+      messages.length >= 2 && // At least user question + AI response
+      messages.some(msg => msg.message.type === 'human'); // Ensure user has sent a message
+
+    if (shouldGenerateTitle) {
+      // Extract chat history
+      const chatHistory = messages.map(msg => ({
+        role: msg.message.type === 'human' ? 'user' as const : 'assistant' as const,
+        content: typeof msg.message.content === 'string'
+          ? msg.message.content
+          : JSON.stringify(msg.message.content),
+        timestamp: msg.message.created_at,
+      }));
+
+      // Generate title asynchronously (don't block UI)
+      generateTitle.mutate(
+        { chatHistory, sessionId: notebookId },
+        {
+          onSuccess: (data) => {
+            console.log('Chat title generated:', data.title);
+            setTitleGenerated(true);
+          },
+          onError: (error) => {
+            console.error('Failed to generate chat title:', error);
+            // Silently fail - don't disrupt user experience
+          },
+        }
+      );
+    }
+  }, [messages?.length, titleGenerated, notebookId]); // Removed generateTitle from deps - it's stable
 
   // Debug logging
   React.useEffect(() => {
