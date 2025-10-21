@@ -5,6 +5,7 @@ import ChatArea from '@/components/notebook/ChatArea';
 import ChatHistorySidebar from '@/components/chat/ChatHistorySidebar';
 import { SourcesSidebar } from '@/components/chat/SourcesSidebar';
 import { PDFViewer } from '@/components/pdf/PDFViewer';
+import { CitationPreview } from '@/components/chat/CitationPreview';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
@@ -29,6 +30,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const { chatSession, isLoading, error } = useChatSession(sessionId);
   const isDesktop = useIsDesktop();
   const [showSidebar, setShowSidebar] = useState(isDesktop);
+
+  // Citation Preview State
+  const [showCitationPreview, setShowCitationPreview] = useState(false);
+  const [selectedCitation, setSelectedCitation] = useState<{
+    sourceId: string;
+    linesFrom?: number;
+    linesTo?: number;
+  } | null>(null);
 
   // PDF Viewer State
   const [showPDFViewer, setShowPDFViewer] = useState(false);
@@ -66,16 +75,25 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       return;
     }
 
-    // Open PDF viewer in modal instead of navigating to dashboard
+    // Show citation preview modal with extracted text
     const sourceId = citation.source_id || citation.sourceId;
-    const pageNumber = citation.page_number || citation.pageNumber;
+    const linesFrom = citation.chunk_lines_from;
+    const linesTo = citation.chunk_lines_to;
 
     if (sourceId) {
-      await openPDFViewer(sourceId, pageNumber);
+      setSelectedCitation({
+        sourceId,
+        linesFrom,
+        linesTo,
+      });
+      setShowCitationPreview(true);
     }
   };
 
-  const openPDFViewer = async (documentId: string, pageNumber?: number) => {
+  const openPDFViewer = async (
+    documentId: string,
+    pageNumber?: number
+  ) => {
     try {
       // Fetch document details
       const { data: source, error } = await supabase
@@ -249,6 +267,21 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </div>
         )}
       </div>
+
+      {/* Citation Preview Modal */}
+      {selectedCitation && (
+        <CitationPreview
+          open={showCitationPreview}
+          onOpenChange={setShowCitationPreview}
+          sourceId={selectedCitation.sourceId}
+          linesFrom={selectedCitation.linesFrom}
+          linesTo={selectedCitation.linesTo}
+          onOpenFullPDF={() => {
+            // Open the full PDF viewer
+            openPDFViewer(selectedCitation.sourceId);
+          }}
+        />
+      )}
 
       {/* PDF Viewer Modal */}
       <Sheet open={showPDFViewer} onOpenChange={setShowPDFViewer}>

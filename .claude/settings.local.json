@@ -148,7 +148,10 @@
       "Bash(git rm \"D:\\ailocal\\hhpolicy-ai\\src\\components\\navigation\\SecondaryNavigationBar.tsx\")",
       "Bash(dir /B \"D:\\ailocal\\hhpolicy-ai\\docs\\backup_src\")",
       "mcp__chrome-devtools__new_page",
-      "Bash(npx supabase migration new fix_n8n_chat_histories_rls_policies)"
+      "Bash(npx supabase migration new fix_n8n_chat_histories_rls_policies)",
+      "mcp__supabase__list_tables",
+      "Bash(del \"D:\\ailocal\\hhpolicy-ai\\src\\components\\pdf\\PDFViewer.css\")",
+      "mcp__shadcn-ui-mcp__list_components"
     ],
     "deny": [],
     "ask": []

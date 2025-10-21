@@ -68,13 +68,13 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
   // Listen for citation jumps from chat
   React.useEffect(() => {
     if (onCitationJump) {
-      // External control of page number
-      // Implementation depends on citation system
+      goToPage(onCitationJump);
     }
-  }, [onCitationJump]);
+  }, [onCitationJump, goToPage]);
 
   return (
     <div className="h-full flex flex-col bg-gray-100">
+
       {/* Controls */}
       <PDFControls
         currentPage={currentPage}
