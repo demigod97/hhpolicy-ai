@@ -151,7 +151,12 @@
       "Bash(npx supabase migration new fix_n8n_chat_histories_rls_policies)",
       "mcp__supabase__list_tables",
       "Bash(del \"D:\\ailocal\\hhpolicy-ai\\src\\components\\pdf\\PDFViewer.css\")",
-      "mcp__shadcn-ui-mcp__list_components"
+      "mcp__shadcn-ui-mcp__list_components",
+      "Bash(dir \"D:\\ailocal\\hhpolicy-ai\\docs\\stories\" /B)",
+      "Bash(npx supabase migration new fix_administrator_documents_rls)",
+      "Bash(npx shadcn@latest add card avatar separator skeleton table checkbox dropdown-menu select alert-dialog popover command scroll-area input label tabs breadcrumb --yes)",
+      "Bash(copy \"D:\\ailocal\\hhpolicy-ai\\docs\\logo-new.svg\" \"D:\\ailocal\\hhpolicy-ai\\public\\logo.svg\")",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

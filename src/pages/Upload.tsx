@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
+import { Footer } from '@/components/layout/Footer';
 import { DocumentUploader } from '@/components/document/DocumentUploader';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotebooks } from '@/hooks/useNotebooks';
@@ -42,7 +43,7 @@ const Upload = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <DashboardHeader userEmail={user?.email} />
       <PrimaryNavigationBar />
 
@@ -130,6 +131,7 @@ const Upload = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

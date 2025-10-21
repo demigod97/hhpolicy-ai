@@ -4,51 +4,56 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Human Habitat Brand Colors */
+    /* Background & Foreground */
+    --background: 0 0% 100%;                      /* White */
+    --foreground: 60 20% 16%;                     /* Charcoal #333322 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Card */
+    --card: 0 0% 100%;                            /* White */
+    --card-foreground: 60 20% 16%;                /* Charcoal */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    /* Popover */
+    --popover: 0 0% 100%;                         /* White */
+    --popover-foreground: 60 20% 16%;             /* Charcoal */
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary (Human Habitat Red - #EE4433) */
+    --primary: 5 84% 56%;                         /* Brand Red */
+    --primary-foreground: 0 0% 100%;              /* White text on red */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 221 83% 53%;
+    /* Secondary (Warm Gray - #BBBBAA) */
+    --secondary: 60 11% 70%;                      /* Warm Gray */
+    --secondary-foreground: 60 20% 16%;           /* Charcoal */
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted */
+    --muted: 60 11% 96%;                          /* Very light warm gray */
+    --muted-foreground: 60 11% 40%;               /* Darker warm gray */
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 221 83% 53%;
+    /* Accent (Green - #77CC99) */
+    --accent: 143 45% 63%;                        /* Success Green */
+    --accent-foreground: 60 20% 16%;              /* Charcoal */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive (uses primary red) */
+    --destructive: 5 84% 56%;                     /* Same as primary red */
+    --destructive-foreground: 0 0% 100%;          /* White */
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
+    /* Border & Input */
+    --border: 60 11% 85%;                         /* Light warm gray */
+    --input: 60 11% 85%;                          /* Light warm gray */
+    --ring: 5 84% 56%;                            /* Primary red for focus rings */
 
-    --radius: 0.5rem;
+    /* Radius */
+    --radius: 0.5rem;                             /* 8px - modern, friendly */
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 221 83% 53%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 221 83% 53%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar */
+    --sidebar-background: 0 0% 98%;               /* Off-white */
+    --sidebar-foreground: 60 20% 16%;             /* Charcoal */
+    --sidebar-primary: 5 84% 56%;                 /* Primary red */
+    --sidebar-primary-foreground: 0 0% 100%;      /* White */
+    --sidebar-accent: 60 11% 96%;                 /* Very light warm gray */
+    --sidebar-accent-foreground: 60 20% 16%;      /* Charcoal */
+    --sidebar-border: 60 11% 90%;                 /* Light warm gray */
+    --sidebar-ring: 5 84% 56%;                    /* Primary red */
   }
 
   .dark {

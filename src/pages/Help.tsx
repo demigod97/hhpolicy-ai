@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
+import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,7 +12,7 @@ const Help = () => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <DashboardHeader userEmail={user?.email} />
       <PrimaryNavigationBar />
 
@@ -133,6 +134,7 @@ const Help = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

@@ -40,6 +40,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (sourceId) {
@@ -47,13 +48,31 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
     }
   }, [sourceId]);
 
-  // Scroll to highlighted section after render
+  // Scroll to highlighted section after render - with delay and contained scroll
   useEffect(() => {
-    if (highlightRef.current && documentData) {
-      highlightRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
+    if (highlightRef.current && documentData && scrollAreaRef.current) {
+      // Wait for layout to settle before scrolling
+      const timer = setTimeout(() => {
+        if (highlightRef.current) {
+          // Get the scroll container (ScrollArea viewport)
+          const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+
+          if (scrollContainer && highlightRef.current) {
+            // Calculate position within the scroll container
+            const containerTop = scrollContainer.getBoundingClientRect().top;
+            const elementTop = highlightRef.current.getBoundingClientRect().top;
+            const offset = elementTop - containerTop - 100; // 100px from top
+
+            // Scroll the container, not the whole page
+            scrollContainer.scrollTo({
+              top: scrollContainer.scrollTop + offset,
+              behavior: 'smooth',
+            });
+          }
+        }
+      }, 300);
+
+      return () => clearTimeout(timer);
     }
   }, [documentData]);
 
@@ -230,9 +249,9 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-white overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 bg-gray-50">
+      <div className="p-4 border-b border-gray-200 bg-gray-50 flex-shrink-0">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
             <h3 className="font-semibold text-lg text-gray-900">
@@ -257,8 +276,8 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="text" className="flex-1 flex flex-col">
-        <div className="px-4 pt-3 border-b border-gray-200">
+      <Tabs defaultValue="text" className="flex-1 flex flex-col min-h-0">
+        <div className="px-4 pt-3 border-b border-gray-200 flex-shrink-0">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="text" className="gap-2">
               <FileText className="h-4 w-4" />
@@ -272,8 +291,8 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
         </div>
 
         {/* Text Content Tab */}
-        <TabsContent value="text" className="flex-1 mt-0">
-          <ScrollArea className="h-full">
+        <TabsContent value="text" className="flex-1 mt-0 overflow-hidden">
+          <ScrollArea className="h-full" ref={scrollAreaRef}>
             <div className="p-6">
               {renderContentWithHighlight(documentData.fullContent, documentData.chunks)}
             </div>
@@ -281,9 +300,9 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
         </TabsContent>
 
         {/* PDF View Tab */}
-        <TabsContent value="pdf" className="flex-1 mt-0">
+        <TabsContent value="pdf" className="flex-1 mt-0 overflow-hidden">
           {documentData.pdfUrl ? (
-            <div className="h-full">
+            <div className="h-full overflow-hidden">
               <PDFViewer
                 fileUrl={documentData.pdfUrl}
                 fileName={documentData.sourceTitle}

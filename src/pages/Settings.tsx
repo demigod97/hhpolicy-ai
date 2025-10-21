@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
+import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Settings as SettingsIcon, ArrowLeft } from 'lucide-react';
@@ -10,7 +11,7 @@ const Settings = () => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <DashboardHeader userEmail={user?.email} />
       <PrimaryNavigationBar />
 
@@ -32,6 +33,7 @@ const Settings = () => {
           </Link>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

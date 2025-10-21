@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { ArrowLeft, Clock } from 'lucide-react';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
+import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface ComingSoonProps {
@@ -88,7 +89,7 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header with navigation */}
       <DashboardHeader userEmail={user?.email} />
       <PrimaryNavigationBar />
@@ -130,6 +131,7 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
           </Button>
         </Card>
       </div>
+      <Footer />
     </div>
   );
 };

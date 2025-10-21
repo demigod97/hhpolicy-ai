@@ -2,10 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { DocumentGrid } from '@/components/dashboard/DocumentGrid';
 import { PDFViewer } from '@/components/pdf/PDFViewer';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
+import { Footer } from '@/components/layout/Footer';
 import { DocumentUploader } from '@/components/document/DocumentUploader';
 import { UserGreetingCard } from '@/components/dashboard/UserGreetingCard';
 import { useNotebooks } from '@/hooks/useNotebooks';
@@ -171,13 +171,12 @@ const Dashboard = () => {
   // Show loading while auth is initializing
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-white flex flex-col">
-        <DashboardHeader userEmail={user?.email} />
+      <div className="min-h-screen bg-background flex flex-col">
         <PrimaryNavigationBar />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </main>
       </div>
@@ -187,12 +186,11 @@ const Dashboard = () => {
   // Show auth error if present
   if (authError) {
     return (
-      <div className="min-h-screen bg-white flex flex-col">
-        <DashboardHeader userEmail={user?.email} />
+      <div className="min-h-screen bg-background flex flex-col">
         <PrimaryNavigationBar />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center max-w-md">
-            <p className="text-red-600 mb-4">Authentication error: {authError}</p>
+            <p className="text-destructive mb-4">Authentication error: {authError}</p>
             <Button onClick={() => window.location.reload()}>Retry</Button>
           </div>
         </main>
@@ -201,15 +199,12 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="h-screen bg-white flex flex-col">
-      {/* Header with navigation */}
-      <DashboardHeader userEmail={user?.email} />
-
+    <div className="h-screen bg-background flex flex-col">
       {/* Primary Navigation */}
       <PrimaryNavigationBar />
 
       {/* User Greeting Card */}
-      <div className="bg-gray-50 px-8 py-6">
+      <div className="bg-muted/30 px-8 py-6">
         <UserGreetingCard />
       </div>
 
@@ -218,7 +213,7 @@ const Dashboard = () => {
         <ResizablePanelGroup direction="horizontal">
           {/* Left Panel: Document Grid */}
           <ResizablePanel defaultSize={40} minSize={25}>
-            <div className="h-full overflow-auto p-6 bg-gray-50">
+            <div className="h-full overflow-auto p-6 bg-muted/30">
               <DocumentGrid
                 onDocumentSelect={handleDocumentSelect}
                 onUploadClick={() => setShowUploader(true)}
@@ -237,8 +232,8 @@ const Dashboard = () => {
                 fileName={selectedDocument.title}
               />
             ) : (
-              <div className="h-full flex items-center justify-center bg-white">
-                <div className="text-center text-gray-400">
+              <div className="h-full flex items-center justify-center bg-card">
+                <div className="text-center text-muted-foreground">
                   <FileText className="h-16 w-16 mx-auto mb-4" />
                   <p className="text-lg">Select a document to view</p>
                 </div>
@@ -247,6 +242,9 @@ const Dashboard = () => {
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Document Uploader Modal */}
       {defaultNotebookId && (
