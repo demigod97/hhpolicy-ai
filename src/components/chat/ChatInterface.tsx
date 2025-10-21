@@ -5,7 +5,6 @@ import ChatArea from '@/components/notebook/ChatArea';
 import ChatHistorySidebar from '@/components/chat/ChatHistorySidebar';
 import { SourcesSidebar } from '@/components/chat/SourcesSidebar';
 import { PDFViewer } from '@/components/pdf/PDFViewer';
-import { CitationPreview } from '@/components/chat/CitationPreview';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
@@ -31,15 +30,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const isDesktop = useIsDesktop();
   const [showSidebar, setShowSidebar] = useState(isDesktop);
 
-  // Citation Preview State
-  const [showCitationPreview, setShowCitationPreview] = useState(false);
+  // Citation State for Sidebar
   const [selectedCitation, setSelectedCitation] = useState<{
     sourceId: string;
     linesFrom?: number;
     linesTo?: number;
   } | null>(null);
 
-  // PDF Viewer State
+  // PDF Viewer State (for opening full PDF in modal)
   const [showPDFViewer, setShowPDFViewer] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<{
     id: string;
@@ -75,7 +73,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       return;
     }
 
-    // Show citation preview modal with extracted text
+    // Set citation for sidebar display
     const sourceId = citation.source_id || citation.sourceId;
     const linesFrom = citation.chunk_lines_from;
     const linesTo = citation.chunk_lines_to;
@@ -86,7 +84,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         linesFrom,
         linesTo,
       });
-      setShowCitationPreview(true);
     }
   };
 
@@ -239,6 +236,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   // Open PDF viewer instead of navigating to dashboard
                   openPDFViewer(docId);
                 }}
+                selectedCitation={selectedCitation}
+                onCitationClose={() => setSelectedCitation(null)}
               />
             </ResizablePanel>
           </ResizablePanelGroup>
@@ -267,21 +266,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </div>
         )}
       </div>
-
-      {/* Citation Preview Modal */}
-      {selectedCitation && (
-        <CitationPreview
-          open={showCitationPreview}
-          onOpenChange={setShowCitationPreview}
-          sourceId={selectedCitation.sourceId}
-          linesFrom={selectedCitation.linesFrom}
-          linesTo={selectedCitation.linesTo}
-          onOpenFullPDF={() => {
-            // Open the full PDF viewer
-            openPDFViewer(selectedCitation.sourceId);
-          }}
-        />
-      )}
 
       {/* PDF Viewer Modal */}
       <Sheet open={showPDFViewer} onOpenChange={setShowPDFViewer}>
