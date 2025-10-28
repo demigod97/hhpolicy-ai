@@ -13,7 +13,7 @@
 3. Pass **Supabase user + role** to the Copilot context for authorization-aware prompts/tools.
 
 ### Phase B — Tools & RAG (half day)
-
+/
 4. Wrap your **n8n ingestion** and **RAG search** as AG-UI “tools” (simple HTTP actions).
 5. Add **RLS policies** so embeddings & chunks are row-scoped to roles (Board/Exec/Admin or your three roles).
 6. Add **role-based webhooks** (your existing 3) as tools the agent can call.

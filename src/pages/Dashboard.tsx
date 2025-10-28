@@ -2,20 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { DocumentGrid } from '@/components/dashboard/DocumentGrid';
+import { DocumentTable } from '@/components/dashboard/DocumentTable';
 import { PDFViewer } from '@/components/pdf/PDFViewer';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
 import { Footer } from '@/components/layout/Footer';
 import { DocumentUploader } from '@/components/document/DocumentUploader';
 import { UserGreetingCard } from '@/components/dashboard/UserGreetingCard';
 import { useNotebooks } from '@/hooks/useNotebooks';
+import { useDocuments } from '@/hooks/useDocuments';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useCreateChatSession } from '@/hooks/useChatSession';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { Upload, FileText, MessageSquarePlus } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Upload, FileText, MessageSquarePlus, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
@@ -24,6 +25,7 @@ const Dashboard = () => {
   const queryClient = useQueryClient();
   const { user, loading: authLoading, error: authError } = useAuth();
   const { notebooks } = useNotebooks();
+  const { documents, isLoading: documentsLoading } = useDocuments();
   const { userRole } = useUserRole();
   const createSession = useCreateChatSession();
   const [showUploader, setShowUploader] = useState(false);
@@ -208,40 +210,47 @@ const Dashboard = () => {
         <UserGreetingCard />
       </div>
 
-      {/* Split View Layout */}
-      <div className="flex-1 overflow-hidden">
-        <ResizablePanelGroup direction="horizontal">
-          {/* Left Panel: Document Grid */}
-          <ResizablePanel defaultSize={40} minSize={25}>
-            <div className="h-full overflow-auto p-6 bg-muted/30">
-              <DocumentGrid
-                onDocumentSelect={handleDocumentSelect}
-                onUploadClick={() => setShowUploader(true)}
-                selectedDocumentId={selectedDocumentId}
-              />
+      {/* Document Table - Full Width */}
+      <div className="flex-1 overflow-auto p-6 bg-muted/30">
+        <DocumentTable
+          documents={documents}
+          isLoading={documentsLoading}
+          onDocumentSelect={handleDocumentSelect}
+          onUploadClick={() => setShowUploader(true)}
+          selectedDocumentId={selectedDocumentId}
+          canUpload={canUpload}
+          canManage={canUpload}
+        />
+      </div>
+
+      {/* PDF Viewer Modal */}
+      <Dialog open={!!selectedDocument} onOpenChange={(open) => !open && setSelectedDocument(null)}>
+        <DialogContent className="max-w-7xl h-[90vh] p-0">
+          <DialogHeader className="px-6 py-4 border-b">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-xl font-semibold">
+                {selectedDocument?.title || 'Document Preview'}
+              </DialogTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSelectedDocument(null)}
+                className="h-8 w-8"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-          </ResizablePanel>
-
-          <ResizableHandle withHandle />
-
-          {/* Right Panel: PDF Viewer */}
-          <ResizablePanel defaultSize={60} minSize={35}>
-            {selectedDocument ? (
+          </DialogHeader>
+          <div className="h-full overflow-hidden">
+            {selectedDocument && (
               <PDFViewer
                 fileUrl={selectedDocument.url}
                 fileName={selectedDocument.title}
               />
-            ) : (
-              <div className="h-full flex items-center justify-center bg-card">
-                <div className="text-center text-muted-foreground">
-                  <FileText className="h-16 w-16 mx-auto mb-4" />
-                  <p className="text-lg">Select a document to view</p>
-                </div>
-              </div>
             )}
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Footer */}
       <Footer />

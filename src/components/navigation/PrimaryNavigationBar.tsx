@@ -26,7 +26,7 @@ interface NavItem {
 // Minimal navigation focused on core RAG functionality
 const NAV_ITEMS: NavItem[] = [
   {
-    title: 'Policies',
+    title: 'Documents',
     href: '/',
     icon: LayoutDashboard,
     showForRoles: ['board', 'executive', 'administrator', 'company_operator', 'system_owner'],
