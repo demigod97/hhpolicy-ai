@@ -208,14 +208,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </div>
 
       {/* Main Content with Sidebar */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden h-[calc(100vh-180px)]">
         {isDesktop ? (
           /* Desktop: Three-Panel Resizable Layout */
-          <ResizablePanelGroup direction="horizontal">
+          <ResizablePanelGroup direction="horizontal" className="h-full">
             {/* Left: Chat History Sidebar */}
             {showSidebar && (
               <>
-                <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
+                <ResizablePanel id="history-panel" defaultSize={20} minSize={15} maxSize={25}>
                   <ChatHistorySidebar
                     currentSessionId={sessionId}
                     onSessionSelect={(id) => navigate(`/chat/${id}`)}
@@ -228,8 +228,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
             {/* Center: Chat Area */}
             <ResizablePanel
-              defaultSize={showSourcesSidebar ? 50 : 80}
-              minSize={40}
+              id="chat-panel"
+              defaultSize={
+                showSidebar && showSourcesSidebar ? 45
+                : showSidebar ? 80
+                : showSourcesSidebar ? 65
+                : 100
+              }
+              minSize={35}
             >
               <ChatArea
                 notebookId={sessionId || ''}
@@ -243,7 +249,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             {showSourcesSidebar && (
               <>
                 <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={30} minSize={20} maxSize={40}>
+                <ResizablePanel id="sources-panel" defaultSize={35} minSize={25} maxSize={45}>
                   <SourcesSidebar
                     chatSessionId={sessionId}
                     onDocumentSelect={(docId) => {

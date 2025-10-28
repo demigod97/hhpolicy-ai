@@ -102,9 +102,9 @@ export const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({
       setDeleteDialogOpen(false);
       setSessionToDelete(null);
 
-      // If we deleted the current session, navigate back to dashboard
+      // If we deleted the current session, navigate back to chat list
       if (sessionToDelete === currentSessionId) {
-        navigate('/dashboard');
+        navigate('/chat');
       }
 
       toast({
