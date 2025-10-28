@@ -5,15 +5,18 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { FileText, FileImage, Loader2, Calendar, X } from 'lucide-react';
+import { FileText, FileImage, Loader2, Calendar, X, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { PDFViewer } from '@/components/pdf/PDFViewer';
+import { useNotes } from '@/hooks/useNotes';
+import { useToast } from '@/hooks/use-toast';
 
 interface DocumentViewerProps {
   sourceId: string;
   linesFrom?: number;
   linesTo?: number;
   onClose?: () => void;
+  chatSessionId?: string;
 }
 
 interface DocumentData {
@@ -35,12 +38,15 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   linesFrom,
   linesTo,
   onClose,
+  chatSessionId,
 }) => {
   const [documentData, setDocumentData] = useState<DocumentData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+  const { createNote, isCreating } = useNotes(chatSessionId);
 
   useEffect(() => {
     if (sourceId) {
@@ -226,6 +232,36 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
     });
   };
 
+  // Handle save to note
+  const handleSaveToNote = () => {
+    if (!documentData || !chatSessionId) return;
+
+    // Get the cited chunk content if specific lines are highlighted
+    let noteContent = documentData.fullContent;
+    let noteTitle = `Citation from ${documentData.policyName}`;
+
+    if (linesFrom !== undefined && linesTo !== undefined) {
+      const citedChunk = documentData.chunks.find(
+        (chunk) => chunk.linesFrom === linesFrom && chunk.linesTo === linesTo
+      );
+      if (citedChunk) {
+        noteContent = citedChunk.content;
+        noteTitle = `Citation (Lines ${linesFrom}-${linesTo}) - ${documentData.policyName}`;
+      }
+    }
+
+    createNote({
+      title: noteTitle,
+      content: noteContent,
+      source_type: 'user',
+    });
+
+    toast({
+      title: 'Saved to Notes',
+      description: 'Citation has been saved to your notes',
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -273,6 +309,20 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
             </Button>
           )}
         </div>
+
+        {/* Save to Note Button */}
+        {chatSessionId && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSaveToNote}
+            disabled={isCreating}
+            className="w-full"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            {isCreating ? 'Saving...' : 'Save to Notes'}
+          </Button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -292,7 +342,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
 
         {/* Text Content Tab */}
         <TabsContent value="text" className="flex-1 mt-0 overflow-hidden">
-          <ScrollArea className="h-full" ref={scrollAreaRef}>
+          <ScrollArea className="h-full max-h-[calc(100vh-300px)]" ref={scrollAreaRef}>
             <div className="p-6">
               {renderContentWithHighlight(documentData.fullContent, documentData.chunks)}
             </div>

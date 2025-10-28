@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useChatSession } from '@/hooks/useChatSession';
+import { useChatMessages } from '@/hooks/useChatMessages';
+import { useChatSidebarVisibility } from '@/hooks/useChatSidebarVisibility';
 import ChatArea from '@/components/notebook/ChatArea';
 import ChatHistorySidebar from '@/components/chat/ChatHistorySidebar';
 import { SourcesSidebar } from '@/components/chat/SourcesSidebar';
@@ -31,6 +33,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const { chatSession, isLoading, error } = useChatSession(sessionId);
   const isDesktop = useIsDesktop();
   const [showSidebar, setShowSidebar] = useState(isDesktop);
+
+  // Fetch chat messages and determine sources sidebar visibility
+  const { messages } = useChatMessages(sessionId);
+  const { showSourcesSidebar } = useChatSidebarVisibility(messages);
 
   // Citation State for Sidebar
   const [selectedCitation, setSelectedCitation] = useState<{
@@ -221,7 +227,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             )}
 
             {/* Center: Chat Area */}
-            <ResizablePanel defaultSize={50} minSize={40}>
+            <ResizablePanel
+              defaultSize={showSourcesSidebar ? 50 : 80}
+              minSize={40}
+            >
               <ChatArea
                 notebookId={sessionId || ''}
                 notebook={chatSession}
@@ -230,19 +239,23 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               />
             </ResizablePanel>
 
-            {/* Right: Sources Sidebar */}
-            <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={30} minSize={20} maxSize={40}>
-              <SourcesSidebar
-                chatSessionId={sessionId}
-                onDocumentSelect={(docId) => {
-                  // Open PDF viewer instead of navigating to dashboard
-                  openPDFViewer(docId);
-                }}
-                selectedCitation={selectedCitation}
-                onCitationClose={() => setSelectedCitation(null)}
-              />
-            </ResizablePanel>
+            {/* Right: Sources Sidebar - Conditionally Rendered */}
+            {showSourcesSidebar && (
+              <>
+                <ResizableHandle withHandle />
+                <ResizablePanel defaultSize={30} minSize={20} maxSize={40}>
+                  <SourcesSidebar
+                    chatSessionId={sessionId}
+                    onDocumentSelect={(docId) => {
+                      // Open PDF viewer instead of navigating to dashboard
+                      openPDFViewer(docId);
+                    }}
+                    selectedCitation={selectedCitation}
+                    onCitationClose={() => setSelectedCitation(null)}
+                  />
+                </ResizablePanel>
+              </>
+            )}
           </ResizablePanelGroup>
         ) : (
           /* Mobile: Stack with toggle */
