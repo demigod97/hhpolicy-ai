@@ -165,7 +165,10 @@
       "mcp__chrome-devtools__evaluate_script",
       "mcp__supabase__deploy_edge_function",
       "Bash(npm run lint:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "SlashCommand(/BMad:agents:ux-expert)",
+      "mcp__chrome-devtools__resize_page",
+      "SlashCommand(/BMad:agents:po)"
     ],
     "deny": [],
     "ask": []

@@ -289,6 +289,28 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         )}
       </div>
 
+      {/* Mobile Citation Bottom Sheet */}
+      {!isDesktop && (
+        <Sheet
+          open={selectedCitation !== null}
+          onOpenChange={(open) => !open && setSelectedCitation(null)}
+        >
+          <SheetContent side="bottom" className="h-[65vh] p-0">
+            <SheetHeader className="px-6 py-4 border-b">
+              <SheetTitle>Citation Source</SheetTitle>
+            </SheetHeader>
+            <div className="h-[calc(65vh-64px)] overflow-hidden">
+              <SourcesSidebar
+                chatSessionId={sessionId}
+                onDocumentSelect={(docId) => openPDFViewer(docId)}
+                selectedCitation={selectedCitation}
+                onCitationClose={() => setSelectedCitation(null)}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+
       {/* PDF Viewer Modal */}
       <Sheet open={showPDFViewer} onOpenChange={setShowPDFViewer}>
         <SheetContent side="right" className="w-full sm:w-[80vw] sm:max-w-4xl p-0">
