@@ -181,12 +181,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex flex-col">
       {/* Primary Navigation */}
       <PrimaryNavigationBar />
 
       {/* Chat Session Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4">
+      <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4 flex-shrink-0">
         <div className="flex-1">
           <h1 className="text-xl font-medium text-gray-900">
             {chatSession.title || 'New Chat'}
@@ -208,7 +208,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </div>
 
       {/* Main Content with Sidebar */}
-      <div className="flex-1 overflow-hidden h-[calc(100vh-180px)]">
+      <div className="flex-1 overflow-hidden flex flex-col min-h-0">
         {isDesktop ? (
           /* Desktop: Three-Panel Resizable Layout */
           <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -308,7 +308,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </Sheet>
 
       {/* Footer */}
-      <Footer />
+      <div className="flex-shrink-0">
+        <Footer />
+      </div>
     </div>
   );
 };

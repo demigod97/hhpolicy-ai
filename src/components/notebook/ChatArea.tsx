@@ -315,10 +315,10 @@ const ChatArea = ({
     }
     return "Start typing...";
   };
-  return <div className="flex-1 flex flex-col h-full overflow-hidden">
-      {hasSource ? <div className="flex-1 flex flex-col h-full overflow-hidden">
+  return <div className="flex flex-col h-full w-full overflow-hidden">
+      {hasSource ? <div className="flex flex-col h-full overflow-hidden">
           {/* Chat Header */}
-          <div className="p-4 border-b border-gray-200 flex-shrink-0">
+          <div className="p-4 border-b border-gray-200 flex-shrink-0 bg-white">
             <div className="max-w-4xl mx-auto flex items-center justify-between">
               <h2 className="text-lg font-medium text-gray-900">Chat</h2>
               {shouldShowRefreshButton && <Button variant="ghost" size="sm" onClick={handleRefreshChat} disabled={isDeletingChatHistory || isChatDisabled} className="flex items-center space-x-2">
@@ -392,7 +392,7 @@ const ChatArea = ({
           </ScrollArea>
 
           {/* Chat Input - Fixed at bottom */}
-          <div className="p-6 border-t border-gray-200 flex-shrink-0">
+          <div className="p-6 border-t border-gray-200 flex-shrink-0 bg-white">
             <div className="max-w-4xl mx-auto">
               <div className="flex space-x-4">
                 <div className="flex-1 relative">
@@ -436,7 +436,8 @@ const ChatArea = ({
           </div>
         </div> :
     // Empty State
-    <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
+          <div className="flex-1 flex flex-col items-center justify-center p-8">
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-gray-100">
               <Upload className="h-8 w-8 text-slate-600" />
@@ -447,10 +448,11 @@ const ChatArea = ({
               Upload a source
             </Button>
           </div>
+          </div>
 
-          {/* Bottom Input */}
-          <div className="w-full max-w-2xl">
-            <div className="flex space-x-4">
+          {/* Bottom Input - Fixed at bottom */}
+          <div className="p-6 border-t border-gray-200 flex-shrink-0 bg-white">
+            <div className="max-w-4xl mx-auto flex space-x-4">
               <Input placeholder="Upload a source to get started" disabled className="flex-1" />
               <div className="flex items-center text-sm text-gray-500">
                 0 sources
@@ -461,12 +463,7 @@ const ChatArea = ({
             </div>
           </div>
         </div>}
-      
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-200 flex-shrink-0">
-        <p className="text-center text-sm text-gray-500">PolicyAi can be inaccurate; please double-check its responses.</p>
-      </div>
-      
+
       {/* Add Sources Dialog */}
       <AddSourcesDialog open={showAddSourcesDialog} onOpenChange={setShowAddSourcesDialog} notebookId={notebookId} />
     </div>;

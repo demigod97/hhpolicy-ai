@@ -163,7 +163,9 @@
       "mcp__supabase__get_logs",
       "mcp__chrome-devtools__take_screenshot",
       "mcp__chrome-devtools__evaluate_script",
-      "mcp__supabase__deploy_edge_function"
+      "mcp__supabase__deploy_edge_function",
+      "Bash(npm run lint:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []
