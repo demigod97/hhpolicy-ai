@@ -20,7 +20,7 @@ const Logo = ({ size = 'md', className = '' }: LogoProps) => {
   };
 
   return (
-    <div className={`${sizeClasses[size]} bg-black rounded-full flex items-center justify-center ${className}`}>
+    <div className={`${sizeClasses[size]} bg-blue-600 rounded-full flex items-center justify-center ${className}`}>
       <svg 
         xmlns="http://www.w3.org/2000/svg" 
         height={iconSizes[size]} 

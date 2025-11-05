@@ -3,6 +3,7 @@ import React from 'react';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import NotebookGrid from '@/components/dashboard/NotebookGrid';
 import EmptyDashboard from '@/components/dashboard/EmptyDashboard';
+import UserGreetingCard from '@/components/dashboard/UserGreetingCard';
 import { useNotebooks } from '@/hooks/useNotebooks';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -100,6 +101,10 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto px-6 py-[60px]">
         <div className="mb-8">
           <h1 className="font-medium text-gray-900 mb-2 text-5xl">Welcome to PolicyAi</h1>
+        </div>
+
+        <div className="mb-8">
+          <UserGreetingCard />
         </div>
 
         {hasNotebooks ? <NotebookGrid /> : <EmptyDashboard />}

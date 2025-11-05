@@ -8,14 +8,25 @@ interface MarkdownRendererProps {
   className?: string;
   onCitationClick?: (citation: Citation) => void;
   isUserMessage?: boolean;
+  CitationComponent?: React.ComponentType<{
+    citation: Citation;
+    citationNumber: number;
+    onClick: () => void;
+  }>;
 }
 
-const MarkdownRenderer = ({ content, className = '', onCitationClick, isUserMessage = false }: MarkdownRendererProps) => {
+const MarkdownRenderer = ({
+  content,
+  className = '',
+  onCitationClick,
+  isUserMessage = false,
+  CitationComponent
+}: MarkdownRendererProps) => {
   // Handle enhanced content with citations
   if (typeof content === 'object' && 'segments' in content) {
     return (
       <div className={className}>
-        {processMarkdownWithCitations(content.segments, content.citations, onCitationClick, isUserMessage)}
+        {processMarkdownWithCitations(content.segments, content.citations, onCitationClick, isUserMessage, CitationComponent)}
       </div>
     );
   }
@@ -23,20 +34,25 @@ const MarkdownRenderer = ({ content, className = '', onCitationClick, isUserMess
   // For legacy string content, convert to simple format
   const segments: MessageSegment[] = [{ text: typeof content === 'string' ? content : '' }];
   const citations: Citation[] = [];
-  
+
   return (
     <div className={className}>
-      {processMarkdownWithCitations(segments, citations, onCitationClick, isUserMessage)}
+      {processMarkdownWithCitations(segments, citations, onCitationClick, isUserMessage, CitationComponent)}
     </div>
   );
 };
 
 // Function to process markdown with citations inline
 const processMarkdownWithCitations = (
-  segments: MessageSegment[], 
-  citations: Citation[], 
+  segments: MessageSegment[],
+  citations: Citation[],
   onCitationClick?: (citation: Citation) => void,
-  isUserMessage: boolean = false
+  isUserMessage: boolean = false,
+  CitationComponent?: React.ComponentType<{
+    citation: Citation;
+    citationNumber: number;
+    onClick: () => void;
+  }>
 ) => {
   // For user messages, render as inline content without paragraph breaks
   if (isUserMessage) {
@@ -45,20 +61,27 @@ const processMarkdownWithCitations = (
         {segments.map((segment, index) => (
           <span key={index}>
             {processInlineMarkdown(segment.text)}
-            {segment.citation_id && onCitationClick && (
-              <CitationButton
-                chunkIndex={(() => {
-                  const citation = citations.find(c => c.citation_id === segment.citation_id);
-                  return citation?.chunk_index || 0;
-                })()}
-                onClick={() => {
-                  const citation = citations.find(c => c.citation_id === segment.citation_id);
-                  if (citation) {
-                    onCitationClick(citation);
-                  }
-                }}
-              />
-            )}
+            {segment.citation_id && onCitationClick && (() => {
+              const citation = citations.find(c => c.citation_id === segment.citation_id);
+              if (!citation) return null;
+
+              if (CitationComponent) {
+                return (
+                  <CitationComponent
+                    citation={citation}
+                    citationNumber={segment.citation_id}
+                    onClick={() => onCitationClick(citation)}
+                  />
+                );
+              }
+
+              return (
+                <CitationButton
+                  chunkIndex={citation.chunk_index || 0}
+                  onClick={() => onCitationClick(citation)}
+                />
+              );
+            })()}
           </span>
         ))}
       </span>
@@ -82,12 +105,24 @@ const processMarkdownWithCitations = (
         <p key={`${segmentIndex}-${paragraphIndex}`} className="mb-4 leading-relaxed">
           {processedContent}
           {/* Add citation at the end of the paragraph if this is the last paragraph of the segment */}
-          {paragraphIndex === paragraphTexts.length - 1 && citation && onCitationClick && (
-            <CitationButton
-              chunkIndex={citation.chunk_index || 0}
-              onClick={() => onCitationClick(citation)}
-            />
-          )}
+          {paragraphIndex === paragraphTexts.length - 1 && citation && onCitationClick && (() => {
+            if (CitationComponent) {
+              return (
+                <CitationComponent
+                  citation={citation}
+                  citationNumber={segment.citation_id!}
+                  onClick={() => onCitationClick(citation)}
+                />
+              );
+            }
+
+            return (
+              <CitationButton
+                chunkIndex={citation.chunk_index || 0}
+                onClick={() => onCitationClick(citation)}
+              />
+            );
+          })()}
         </p>
       );
     });

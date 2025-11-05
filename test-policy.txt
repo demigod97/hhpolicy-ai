@@ -1,0 +1,21 @@
+EXECUTIVE POLICY DOCUMENT - TEST
+
+Policy Title: Remote Work Guidelines for Executives
+Effective Date: September 19, 2025
+Department: Executive Leadership
+
+1. PURPOSE
+This policy establishes guidelines for executive remote work arrangements and ensures business continuity at the leadership level.
+
+2. SCOPE
+This policy applies to all executive-level employees including C-suite members, VPs, and senior directors.
+
+3. GUIDELINES
+- Executives must maintain regular communication with their teams
+- All executive meetings should have hybrid options available
+- Critical decisions require in-person presence when possible
+
+4. APPROVAL PROCESS
+All executive remote work arrangements must be approved by the CEO or Board of Directors.
+
+This is a test policy document for role-based access control testing.
