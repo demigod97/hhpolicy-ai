@@ -1,15 +1,17 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useDocumentStats } from '@/hooks/useDocumentStats';
 import { useCreateChatSession } from '@/hooks/useChatSession';
 import { useToast } from '@/hooks/use-toast';
+import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { getRoleColors, getRoleIcon, getRoleDisplayName } from '@/lib/rolePalette';
 import {
   Upload,
@@ -19,6 +21,8 @@ import {
   Clock,
   TrendingUp,
   Sparkles,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -56,6 +60,30 @@ export const UserGreetingCard: React.FC = () => {
   const navigate = useNavigate();
   const createSession = useCreateChatSession();
   const { toast } = useToast();
+  const isDesktop = useIsDesktop();
+
+  // Collapsible state with localStorage persistence
+  const [isExpanded, setIsExpanded] = useState(() => {
+    // Desktop: always expanded
+    if (typeof window !== 'undefined' && window.matchMedia('(min-width: 1100px)').matches) {
+      return true;
+    }
+
+    // Mobile: check localStorage preference
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('dashboard-greeting-expanded');
+      return stored === 'true';
+    }
+
+    return false; // Default collapsed on mobile
+  });
+
+  // Persist mobile preference to localStorage
+  useEffect(() => {
+    if (!isDesktop && typeof window !== 'undefined') {
+      localStorage.setItem('dashboard-greeting-expanded', String(isExpanded));
+    }
+  }, [isExpanded, isDesktop]);
 
   // Time-based greeting
   const greeting = useMemo(() => {
@@ -119,208 +147,291 @@ export const UserGreetingCard: React.FC = () => {
     >
       <Card className="border-2 shadow-md hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-card to-card/80">
         <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row items-start justify-between gap-6">
-            {/* Left: Greeting and User Info */}
-            <div className="flex items-start gap-4 flex-1">
-              <motion.div
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <Avatar className="h-16 w-16 border-4 border-primary/20 shadow-lg">
-                  <AvatarFallback className={`${roleColors.badgeBg} ${roleColors.badgeText} text-2xl font-bold`}>
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-              </motion.div>
-
-              <div className="space-y-2 flex-1">
+          <Collapsible open={isDesktop || isExpanded} onOpenChange={setIsExpanded}>
+            <div className="flex flex-col lg:flex-row items-start justify-between gap-6">
+              {/* Left: Greeting and User Info */}
+              <div className="flex items-start gap-4 flex-1">
                 <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <h2 className="text-2xl lg:text-3xl font-bold text-foreground flex items-center gap-2">
-                    <span>{greetingIcon}</span>
-                    <span>{greeting}, {user?.email?.split('@')[0] || 'User'}</span>
-                  </h2>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {user?.email}
-                  </p>
+                  <Avatar className="h-16 w-16 border-4 border-primary/20 shadow-lg">
+                    <AvatarFallback className={`${roleColors.badgeBg} ${roleColors.badgeText} text-2xl font-bold`}>
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
                 </motion.div>
 
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <Badge
-                    variant="outline"
-                    className={`${roleColors.badgeBg} ${roleColors.border} ${roleColors.badgeText} border-2 font-semibold px-4 py-1.5 text-sm`}
+                <div className="space-y-2 flex-1">
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
                   >
-                    <span className="mr-2">{getRoleIcon(userRole || 'administrator')}</span>
-                    {getRoleDisplayName(userRole as any || 'administrator')}
-                  </Badge>
-                </motion.div>
+                    <h2 className="text-2xl lg:text-3xl font-bold text-foreground flex items-center gap-2">
+                      <span>{greetingIcon}</span>
+                      <span>{greeting}, {user?.email?.split('@')[0] || 'User'}</span>
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {user?.email}
+                    </p>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <Badge
+                      variant="outline"
+                      className={`${roleColors.badgeBg} ${roleColors.border} ${roleColors.badgeText} border-2 font-semibold px-4 py-1.5 text-sm`}
+                    >
+                      <span className="mr-2">{getRoleIcon(userRole || 'administrator')}</span>
+                      {getRoleDisplayName(userRole as any || 'administrator')}
+                    </Badge>
+                  </motion.div>
+
+                  {/* Mobile-only toggle button */}
+                  {!isDesktop && (
+                    <CollapsibleTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="mt-2 gap-2 min-h-[44px] min-w-[44px] touch-manipulation"
+                        style={{ touchAction: 'manipulation' }}
+                        aria-label={isExpanded ? "Hide statistics" : "View statistics"}
+                        aria-expanded={isExpanded}
+                        aria-controls="stats-section"
+                      >
+                        {isExpanded ? (
+                          <>
+                            <ChevronUp className="h-4 w-4" />
+                            <span>Hide Stats</span>
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="h-4 w-4" />
+                            <span>View Stats</span>
+                          </>
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Right: Quick Actions */}
-            <motion.div
-              className="flex flex-wrap gap-2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleNewChat}
-                  className="gap-2 shadow-sm hover:shadow-md transition-shadow"
+              {/* Right: Quick Actions - Desktop only, Mobile in Collapsible */}
+              {isDesktop && (
+                <motion.div
+                  className="flex flex-wrap gap-2"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
                 >
-                  <MessageSquarePlus className="h-4 w-4" />
-                  <span className="hidden sm:inline">New Chat</span>
-                </Button>
-              </motion.div>
-
-              {isOperator && (
-                <>
                   <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={handleUpload}
+                      onClick={handleNewChat}
                       className="gap-2 shadow-sm hover:shadow-md transition-shadow"
                     >
-                      <Upload className="h-4 w-4" />
-                      <span className="hidden sm:inline">Upload</span>
+                      <MessageSquarePlus className="h-4 w-4" />
+                      <span className="hidden sm:inline">New Chat</span>
                     </Button>
                   </motion.div>
 
+                  {isOperator && (
+                    <>
+                      <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleUpload}
+                          className="gap-2 shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          <Upload className="h-4 w-4" />
+                          <span className="hidden sm:inline">Upload</span>
+                        </Button>
+                      </motion.div>
+
+                      <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                        <Button
+                          size="sm"
+                          onClick={handleManageDocuments}
+                          className="gap-2 shadow-sm hover:shadow-md transition-shadow bg-primary hover:bg-primary/90"
+                        >
+                          <Settings className="h-4 w-4" />
+                          <span className="hidden sm:inline">Manage</span>
+                        </Button>
+                      </motion.div>
+                    </>
+                  )}
+                </motion.div>
+              )}
+            </div>
+
+            {/* Collapsible Content: Quick Actions (mobile) + Stats */}
+            <CollapsibleContent id="stats-section">
+              {/* Quick Actions - Mobile only */}
+              {!isDesktop && (
+                <motion.div
+                  className="flex flex-wrap gap-2 mt-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
                   <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
                     <Button
+                      variant="outline"
                       size="sm"
-                      onClick={handleManageDocuments}
-                      className="gap-2 shadow-sm hover:shadow-md transition-shadow bg-primary hover:bg-primary/90"
+                      onClick={handleNewChat}
+                      className="gap-2 shadow-sm hover:shadow-md transition-shadow"
                     >
-                      <Settings className="h-4 w-4" />
-                      <span className="hidden sm:inline">Manage</span>
+                      <MessageSquarePlus className="h-4 w-4" />
+                      <span>New Chat</span>
                     </Button>
                   </motion.div>
-                </>
+
+                  {isOperator && (
+                    <>
+                      <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleUpload}
+                          className="gap-2 shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          <Upload className="h-4 w-4" />
+                          <span>Upload</span>
+                        </Button>
+                      </motion.div>
+
+                      <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+                        <Button
+                          size="sm"
+                          onClick={handleManageDocuments}
+                          className="gap-2 shadow-sm hover:shadow-md transition-shadow bg-primary hover:bg-primary/90"
+                        >
+                          <Settings className="h-4 w-4" />
+                          <span>Manage</span>
+                        </Button>
+                      </motion.div>
+                    </>
+                  )}
+                </motion.div>
               )}
-            </motion.div>
-          </div>
 
-          <Separator className="my-6" />
+              <Separator className="my-6" />
 
-          {/* Document Statistics */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {/* Total Accessible Documents */}
-            <motion.div
-              variants={statVariants}
-              className="space-y-2 p-4 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors"
-            >
-              <div className="flex items-center gap-2 text-primary">
-                <FileText className="h-5 w-5" />
-                <span className="text-sm font-semibold">Total Documents</span>
-              </div>
-              <motion.p
-                className="text-4xl font-bold text-foreground"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.5, type: "spring" }}
-              >
-                {stats.isLoading ? (
-                  <span className="animate-pulse">...</span>
-                ) : (
-                  stats.data?.total || 0
-                )}
-              </motion.p>
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <Sparkles className="h-3 w-3" />
-                Accessible to you
-              </p>
-            </motion.div>
-
-            {/* Recent Documents (Last 7 days) */}
-            <motion.div
-              variants={statVariants}
-              className="space-y-2 p-4 rounded-lg bg-accent/50 border border-accent hover:bg-accent/60 transition-colors"
-            >
-              <div className="flex items-center gap-2 text-accent-foreground">
-                <Clock className="h-5 w-5" />
-                <span className="text-sm font-semibold">Recent</span>
-              </div>
-              <motion.p
-                className="text-4xl font-bold text-foreground"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.6, type: "spring" }}
-              >
-                {stats.isLoading ? (
-                  <span className="animate-pulse">...</span>
-                ) : (
-                  stats.data?.recent || 0
-                )}
-              </motion.p>
-              <p className="text-xs text-muted-foreground">
-                Last 7 days
-              </p>
-            </motion.div>
-
-            {/* User's Uploads (if operator) or Processing Status */}
-            <motion.div
-              variants={statVariants}
-              className="space-y-2 p-4 rounded-lg bg-secondary/50 border border-secondary hover:bg-secondary/60 transition-colors"
-            >
-              {isOperator ? (
-                <>
-                  <div className="flex items-center gap-2 text-secondary-foreground">
-                    <TrendingUp className="h-5 w-5" />
-                    <span className="text-sm font-semibold">Your Uploads</span>
+              {/* Document Statistics */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                {/* Total Accessible Documents */}
+                <motion.div
+                  variants={statVariants}
+                  className="space-y-2 p-4 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors"
+                >
+                  <div className="flex items-center gap-2 text-primary">
+                    <FileText className="h-5 w-5" />
+                    <span className="text-sm font-semibold">Total Documents</span>
                   </div>
                   <motion.p
                     className="text-4xl font-bold text-foreground"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ delay: 0.7, type: "spring" }}
+                    transition={{ delay: 0.5, type: "spring" }}
                   >
                     {stats.isLoading ? (
                       <span className="animate-pulse">...</span>
                     ) : (
-                      stats.data?.uploaded || 0
+                      stats.data?.total || 0
                     )}
                   </motion.p>
-                  <p className="text-xs text-muted-foreground">
-                    Documents uploaded
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Sparkles className="h-3 w-3" />
+                    Accessible to you
                   </p>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-2 text-secondary-foreground">
+                </motion.div>
+
+                {/* Recent Documents (Last 7 days) */}
+                <motion.div
+                  variants={statVariants}
+                  className="space-y-2 p-4 rounded-lg bg-accent/50 border border-accent hover:bg-accent/60 transition-colors"
+                >
+                  <div className="flex items-center gap-2 text-accent-foreground">
                     <Clock className="h-5 w-5" />
-                    <span className="text-sm font-semibold">Processing</span>
+                    <span className="text-sm font-semibold">Recent</span>
                   </div>
                   <motion.p
                     className="text-4xl font-bold text-foreground"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ delay: 0.7, type: "spring" }}
+                    transition={{ delay: 0.6, type: "spring" }}
                   >
                     {stats.isLoading ? (
                       <span className="animate-pulse">...</span>
                     ) : (
-                      stats.data?.processing || 0
+                      stats.data?.recent || 0
                     )}
                   </motion.p>
                   <p className="text-xs text-muted-foreground">
-                    In progress
+                    Last 7 days
                   </p>
-                </>
-              )}
-            </motion.div>
-          </div>
+                </motion.div>
+
+                {/* User's Uploads (if operator) or Processing Status */}
+                <motion.div
+                  variants={statVariants}
+                  className="space-y-2 p-4 rounded-lg bg-secondary/50 border border-secondary hover:bg-secondary/60 transition-colors"
+                >
+                  {isOperator ? (
+                    <>
+                      <div className="flex items-center gap-2 text-secondary-foreground">
+                        <TrendingUp className="h-5 w-5" />
+                        <span className="text-sm font-semibold">Your Uploads</span>
+                      </div>
+                      <motion.p
+                        className="text-4xl font-bold text-foreground"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.7, type: "spring" }}
+                      >
+                        {stats.isLoading ? (
+                          <span className="animate-pulse">...</span>
+                        ) : (
+                          stats.data?.uploaded || 0
+                        )}
+                      </motion.p>
+                      <p className="text-xs text-muted-foreground">
+                        Documents uploaded
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2 text-secondary-foreground">
+                        <Clock className="h-5 w-5" />
+                        <span className="text-sm font-semibold">Processing</span>
+                      </div>
+                      <motion.p
+                        className="text-4xl font-bold text-foreground"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.7, type: "spring" }}
+                      >
+                        {stats.isLoading ? (
+                          <span className="animate-pulse">...</span>
+                        ) : (
+                          stats.data?.processing || 0
+                        )}
+                      </motion.p>
+                      <p className="text-xs text-muted-foreground">
+                        In progress
+                      </p>
+                    </>
+                  )}
+                </motion.div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </CardContent>
       </Card>
     </motion.div>
