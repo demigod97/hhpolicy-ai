@@ -1,48 +1,57 @@
 /**
- * Human Habitat Brand Colors
+ * PolicyAi Brand Colors
+ * Blue and Orange color scheme
  * Color utility functions and constants
  */
 
 export const colors = {
-  // Primary Brand Color - Human Habitat Red
+  // Primary Brand Color - Professional Blue
   primary: {
-    DEFAULT: '#EE4433',
-    dark: '#CC3322',
-    light: '#FF6655',
-    pale: '#FFE8E5',
+    DEFAULT: '#2563EB',  // Blue 600
+    dark: '#1E40AF',     // Blue 800
+    light: '#3B82F6',    // Blue 500
+    pale: '#DBEAFE',     // Blue 100
   },
 
   // Neutral Colors - Professional Base
-  charcoal: {
-    DEFAULT: '#333322',
-    light: '#4A4A38',
-    dark: '#1A1A11',
+  slate: {
+    DEFAULT: '#1E293B',    // Slate 800 - complements blue
+    light: '#334155',      // Slate 700
+    dark: '#0F172A',       // Slate 900
   },
 
-  warmGray: {
-    DEFAULT: '#BBBBAA',
-    light: '#D5D5C8',
-    dark: '#9A9A88',
+  gray: {
+    DEFAULT: '#6B7280',    // Gray 500 - neutral gray
+    light: '#9CA3AF',      // Gray 400
+    dark: '#374151',       // Gray 700
   },
 
   white: '#FFFFFF',
 
-  // Accent Color - Success & Positive Actions
+  // Accent Color - Orange (complements blue)
+  orange: {
+    DEFAULT: '#F97316',    // Orange 500
+    dark: '#EA580C',       // Orange 600
+    light: '#FDBA74',      // Orange 300
+    pale: '#FED7AA',       // Orange 200
+  },
+
+  // Success & Positive Actions
   green: {
-    DEFAULT: '#77CC99',
-    dark: '#5FAA7F',
-    light: '#E5F7EE',
+    DEFAULT: '#10B981',    // Emerald 500
+    dark: '#059669',       // Emerald 600
+    light: '#D1FAE5',      // Emerald 100
   },
 
   // Extended Palette for UI States
   warning: {
-    DEFAULT: '#FFB84D',
-    light: '#FFF3E0',
+    DEFAULT: '#F59E0B',    // Amber 500
+    light: '#FEF3C7',      // Amber 100
   },
 
   error: {
-    DEFAULT: '#EE4433',
-    light: '#FFE8E5',
+    DEFAULT: '#EF4444',  // Red 500 - for actual errors
+    light: '#FEE2E2',    // Red 100
   },
 
   info: {

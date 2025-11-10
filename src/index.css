@@ -4,26 +4,26 @@
 
 @layer base {
   :root {
-    /* Human Habitat Brand Colors */
+    /* PolicyAi Brand Colors - Blue & Orange Theme */
     /* Background & Foreground */
     --background: 0 0% 100%;                      /* White */
-    --foreground: 60 20% 16%;                     /* Charcoal #333322 */
+    --foreground: 215 25% 15%;                    /* Slate 800 #1E293B */
 
     /* Card */
     --card: 0 0% 100%;                            /* White */
-    --card-foreground: 60 20% 16%;                /* Charcoal */
+    --card-foreground: 215 25% 15%;               /* Slate 800 */
 
     /* Popover */
     --popover: 0 0% 100%;                         /* White */
-    --popover-foreground: 60 20% 16%;             /* Charcoal */
+    --popover-foreground: 215 25% 15%;            /* Slate 800 */
 
-    /* Primary (Human Habitat Red - #EE4433) */
-    --primary: 5 84% 56%;                         /* Brand Red */
-    --primary-foreground: 0 0% 100%;              /* White text on red */
+    /* Primary (Professional Blue - #2563EB) */
+    --primary: 221 83% 53%;                       /* Brand Blue */
+    --primary-foreground: 0 0% 100%;              /* White text on blue */
 
-    /* Secondary (Warm Gray - #BBBBAA) */
-    --secondary: 60 11% 70%;                      /* Warm Gray */
-    --secondary-foreground: 60 20% 16%;           /* Charcoal */
+    /* Secondary (Orange for accents) */
+    --secondary: 25 95% 53%;                      /* Orange 500 #F97316 */
+    --secondary-foreground: 0 0% 100%;            /* White text on orange */
 
     /* Muted */
     --muted: 60 11% 96%;                          /* Very light warm gray */
@@ -33,27 +33,27 @@
     --accent: 143 45% 63%;                        /* Success Green */
     --accent-foreground: 60 20% 16%;              /* Charcoal */
 
-    /* Destructive (uses primary red) */
-    --destructive: 5 84% 56%;                     /* Same as primary red */
+    /* Destructive (Red for errors) */
+    --destructive: 0 84% 60%;                     /* Red for destructive actions */
     --destructive-foreground: 0 0% 100%;          /* White */
 
     /* Border & Input */
     --border: 60 11% 85%;                         /* Light warm gray */
     --input: 60 11% 85%;                          /* Light warm gray */
-    --ring: 5 84% 56%;                            /* Primary red for focus rings */
+    --ring: 221 83% 53%;                          /* Primary blue for focus rings */
 
     /* Radius */
     --radius: 0.5rem;                             /* 8px - modern, friendly */
 
     /* Sidebar */
     --sidebar-background: 0 0% 98%;               /* Off-white */
-    --sidebar-foreground: 60 20% 16%;             /* Charcoal */
-    --sidebar-primary: 5 84% 56%;                 /* Primary red */
+    --sidebar-foreground: 215 25% 15%;            /* Slate 800 */
+    --sidebar-primary: 221 83% 53%;               /* Primary blue */
     --sidebar-primary-foreground: 0 0% 100%;      /* White */
-    --sidebar-accent: 60 11% 96%;                 /* Very light warm gray */
-    --sidebar-accent-foreground: 60 20% 16%;      /* Charcoal */
-    --sidebar-border: 60 11% 90%;                 /* Light warm gray */
-    --sidebar-ring: 5 84% 56%;                    /* Primary red */
+    --sidebar-accent: 25 95% 95%;                 /* Light orange */
+    --sidebar-accent-foreground: 215 25% 15%;     /* Slate 800 */
+    --sidebar-border: 220 13% 91%;                /* Light gray */
+    --sidebar-ring: 221 83% 53%;                  /* Primary blue */
   }
 
   .dark {

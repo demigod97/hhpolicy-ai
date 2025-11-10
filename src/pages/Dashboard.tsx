@@ -7,7 +7,6 @@ import { PDFViewer } from '@/components/pdf/PDFViewer';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
 import { Footer } from '@/components/layout/Footer';
 import { DocumentUploader } from '@/components/document/DocumentUploader';
-import { UserGreetingCard } from '@/components/dashboard/UserGreetingCard';
 import { useNotebooks } from '@/hooks/useNotebooks';
 import { useDocuments } from '@/hooks/useDocuments';
 import { useAuth } from '@/contexts/AuthContext';
@@ -74,12 +73,7 @@ const Dashboard = () => {
     }, 500);
   };
 
-  // Listen for upload dialog event from UserGreetingCard
-  useEffect(() => {
-    const handleOpenUpload = () => setShowUploader(true);
-    window.addEventListener('open-upload-dialog', handleOpenUpload);
-    return () => window.removeEventListener('open-upload-dialog', handleOpenUpload);
-  }, []);
+  // Upload dialog can be triggered from DocumentTable upload button
 
   const handleDocumentSelect = async (documentId: string) => {
     setSelectedDocumentId(documentId);
@@ -205,13 +199,8 @@ const Dashboard = () => {
       {/* Primary Navigation */}
       <PrimaryNavigationBar />
 
-      {/* User Greeting Card */}
-      <div className="bg-muted/30 px-8 py-6">
-        <UserGreetingCard />
-      </div>
-
-      {/* Document Table - Full Width */}
-      <div className="flex-1 overflow-auto p-6 bg-muted/30">
+      {/* Document Table - Full Width with Top Padding */}
+      <div className="flex-1 overflow-auto p-8 bg-muted/30">
         <DocumentTable
           documents={documents}
           isLoading={documentsLoading}

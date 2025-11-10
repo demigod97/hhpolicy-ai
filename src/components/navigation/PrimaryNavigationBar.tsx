@@ -71,17 +71,17 @@ export const PrimaryNavigationBar = () => {
 
   if (isLoading) {
     return (
-      <div className="h-16 bg-white border-b border-border shadow-sm flex items-center justify-between px-6">
+      <div className="h-16 bg-primary border-b border-primary-foreground/10 shadow-md flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 bg-muted rounded-lg animate-pulse"></div>
+          <div className="h-10 w-10 bg-white/20 rounded-lg animate-pulse"></div>
           <div className="space-y-1">
-            <div className="h-5 w-24 bg-muted rounded animate-pulse"></div>
-            <div className="h-3 w-20 bg-muted rounded animate-pulse"></div>
+            <div className="h-5 w-24 bg-white/20 rounded animate-pulse"></div>
+            <div className="h-3 w-20 bg-white/20 rounded animate-pulse"></div>
           </div>
         </div>
         <div className="flex gap-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-9 w-20 bg-muted rounded animate-pulse"></div>
+            <div key={i} className="h-9 w-20 bg-white/20 rounded animate-pulse"></div>
           ))}
         </div>
       </div>
@@ -89,17 +89,17 @@ export const PrimaryNavigationBar = () => {
   }
 
   return (
-    <nav className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
+    <nav className="bg-primary border-b border-primary-foreground/10 sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="h-10 w-10 bg-primary rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
-              <span className="text-white font-bold text-base">HH</span>
+            <div className="h-10 w-10 bg-white rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm">
+              <span className="text-primary font-bold text-base">HH</span>
             </div>
             <div className="flex flex-col">
-              <span className="font-semibold text-xl text-foreground">PolicyAi</span>
-              <span className="text-xs text-muted-foreground">Human Habitat</span>
+              <span className="font-semibold text-xl text-white">PolicyAi</span>
+              <span className="text-xs text-white/80">Human Habitat</span>
             </div>
           </Link>
 
@@ -112,12 +112,12 @@ export const PrimaryNavigationBar = () => {
               return (
                 <Button
                   key={item.href}
-                  variant={isActive ? 'secondary' : 'ghost'}
+                  variant="ghost"
                   size="sm"
                   asChild
                   className={cn(
-                    'gap-2',
-                    isActive && 'bg-secondary'
+                    'gap-2 text-white hover:bg-white/10',
+                    isActive && 'bg-orange-500 hover:bg-orange-600 text-white'
                   )}
                 >
                   <Link to={item.href}>
@@ -131,8 +131,8 @@ export const PrimaryNavigationBar = () => {
             {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="ml-2 p-0">
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 transition-all hover:scale-105">
+                <Button variant="ghost" size="sm" className="ml-2 p-0 hover:bg-white/10">
+                  <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-orange-600 transition-all hover:scale-105 shadow-sm">
                     <User className="h-4 w-4 text-white" />
                   </div>
                 </Button>

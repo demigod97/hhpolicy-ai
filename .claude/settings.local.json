@@ -168,13 +168,15 @@
       "Bash(npm run build:*)",
       "SlashCommand(/BMad:agents:ux-expert)",
       "mcp__chrome-devtools__resize_page",
-      "SlashCommand(/BMad:agents:po)"
+      "SlashCommand(/BMad:agents:po)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
-    "supabase"
+    "supabase",
+    "playwright"
   ]
 }

@@ -152,15 +152,15 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'administrator':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-amber-100 text-amber-800 border-amber-200';
       case 'executive':
         return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'board':
         return 'bg-green-100 text-green-800 border-green-200';
       case 'company_operator':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+        return 'bg-blue-50 text-blue-600 border-blue-200';
       case 'system_owner':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-blue-100 text-blue-700 border-blue-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -283,20 +283,20 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
           onClearFilters={clearFilters}
         />
 
-        <div className="border rounded-lg">
+        <div className="border-2 border-gray-200 rounded-lg overflow-hidden shadow-sm">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">
+            <TableHeader className="bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-b-2 border-blue-200">
+              <TableRow className="bg-gray-100 hover:bg-gray-100">
+                <TableHead className="w-[50px] font-semibold">
                   <Skeleton className="h-4 w-4" />
                 </TableHead>
-                <TableHead>Document Name</TableHead>
-                <TableHead>Policy Type</TableHead>
-                <TableHead>Policy Date</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Uploaded</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
+                <TableHead className="font-semibold">Document Name</TableHead>
+                <TableHead className="font-semibold">Policy Type</TableHead>
+                <TableHead className="font-semibold">Policy Date</TableHead>
+                <TableHead className="font-semibold">Role</TableHead>
+                <TableHead className="font-semibold">Status</TableHead>
+                <TableHead className="font-semibold">Uploaded</TableHead>
+                <TableHead className="w-[50px] font-semibold"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -390,12 +390,12 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
         canManage={canManage}
       />
 
-      {/* Table */}
-      <div className="border rounded-lg overflow-hidden">
+      {/* Table with Colored Header and Border */}
+      <div className="border-2 border-gray-200 rounded-lg overflow-hidden shadow-sm">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[50px]">
+          <TableHeader className="bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-b-2 border-blue-200">
+            <TableRow className="bg-gray-100 hover:bg-gray-100">
+              <TableHead className="w-[50px] font-semibold">
                 <Checkbox
                   checked={allSelected}
                   onCheckedChange={() => toggleAllRows(currentPageIds)}
@@ -404,7 +404,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                 />
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-gray-50 select-none"
+                className="cursor-pointer hover:bg-gray-200 select-none font-semibold"
                 onClick={() => handleSort('title')}
               >
                 <div className="flex items-center gap-2">
@@ -412,9 +412,9 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   <SortIcon column="title" />
                 </div>
               </TableHead>
-              <TableHead>Policy Type</TableHead>
+              <TableHead className="font-semibold">Policy Type</TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-gray-50 select-none"
+                className="cursor-pointer hover:bg-gray-200 select-none font-semibold"
                 onClick={() => handleSort('policyDate')}
               >
                 <div className="flex items-center gap-2">
@@ -423,7 +423,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-gray-50 select-none"
+                className="cursor-pointer hover:bg-gray-200 select-none font-semibold"
                 onClick={() => handleSort('target_role')}
               >
                 <div className="flex items-center gap-2">
@@ -432,7 +432,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-gray-50 select-none"
+                className="cursor-pointer hover:bg-gray-200 select-none font-semibold"
                 onClick={() => handleSort('processing_status')}
               >
                 <div className="flex items-center gap-2">
@@ -441,7 +441,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-gray-50 select-none"
+                className="cursor-pointer hover:bg-gray-200 select-none font-semibold"
                 onClick={() => handleSort('created_at')}
               >
                 <div className="flex items-center gap-2">
@@ -449,7 +449,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   <SortIcon column="created_at" />
                 </div>
               </TableHead>
-              <TableHead className="w-[50px]">Actions</TableHead>
+              <TableHead className="w-[50px] font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
