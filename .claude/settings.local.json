@@ -169,7 +169,18 @@
       "SlashCommand(/BMad:agents:ux-expert)",
       "mcp__chrome-devtools__resize_page",
       "SlashCommand(/BMad:agents:po)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(timeout /t 10 /nobreak:*)",
+      "Bash(nul)",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_close",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_fill_form",
+      "Bash(npm view:*)"
     ],
     "deny": [],
     "ask": []

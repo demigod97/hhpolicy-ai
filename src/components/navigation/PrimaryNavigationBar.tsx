@@ -71,7 +71,7 @@ export const PrimaryNavigationBar = () => {
 
   if (isLoading) {
     return (
-      <div className="h-16 bg-primary border-b border-primary-foreground/10 shadow-md flex items-center justify-between px-6">
+      <div className="h-16 bg-[#1e3a8a] border-b border-white/10 shadow-md flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 bg-white/20 rounded-lg animate-pulse"></div>
           <div className="space-y-1">
@@ -89,13 +89,13 @@ export const PrimaryNavigationBar = () => {
   }
 
   return (
-    <nav className="bg-primary border-b border-primary-foreground/10 sticky top-0 z-50 shadow-md">
+    <nav className="bg-[#1e3a8a] border-b border-white/10 sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
             <div className="h-10 w-10 bg-white rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm">
-              <span className="text-primary font-bold text-base">HH</span>
+              <span className="text-[#1e3a8a] font-bold text-base">HH</span>
             </div>
             <div className="flex flex-col">
               <span className="font-semibold text-xl text-white">PolicyAi</span>
@@ -116,8 +116,8 @@ export const PrimaryNavigationBar = () => {
                   size="sm"
                   asChild
                   className={cn(
-                    'gap-2 text-white hover:bg-white/10',
-                    isActive && 'bg-orange-500 hover:bg-orange-600 text-white'
+                    'gap-2 text-white hover:bg-white/10 hover:text-blue-300 transition-colors',
+                    isActive && 'bg-white/15 text-blue-300'
                   )}
                 >
                   <Link to={item.href}>
@@ -132,7 +132,7 @@ export const PrimaryNavigationBar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="ml-2 p-0 hover:bg-white/10">
-                  <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-orange-600 transition-all hover:scale-105 shadow-sm">
+                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center cursor-pointer hover:bg-white/30 transition-all hover:scale-105 shadow-sm">
                     <User className="h-4 w-4 text-white" />
                   </div>
                 </Button>

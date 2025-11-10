@@ -26,3 +26,4 @@ dist-ssr
 # BMAD (local only)
 .mcp.json
 .mcp.json
+nul

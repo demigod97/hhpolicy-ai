@@ -123,7 +123,7 @@ export const statusColors = {
   complete: colors.green.DEFAULT,
   processing: colors.warning.DEFAULT,
   error: colors.error.DEFAULT,
-  pending: colors.warmGray.DEFAULT,
+  pending: colors.gray.DEFAULT,
 } as const;
 
 /**
