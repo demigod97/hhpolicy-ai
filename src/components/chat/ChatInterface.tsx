@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useChatSession } from '@/hooks/useChatSession';
+import { useChatSession, useCreateChatSession } from '@/hooks/useChatSession';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useChatSidebarVisibility } from '@/hooks/useChatSidebarVisibility';
 import ChatArea from '@/components/notebook/ChatArea';
@@ -12,7 +12,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { ArrowLeft, Loader2, Menu, X } from 'lucide-react';
+import { ArrowLeft,MessageSquarePlus, Loader2, Menu, X } from 'lucide-react';
 import { Citation } from '@/types/message';
 import { useToast } from '@/hooks/use-toast';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
@@ -33,6 +33,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const { chatSession, isLoading, error } = useChatSession(sessionId);
   const isDesktop = useIsDesktop();
   const [showSidebar, setShowSidebar] = useState(isDesktop);
+  const createSession = useCreateChatSession();
 
   // Fetch chat messages and determine sources sidebar visibility
   const { messages } = useChatMessages(sessionId);
@@ -74,7 +75,19 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       navigate('/dashboard');
     }
   };
-
+  const handleNewChat = async () => {
+    try {
+      const session = await createSession.mutateAsync('New Chat');
+      navigate(`/chat/${session.id}`);
+    } catch (error) {
+      console.error('Error creating chat session:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create new chat session. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
   const handleCitationClick = async (citation: Citation) => {
     if (onCitationClick) {
       onCitationClick(citation);
@@ -189,10 +202,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4 flex-shrink-0">
         <div className="flex-1">
           <h1 className="text-xl font-medium text-gray-900">
-            {chatSession.title || 'New Chat'}
+            Chat
           </h1>
         </div>
-
+        <Button size="lg" className="gap-2" onClick={handleNewChat}>
+              <MessageSquarePlus className="h-5 w-5" />
+              New Chat
+            </Button>
         {/* Sidebar Toggle (Mobile) */}
         {!isDesktop && (
           <Button

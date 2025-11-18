@@ -140,10 +140,11 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
         title: 'Document deleted',
         description: 'Document has been successfully deleted.',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: 'Error',
-        description: `Failed to delete document: ${error.message}`,
+        description: `Failed to delete document: ${errorMessage}`,
         variant: 'destructive',
       });
     }
@@ -271,7 +272,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   // Loading skeleton
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-2 mx-[6.5rem]">
         <DocumentTableFilters
           filters={filters}
           onSearchChange={(value) => updateFilter('search', value)}
@@ -283,7 +284,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
           onClearFilters={clearFilters}
         />
 
-        <div className="border-2 border-gray-200 rounded-lg overflow-hidden shadow-sm">
+        <div className="border-2 border-gray-200 rounded-lg overflow-hidden shadow-sm mx-2">
           <Table>
             <TableHeader className="bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-b-2 border-blue-200">
               <TableRow className="bg-gray-100 hover:bg-gray-100">
@@ -291,10 +292,8 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   <Skeleton className="h-4 w-4" />
                 </TableHead>
                 <TableHead className="font-semibold">Document Name</TableHead>
-                <TableHead className="font-semibold">Policy Type</TableHead>
                 <TableHead className="font-semibold">Policy Date</TableHead>
                 <TableHead className="font-semibold">Role</TableHead>
-                <TableHead className="font-semibold">Status</TableHead>
                 <TableHead className="font-semibold">Uploaded</TableHead>
                 <TableHead className="w-[50px] font-semibold"></TableHead>
               </TableRow>
@@ -349,7 +348,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   // No results after filtering
   if (filteredDocs.length === 0) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-2 -mx-2">
         <DocumentTableFilters
           filters={filters}
           onSearchChange={(value) => updateFilter('search', value)}
@@ -369,7 +368,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2 mx-[6.5rem]">
       {/* Filters */}
       <DocumentTableFilters
         filters={filters}
@@ -391,7 +390,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
       />
 
       {/* Table with Colored Header and Border */}
-      <div className="border-2 border-gray-200 rounded-lg overflow-hidden shadow-sm">
+      <div className="border-2 border-gray-200 rounded-lg overflow-hidden shadow-sm mx-2">
         <Table>
           <TableHeader className="bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-b-2 border-blue-200">
             <TableRow className="bg-gray-100 hover:bg-gray-100">
@@ -412,7 +411,6 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   <SortIcon column="title" />
                 </div>
               </TableHead>
-              <TableHead className="font-semibold">Policy Type</TableHead>
               <TableHead
                 className="cursor-pointer hover:bg-gray-200 select-none font-semibold"
                 onClick={() => handleSort('policyDate')}
@@ -429,15 +427,6 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                 <div className="flex items-center gap-2">
                   Role
                   <SortIcon column="target_role" />
-                </div>
-              </TableHead>
-              <TableHead
-                className="cursor-pointer hover:bg-gray-200 select-none font-semibold"
-                onClick={() => handleSort('processing_status')}
-              >
-                <div className="flex items-center gap-2">
-                  Status
-                  <SortIcon column="processing_status" />
                 </div>
               </TableHead>
               <TableHead
@@ -480,15 +469,6 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    {doc.metadata?.policyType ? (
-                      <Badge variant="outline" className="bg-gray-50">
-                        {doc.metadata.policyType}
-                      </Badge>
-                    ) : (
-                      <span className="text-sm text-gray-400">Not Specified</span>
-                    )}
-                  </TableCell>
                   <TableCell>{getPolicyDateBadge(doc.policyDate)}</TableCell>
                   <TableCell>
                     <Badge
@@ -498,7 +478,6 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                       {getRoleLabel(doc.target_role)}
                     </Badge>
                   </TableCell>
-                  <TableCell>{getStatusBadge(doc.processing_status)}</TableCell>
                   <TableCell>
                     <span
                       className="text-sm text-gray-600"
