@@ -320,7 +320,7 @@ const ChatArea = ({
           {/* Chat Header */}
           <div className="p-4 border-b border-gray-200 flex-shrink-0 bg-white">
             <div className="max-w-4xl mx-auto flex items-center justify-between">
-              <h2 className="text-lg font-medium text-gray-900">Chat</h2>
+              {/* <h2 className="text-lg font-medium text-gray-900">Chat</h2> */}
               {shouldShowRefreshButton && <Button variant="ghost" size="sm" onClick={handleRefreshChat} disabled={isDeletingChatHistory || isChatDisabled} className="flex items-center space-x-2">
                   <RefreshCw className={`h-4 w-4 ${isDeletingChatHistory ? 'animate-spin' : ''}`} />
                   <span>{isDeletingChatHistory ? 'Clearing...' : 'Clear Chat'}</span>

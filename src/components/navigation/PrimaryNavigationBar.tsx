@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLogout } from '@/services/authService';
+import { useChatSessions } from '@/hooks/useChatSession';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -33,7 +34,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     title: 'Chat',
-    href: '/chat',
+    href: '/chat', // Will be overridden dynamically
     icon: MessageSquare,
     showForRoles: ['board', 'executive', 'administrator', 'company_operator', 'system_owner'],
   },
@@ -62,11 +63,21 @@ export const PrimaryNavigationBar = () => {
   const { userRole, isLoading } = useRolePermissions();
   const { user } = useAuth();
   const { logout } = useLogout();
+  const { sessions } = useChatSessions();
+
+  // Get the most recent session ID for Chat navigation
+  const mostRecentSessionId = sessions.length > 0 ? sessions[0].id : null;
 
   // Filter navigation items based on user role
   const visibleNavItems = NAV_ITEMS.filter((item) => {
     if (!userRole) return false;
     return item.showForRoles.includes(userRole);
+  }).map((item) => {
+    // Override Chat href with most recent session ID
+    if (item.title === 'Chat' && mostRecentSessionId) {
+      return { ...item, href: `/chat/${mostRecentSessionId}` };
+    }
+    return item;
   });
 
   if (isLoading) {
@@ -107,7 +118,9 @@ export const PrimaryNavigationBar = () => {
           <div className="flex items-center gap-1">
             {visibleNavItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.href;
+              // Check if active - handle both exact match and /chat/:sessionId pattern
+              const isActive = location.pathname === item.href || 
+                (item.title === 'Chat' && location.pathname.startsWith('/chat/'));
 
               return (
                 <Button

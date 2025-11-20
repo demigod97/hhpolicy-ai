@@ -102,11 +102,6 @@ export const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({
       setDeleteDialogOpen(false);
       setSessionToDelete(null);
 
-      // If we deleted the current session, navigate back to chat list
-      if (sessionToDelete === currentSessionId) {
-        navigate('/chat');
-      }
-
       toast({
         title: 'Success',
         description: 'Chat session deleted successfully.',
@@ -199,7 +194,7 @@ export const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({
                       isActive ? 'text-primary' : 'text-gray-400'
                     )} />
 
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-3 min-w-0">
                       {isEditing ? (
                         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                           <Input
@@ -244,7 +239,7 @@ export const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({
                               {session.title}
                             </h3>
 
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex-1 items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity self-center">
                               <Button
                                 size="sm"
                                 variant="ghost"
