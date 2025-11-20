@@ -272,7 +272,10 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   // Loading skeleton
   if (isLoading) {
     return (
-      <div className="space-y-2 mx-[6.5rem]">
+      <div
+        className="space-y-2"
+        style={{ marginLeft: '8%', marginRight: '10%' }}
+      >
         <DocumentTableFilters
           filters={filters}
           onSearchChange={(value) => updateFilter('search', value)}
@@ -368,7 +371,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   }
 
   return (
-    <div className="space-y-2 mx-[6.5rem]">
+    <div className="space-y-2" style={{ marginLeft: '8%', marginRight: '10%' }}>
       {/* Filters */}
       <DocumentTableFilters
         filters={filters}
