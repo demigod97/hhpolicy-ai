@@ -156,6 +156,18 @@ const Help = () => {
                 icon={<FileText className="h-5 w-5" />}
               >
                 <div className="space-y-6">
+                  {/* Coming Soon Banner */}
+                  <Card className="bg-amber-50 border-amber-200">
+                    <CardContent className="pt-4">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-amber-600" />
+                        <span className="text-sm text-amber-800 font-medium">
+                          Coming Soon — The Template Library feature is currently in development.
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
                   <div>
                     <h3 className="font-semibold text-lg mb-2">What are Templates?</h3>
                     <p>
@@ -219,13 +231,11 @@ const Help = () => {
                     </ol>
                   </div>
 
-                  <Link to="/templates">
-                    <Button variant="outline" className="gap-2">
-                      <Download className="h-4 w-4" />
-                      Go to Templates
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
+                  <Button variant="outline" className="gap-2" disabled>
+                    <Download className="h-4 w-4" />
+                    Go to Templates
+                    <Badge variant="secondary" className="ml-1 text-xs">Coming Soon</Badge>
+                  </Button>
                 </div>
               </HelpSection>
             )}

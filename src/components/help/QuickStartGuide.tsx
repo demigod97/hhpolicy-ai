@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Download,
   Upload,
@@ -19,6 +20,7 @@ interface QuickStartStep {
     to: string;
     label: string;
   };
+  comingSoon?: boolean;
 }
 
 const steps: QuickStartStep[] = [
@@ -31,6 +33,7 @@ const steps: QuickStartStep[] = [
       to: '/templates',
       label: 'Go to Templates',
     },
+    comingSoon: true,
   },
   {
     number: 2,
@@ -95,12 +98,19 @@ export const QuickStartGuide: React.FC = () => {
               </div>
               <p className="text-sm text-gray-600">{step.description}</p>
               {step.link && (
-                <Link to={step.link.to}>
-                  <Button variant="link" size="sm" className="p-0 h-auto text-primary">
+                step.comingSoon ? (
+                  <Button variant="link" size="sm" className="p-0 h-auto text-gray-400" disabled>
                     {step.link.label}
-                    <ArrowRight className="h-3 w-3 ml-1" />
+                    <Badge variant="secondary" className="ml-2 text-xs">Coming Soon</Badge>
                   </Button>
-                </Link>
+                ) : (
+                  <Link to={step.link.to}>
+                    <Button variant="link" size="sm" className="p-0 h-auto text-primary">
+                      {step.link.label}
+                      <ArrowRight className="h-3 w-3 ml-1" />
+                    </Button>
+                  </Link>
+                )
               )}
             </div>
           </li>
