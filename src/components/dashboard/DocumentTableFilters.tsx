@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/popover';
 import { Search, Filter, X, Calendar } from 'lucide-react';
 import { DocumentFilters as Filters } from '@/hooks/useDocumentFilters';
+import { getRoleDisplayLabel } from '@/lib/roleLabelMapping';
 
 interface DocumentTableFiltersProps {
   filters: Filters;
@@ -105,7 +106,7 @@ export const DocumentTableFilters: React.FC<DocumentTableFiltersProps> = ({
                     onChange={() => toggleRole(role)}
                     className="rounded border-gray-300"
                   />
-                  <span className="text-sm capitalize">{role.replace('_', ' ')}</span>
+                  <span className="text-sm">{getRoleDisplayLabel(role)}</span>
                 </label>
               ))}
             </div>
@@ -128,15 +129,20 @@ export const DocumentTableFilters: React.FC<DocumentTableFiltersProps> = ({
           <PopoverContent className="w-64" align="start">
             <div className="space-y-2">
               <p className="text-sm font-medium mb-3">Filter by Status</p>
-              {['completed', 'processing', 'pending', 'failed'].map(status => (
-                <label key={status} className="flex items-center gap-2 cursor-pointer">
+              {[
+                { value: 'completed', label: 'Processed' },
+                { value: 'processing', label: 'Processing' },
+                { value: 'pending', label: 'Pending' },
+                { value: 'failed', label: 'Failed' }
+              ].map(status => (
+                <label key={status.value} className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={filters.statuses.includes(status)}
-                    onChange={() => toggleStatus(status)}
+                    checked={filters.statuses.includes(status.value)}
+                    onChange={() => toggleStatus(status.value)}
                     className="rounded border-gray-300"
                   />
-                  <span className="text-sm capitalize">{status}</span>
+                  <span className="text-sm">{status.label}</span>
                 </label>
               ))}
             </div>

@@ -1,11 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
-import { HelpCircle, ArrowLeft, Book, MessageSquare, Mail } from 'lucide-react';
+import { Book, MessageSquare, Mail } from 'lucide-react';
 
 const Help = () => {
   const { user } = useAuth();
@@ -122,14 +121,7 @@ const Help = () => {
             </CardContent>
           </Card>
 
-          <div className="mt-8 text-center">
-            <Link to="/">
-              <Button variant="outline" className="gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Dashboard
-              </Button>
-            </Link>
-          </div>
+          {/* Navigation to Dashboard is available via the navigation bar */}
         </div>
       </main>
       <Footer />

@@ -8,11 +8,10 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useChatSessionSources } from '@/hooks/useChatSessionSources';
 import { useGenerateChatTitle } from '@/hooks/useGenerateChatTitle';
-import { useGenerateSuggestedQuestions } from '@/hooks/useGenerateSuggestedQuestions';
 import MarkdownRenderer from '@/components/chat/MarkdownRenderer';
-import SaveToNoteButton from './SaveToNoteButton';
+// FEATURE DISABLED: Notes UI hidden per Story 1.19.0 - data preserved in database
+// import SaveToNoteButton from './SaveToNoteButton';
 import AddSourcesDialog from './AddSourcesDialog';
-import { SuggestedQuestions } from '@/components/chat/SuggestedQuestions';
 import { Citation, EnhancedChatMessage } from '@/types/message';
 
 interface ChatAreaProps {
@@ -41,9 +40,6 @@ const ChatArea = ({
   const [clickedQuestions, setClickedQuestions] = useState<Set<string>>(new Set());
   const [showAddSourcesDialog, setShowAddSourcesDialog] = useState(false);
 
-  // Suggested questions state
-  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(true);
   
   const isGenerating = notebook?.generation_status === 'generating';
   
@@ -65,9 +61,6 @@ const ChatArea = ({
   // Title generation hook
   const { generateTitle } = useGenerateChatTitle();
   const [titleGenerated, setTitleGenerated] = useState(false);
-
-  // Suggested questions hook
-  const { generateQuestions, isGenerating: isGeneratingQuestions } = useGenerateSuggestedQuestions();
 
   // Auto-generate title after first AI response
   useEffect(() => {
@@ -105,79 +98,6 @@ const ChatArea = ({
     }
   }, [messages?.length, titleGenerated, notebookId]); // Removed generateTitle from deps - it's stable
 
-  // Generate initial suggested questions (empty chat state)
-  useEffect(() => {
-    const shouldGenerateInitial =
-      notebookId &&
-      messages.length === 0 &&
-      sources.length > 0 &&
-      hasProcessedSources &&
-      !isGeneratingQuestions;
-
-    if (shouldGenerateInitial) {
-      console.log('Generating initial suggested questions');
-      generateQuestions.mutate(
-        {
-          sessionId: notebookId,
-          documentIds: sources.map(s => s.id),
-        },
-        {
-          onSuccess: (data) => {
-            console.log('Initial questions generated:', data.questions);
-            setSuggestedQuestions(data.questions || []);
-            setShowSuggestions(true);
-          },
-          onError: (error) => {
-            console.error('Failed to generate initial questions:', error);
-            // Silently fail - fallback questions will be shown by edge function
-          },
-        }
-      );
-    }
-  }, [notebookId, messages.length, sources.length, hasProcessedSources]);
-
-  // Generate follow-up suggested questions after AI responses
-  useEffect(() => {
-    const shouldGenerateFollowUp =
-      notebookId &&
-      messages.length > 0 &&
-      messages.length % 2 === 0 && // Even number = last message was AI
-      !isGeneratingQuestions &&
-      hasProcessedSources;
-
-    if (shouldGenerateFollowUp) {
-      console.log('Generating follow-up suggested questions');
-
-      // Extract last 6 messages (3 exchanges) for context
-      const recentMessages = messages.slice(-6);
-      const chatHistory = recentMessages.map(msg => ({
-        role: msg.message.type === 'human' ? 'user' as const : 'assistant' as const,
-        content: typeof msg.message.content === 'string'
-          ? msg.message.content
-          : JSON.stringify(msg.message.content),
-        timestamp: msg.message.created_at,
-      }));
-
-      generateQuestions.mutate(
-        {
-          chatHistory,
-          sessionId: notebookId,
-          documentIds: sources.map(s => s.id),
-        },
-        {
-          onSuccess: (data) => {
-            console.log('Follow-up questions generated:', data.questions);
-            setSuggestedQuestions(data.questions || []);
-            setShowSuggestions(true);
-          },
-          onError: (error) => {
-            console.error('Failed to generate follow-up questions:', error);
-            // Silently fail - fallback questions will be shown by edge function
-          },
-        }
-      );
-    }
-  }, [messages.length, notebookId, hasProcessedSources]);
 
   // Debug logging
   React.useEffect(() => {
@@ -267,20 +187,6 @@ const ChatArea = ({
     handleSendMessage(question);
   };
 
-  const handleSuggestedQuestionClick = (question: string) => {
-    console.log('Suggested question clicked:', question);
-    setMessage(question);
-    handleSendMessage(question);
-    setShowSuggestions(false);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setMessage(value);
-    // Show suggestions only when input is empty
-    setShowSuggestions(value.length === 0);
-  };
-
   // Helper function to determine if message is from user
   const isUserMessage = (msg: EnhancedChatMessage) => {
     const messageType = msg.message?.type;
@@ -358,9 +264,11 @@ const ChatArea = ({
                           <div className={isUserMessage(msg) ? '' : 'prose prose-gray max-w-none text-gray-800'}>
                             <MarkdownRenderer content={msg.message.content} className={isUserMessage(msg) ? '' : ''} onCitationClick={handleCitationClick} isUserMessage={isUserMessage(msg)} />
                           </div>
+                          {/* FEATURE DISABLED: Notes UI hidden per Story 1.19.0 - data preserved in database
                           {isAiMessage(msg) && <div className="mt-2 flex justify-start">
                               <SaveToNoteButton content={msg.message.content} notebookId={notebookId} />
                             </div>}
+                          */}
                         </div>
                       </div>)}
                     
@@ -396,7 +304,7 @@ const ChatArea = ({
             <div className="max-w-4xl mx-auto">
               <div className="flex space-x-4">
                 <div className="flex-1 relative">
-                  <Input placeholder={getPlaceholderText()} value={message} onChange={handleInputChange} onKeyDown={e => e.key === 'Enter' && !isChatDisabled && !isSending && !pendingUserMessage && handleSendMessage()} className="pr-12" disabled={isChatDisabled || isSending || !!pendingUserMessage} />
+                  <Input placeholder={getPlaceholderText()} value={message} onChange={(e) => setMessage(e.target.value)} onKeyDown={e => e.key === 'Enter' && !isChatDisabled && !isSending && !pendingUserMessage && handleSendMessage()} className="pr-12" disabled={isChatDisabled || isSending || !!pendingUserMessage} />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
                     {sourceCount} source{sourceCount !== 1 ? 's' : ''}
                   </div>
@@ -405,16 +313,6 @@ const ChatArea = ({
                   {isSending || pendingUserMessage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                 </Button>
               </div>
-
-              {/* Suggested Questions - AI Generated */}
-              {!isChatDisabled && !pendingUserMessage && !showAiLoading && (
-                <SuggestedQuestions
-                  questions={suggestedQuestions}
-                  onQuestionClick={handleSuggestedQuestionClick}
-                  isLoading={isGeneratingQuestions}
-                  isVisible={showSuggestions && message.length === 0}
-                />
-              )}
 
               {/* Example Questions Carousel */}
               {!isChatDisabled && !pendingUserMessage && !showAiLoading && exampleQuestions.length > 0 && <div className="mt-4">

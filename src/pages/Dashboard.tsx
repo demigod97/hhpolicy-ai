@@ -15,7 +15,7 @@ import { useCreateChatSession } from '@/hooks/useChatSession';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Upload, FileText, MessageSquarePlus, X } from 'lucide-react';
+import { Upload, FileText, MessageSquarePlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
@@ -216,19 +216,10 @@ const Dashboard = () => {
       <Dialog open={!!selectedDocument} onOpenChange={(open) => !open && setSelectedDocument(null)}>
         <DialogContent className="max-w-7xl h-[90vh] p-0">
           <DialogHeader className="px-6 py-4 border-b">
-            <div className="flex items-center justify-between">
-              <DialogTitle className="text-xl font-semibold">
-                {selectedDocument?.title || 'Document Preview'}
-              </DialogTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSelectedDocument(null)}
-                className="h-8 w-8"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+            <DialogTitle className="text-xl font-semibold pr-8">
+              {selectedDocument?.title || 'Document Preview'}
+            </DialogTitle>
+            {/* Close button is provided by DialogContent component */}
           </DialogHeader>
           <div className="h-full overflow-hidden">
             {selectedDocument && (
