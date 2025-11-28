@@ -48,6 +48,7 @@ import {
   formatPolicyDate,
   getPolicyAgeDescription,
 } from '@/lib/policyDateUtils';
+import { getRoleDisplayLabel } from '@/lib/roleLabelMapping';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -168,20 +169,8 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   };
 
   const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'administrator':
-        return 'Admin';
-      case 'executive':
-        return 'Executive';
-      case 'board':
-        return 'Board';
-      case 'company_operator':
-        return 'Operator';
-      case 'system_owner':
-        return 'System';
-      default:
-        return role;
-    }
+    // Use centralized role label mapping for consistency
+    return getRoleDisplayLabel(role);
   };
 
   const getStatusBadge = (status: string) => {

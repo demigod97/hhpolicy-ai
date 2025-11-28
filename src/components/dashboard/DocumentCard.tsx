@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { FileText, Calendar, HardDrive, Loader2, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { isPolicyOutdated, formatPolicyDate, getPolicyAgeDescription } from '@/lib/policyDateUtils';
+import { getRoleDisplayLabel } from '@/lib/roleLabelMapping';
 
 interface DocumentCardProps {
   id: string;
@@ -49,14 +50,8 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
   };
 
   const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'administrator': return 'Admin';
-      case 'executive': return 'Executive';
-      case 'board': return 'Board';
-      case 'company_operator': return 'Operator';
-      case 'system_owner': return 'System';
-      default: return role;
-    }
+    // Use centralized role label mapping for consistency
+    return getRoleDisplayLabel(role);
   };
 
   const getProcessingStatusBadge = () => {

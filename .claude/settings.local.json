@@ -180,7 +180,22 @@
       "mcp__playwright__browser_click",
       "mcp__playwright__browser_snapshot",
       "mcp__playwright__browser_fill_form",
-      "Bash(npm view:*)"
+      "Bash(npm view:*)",
+      "Bash(findstr:*)",
+      "mcp__atlassian__getAccessibleAtlassianResources",
+      "mcp__atlassian__getJiraIssue",
+      "mcp__atlassian__addCommentToJiraIssue",
+      "mcp__atlassian__getJiraProjectIssueTypesMetadata",
+      "mcp__atlassian__createJiraIssue",
+      "Bash(del \"D:\\ailocal\\hhpolicy-ai\\src\\components\\chat\\SuggestedQuestions.tsx\")",
+      "Bash(del \"D:\\ailocal\\hhpolicy-ai\\src\\hooks\\useGenerateSuggestedQuestions.ts\")",
+      "mcp__atlassian__search",
+      "mcp__atlassian__getTransitionsForJiraIssue",
+      "mcp__atlassian__transitionJiraIssue",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "mcp__chrome-devtools__fill"
     ],
     "deny": [],
     "ask": []

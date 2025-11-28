@@ -2,42 +2,38 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { useRolePermissions, UserRole } from '@/hooks/useRolePermissions';
 import { Shield, Crown, Users, Lock, User } from 'lucide-react';
+import { getRoleDisplayLabel } from '@/lib/roleLabelMapping';
 
+// Role configuration using centralized label mapping for consistency
 const ROLE_CONFIG: Record<
   UserRole,
   {
-    label: string;
     icon: React.ComponentType<{ className?: string }>;
     variant: 'default' | 'secondary' | 'destructive' | 'outline';
     color: string;
   }
 > = {
   system_owner: {
-    label: 'System Owner',
     icon: Crown,
     variant: 'destructive',
     color: 'text-red-600 dark:text-red-400',
   },
   company_operator: {
-    label: 'Company Operator',
     icon: Shield,
     variant: 'default',
     color: 'text-blue-600 dark:text-blue-400',
   },
   board: {
-    label: 'Board Member',
     icon: Users,
     variant: 'secondary',
     color: 'text-purple-600 dark:text-purple-400',
   },
   administrator: {
-    label: 'Administrator',
     icon: Lock,
     variant: 'outline',
     color: 'text-green-600 dark:text-green-400',
   },
   executive: {
-    label: 'Executive',
     icon: User,
     variant: 'outline',
     color: 'text-gray-600 dark:text-gray-400',
@@ -75,7 +71,7 @@ export const RoleIndicator: React.FC<RoleIndicatorProps> = ({
   return (
     <Badge variant={config.variant} className={className}>
       {showIcon && <Icon className="h-3 w-3" />}
-      {showLabel && <span>{config.label}</span>}
+      {showLabel && <span>{getRoleDisplayLabel(userRole)}</span>}
     </Badge>
   );
 };
@@ -112,7 +108,7 @@ export const RoleDescription: React.FC<RoleDescriptionProps> = ({ role }) => {
     <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border">
       <Icon className={`h-5 w-5 mt-0.5 ${config.color}`} />
       <div className="flex-1">
-        <h4 className="font-medium text-sm mb-1">{config.label}</h4>
+        <h4 className="font-medium text-sm mb-1">{getRoleDisplayLabel(displayRole)}</h4>
         <p className="text-xs text-muted-foreground">{descriptions[displayRole]}</p>
       </div>
     </div>
