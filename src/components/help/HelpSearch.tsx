@@ -77,37 +77,100 @@ export const HelpSearch: React.FC<HelpSearchProps> = ({
 };
 
 // Help section data for search - exported for use in Help.tsx
+// Organized by tabs for the new structure
 export const HELP_SECTIONS: SearchableSection[] = [
+  // Tab 1: User Guide
   {
     id: 'getting-started',
     title: 'Getting Started',
     keywords: ['quick start', 'begin', 'welcome', 'introduction', 'new user', 'first steps', 'how to'],
   },
   {
+    id: 'dashboard-documents',
+    title: 'Dashboard & Documents',
+    keywords: ['dashboard', 'documents', 'view', 'browse', 'filter', 'search', 'status', 'pdf viewer'],
+  },
+  {
+    id: 'chat-qa',
+    title: 'Chat & Policy Q&A',
+    keywords: ['chat', 'question', 'answer', 'ai', 'ask', 'policy', 'citation', 'search', 'conversation'],
+  },
+  {
+    id: 'settings-profile',
+    title: 'Settings & Profile',
+    keywords: ['settings', 'profile', 'password', 'account', 'display name', 'preferences'],
+  },
+  // Tab 2: Templates & Upload
+  {
     id: 'templates',
-    title: 'Templates',
-    keywords: ['template', 'download', 'policy template', 'process', 'checklist', 'word document', 'docx'],
+    title: 'Template Library',
+    keywords: ['template', 'download', 'policy template', 'process', 'checklist', 'word document', 'docx', 'preview'],
   },
   {
     id: 'document-upload',
     title: 'Document Upload',
-    keywords: ['upload', 'add document', 'file', 'pdf', 'metadata', 'processing', 'import'],
+    keywords: ['upload', 'add document', 'file', 'pdf', 'metadata', 'import', 'submit'],
   },
   {
-    id: 'roles-permissions',
-    title: 'Roles & Permissions',
-    keywords: ['role', 'permission', 'access', 'system owner', 'company operator', 'general', 'executive', 'board', 'user'],
+    id: 'processing-status',
+    title: 'Processing & Status',
+    keywords: ['processing', 'status', 'progress', 'complete', 'error', 'failed', 'pending'],
+  },
+  // Tab 3: Roles & Access
+  {
+    id: 'your-role',
+    title: 'Your Role',
+    keywords: ['my role', 'current role', 'what can i do', 'my permissions', 'my access'],
+  },
+  {
+    id: 'all-roles',
+    title: 'All Roles Explained',
+    keywords: ['roles', 'system owner', 'company operator', 'general', 'executive', 'board', 'administrator'],
+  },
+  {
+    id: 'permission-matrix',
+    title: 'Permission Matrix',
+    keywords: ['permissions', 'matrix', 'table', 'who can', 'access control', 'capabilities'],
   },
   {
     id: 'access-security',
     title: 'Access Levels & Security',
     keywords: ['access level', 'security', 'rbac', 'visibility', 'restricted', 'confidential', 'public'],
   },
+  // Tab 4: FAQ & Support
   {
-    id: 'faq',
-    title: 'Frequently Asked Questions',
-    keywords: ['faq', 'question', 'help', 'problem', 'issue', 'error', 'troubleshooting', 'cannot see', 'processing'],
+    id: 'general-questions',
+    title: 'General Questions',
+    keywords: ['faq', 'question', 'help', 'why', 'how', 'what'],
+  },
+  {
+    id: 'technical-issues',
+    title: 'Technical Issues',
+    keywords: ['problem', 'issue', 'error', 'troubleshooting', 'not working', 'bug', 'fix'],
+  },
+  {
+    id: 'contact-support',
+    title: 'Contact & Support',
+    keywords: ['contact', 'support', 'help desk', 'company operator', 'assistance', 'feedback'],
   },
 ];
+
+// Tab mapping for section IDs
+export const SECTION_TAB_MAP: Record<string, string> = {
+  'getting-started': 'user-guide',
+  'dashboard-documents': 'user-guide',
+  'chat-qa': 'user-guide',
+  'settings-profile': 'user-guide',
+  'templates': 'templates-upload',
+  'document-upload': 'templates-upload',
+  'processing-status': 'templates-upload',
+  'your-role': 'roles-access',
+  'all-roles': 'roles-access',
+  'permission-matrix': 'roles-access',
+  'access-security': 'roles-access',
+  'general-questions': 'faq-support',
+  'technical-issues': 'faq-support',
+  'contact-support': 'faq-support',
+};
 
 export default HelpSearch;
