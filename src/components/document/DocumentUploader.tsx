@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {
   Dialog,
@@ -72,6 +72,14 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const { uploadFileAndProcess } = useFileUpload();
+
+  // Reset files state when dialog opens to allow fresh uploads
+  useEffect(() => {
+    if (open) {
+      setFiles([]);
+      setIsUploading(false);
+    }
+  }, [open]);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {

@@ -10,7 +10,7 @@ import { DocumentUploader } from '@/components/document/DocumentUploader';
 import { useNotebooks } from '@/hooks/useNotebooks';
 import { useDocuments } from '@/hooks/useDocuments';
 import { useAuth } from '@/contexts/AuthContext';
-import { useUserRole } from '@/hooks/useUserRole';
+import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { useCreateChatSession } from '@/hooks/useChatSession';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,7 @@ const Dashboard = () => {
   const { user, loading: authLoading, error: authError } = useAuth();
   const { notebooks } = useNotebooks();
   const { documents, isLoading: documentsLoading } = useDocuments();
-  const { userRole } = useUserRole();
+  const { hasRoleOrHigher } = useRolePermissions();
   const createSession = useCreateChatSession();
   const [showUploader, setShowUploader] = useState(false);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
@@ -34,8 +34,8 @@ const Dashboard = () => {
   // Get the first notebook ID for uploads
   const defaultNotebookId = notebooks && notebooks.length > 0 ? notebooks[0].id : null;
 
-  // Determine if user can upload based on role
-  const canUpload = ['system_owner', 'company_operator'].includes(userRole || '');
+  // Determine if user can upload based on role (company_operator or higher)
+  const canUpload = hasRoleOrHigher('company_operator');
 
   // Handler for creating a new chat session
   const handleNewChat = async () => {

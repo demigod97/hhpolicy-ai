@@ -16,7 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Search, Filter, X, Calendar } from 'lucide-react';
+import { Search, Filter, X, Calendar, Upload } from 'lucide-react';
 import { DocumentFilters as Filters } from '@/hooks/useDocumentFilters';
 import { getRoleDisplayLabel } from '@/lib/roleLabelMapping';
 
@@ -29,6 +29,8 @@ interface DocumentTableFiltersProps {
   activeFilterCount: number;
   activeFilterChips: Array<{ key: string; label: string; onRemove: () => void }>;
   onClearFilters: () => void;
+  onUploadClick?: () => void;
+  canUpload?: boolean;
 }
 
 export const DocumentTableFilters: React.FC<DocumentTableFiltersProps> = ({
@@ -40,6 +42,8 @@ export const DocumentTableFilters: React.FC<DocumentTableFiltersProps> = ({
   activeFilterCount,
   activeFilterChips,
   onClearFilters,
+  onUploadClick,
+  canUpload = false,
 }) => {
   const [searchInput, setSearchInput] = useState(filters.search);
 
@@ -194,6 +198,14 @@ export const DocumentTableFilters: React.FC<DocumentTableFiltersProps> = ({
           >
             Clear All
             <X className="h-4 w-4" />
+          </Button>
+        )}
+
+        {/* Upload Button */}
+        {canUpload && onUploadClick && (
+          <Button onClick={onUploadClick} className="gap-2 ml-auto">
+            <Upload className="h-4 w-4" />
+            Upload
           </Button>
         )}
       </div>

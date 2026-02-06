@@ -34,11 +34,10 @@ const Upload = () => {
     await queryClient.invalidateQueries({ queryKey: ['documents'] });
     await queryClient.invalidateQueries({ queryKey: ['document-stats'] });
 
-    // Reset uploader to allow new uploads
-    setTimeout(() => {
-      setShowUploader(false);
-      setTimeout(() => setShowUploader(true), 100);
-    }, 1000);
+    // Close dialog briefly then reopen to allow new uploads
+    // The DocumentUploader resets its files state when `open` transitions to true
+    setShowUploader(false);
+    setTimeout(() => setShowUploader(true), 300);
   };
 
   return (
@@ -102,13 +101,12 @@ const Upload = () => {
             </CardHeader>
             <CardContent>
               {defaultNotebookId ? (
-                showUploader && (
-                  <DocumentUploader
-                    notebookId={defaultNotebookId}
-                    onUploadComplete={handleUploadComplete}
-                    onClose={() => {}}
-                  />
-                )
+                <DocumentUploader
+                  open={showUploader}
+                  onOpenChange={setShowUploader}
+                  notebookId={defaultNotebookId}
+                  onUploadComplete={handleUploadComplete}
+                />
               ) : (
                 <div className="text-center py-8">
                   <p className="text-gray-600">

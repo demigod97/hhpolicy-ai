@@ -196,7 +196,18 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "mcp__chrome-devtools__fill",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "mcp__atlassian__searchJiraIssuesUsingJql",
+      "mcp__shadcn-ui-mcp__get_component_demo",
+      "Bash(copy \"D:\\ailocal\\hhpolicy-ai\\docs\\help_section\\CompanyInitial Policy - Name of Policy - General - YEARMMDD.pdf\" \"D:\\ailocal\\hhpolicy-ai\\public\\templates\\policy-general.pdf\")",
+      "Bash(copy:*)",
+      "Bash(git checkout:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl:*)",
+      "mcp__playwright__browser_install",
+      "Bash(DISPLAY= PLAYWRIGHT_CHROMIUM_SANDBOX=false npx playwright install:*)",
+      "mcp__playwright__browser_run_code"
     ],
     "deny": [],
     "ask": []

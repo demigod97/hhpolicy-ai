@@ -274,6 +274,8 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
           activeFilterCount={activeFilterCount}
           activeFilterChips={activeFilterChips}
           onClearFilters={clearFilters}
+          onUploadClick={onUploadClick}
+          canUpload={canUpload}
         />
 
         <div className="border-2 border-gray-200 rounded-lg overflow-hidden shadow-sm mx-2">
@@ -350,6 +352,8 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
           activeFilterCount={activeFilterCount}
           activeFilterChips={activeFilterChips}
           onClearFilters={clearFilters}
+          onUploadClick={onUploadClick}
+          canUpload={canUpload}
         />
         <DocumentTableEmpty
           variant="no-results"
@@ -371,6 +375,8 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
         activeFilterCount={activeFilterCount}
         activeFilterChips={activeFilterChips}
         onClearFilters={clearFilters}
+        onUploadClick={onUploadClick}
+        canUpload={canUpload}
       />
 
       {/* Bulk Actions */}
