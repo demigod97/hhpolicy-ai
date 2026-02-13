@@ -65,7 +65,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   onOpenChange,
   notebookId,
   onUploadComplete,
-  acceptedFileTypes = Object.keys(ACCEPTED_FILE_TYPES),
+  acceptedFileTypes = ['application/pdf'],
   maxFiles = 20, // Increased from 5 to allow more documents
   maxSize = 10 * 1024 * 1024, // 10MB
 }) => {
@@ -211,7 +211,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         <DialogHeader>
           <DialogTitle>Upload Documents</DialogTitle>
           <DialogDescription>
-            Upload policy documents, PDFs, or images. Maximum {maxFiles} files, {maxSize / 1024 / 1024}MB each.
+            Upload PDF policy documents. Maximum {maxFiles} files, {maxSize / 1024 / 1024}MB each.
           </DialogDescription>
         </DialogHeader>
 
@@ -232,7 +232,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                 {isDragActive ? 'Drop files here...' : 'Drag & drop files here, or click to browse'}
               </p>
               <p className="text-xs text-gray-500">
-                Supported: PDF, DOC, DOCX, TXT, MD, JPG, PNG
+                Supported: PDF files only
               </p>
             </div>
           )}
