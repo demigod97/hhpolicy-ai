@@ -6,9 +6,11 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useChatMessages } from '@/hooks/useChatMessages';
-import { useSources } from '@/hooks/useSources';
+import { useChatSessionSources } from '@/hooks/useChatSessionSources';
+import { useGenerateChatTitle } from '@/hooks/useGenerateChatTitle';
 import MarkdownRenderer from '@/components/chat/MarkdownRenderer';
-import SaveToNoteButton from './SaveToNoteButton';
+// FEATURE DISABLED: Notes UI hidden per Story 1.19.0 - data preserved in database
+// import SaveToNoteButton from './SaveToNoteButton';
 import AddSourcesDialog from './AddSourcesDialog';
 import { Citation, EnhancedChatMessage } from '@/types/message';
 
@@ -37,6 +39,7 @@ const ChatArea = ({
   const [showAiLoading, setShowAiLoading] = useState(false);
   const [clickedQuestions, setClickedQuestions] = useState<Set<string>>(new Set());
   const [showAddSourcesDialog, setShowAddSourcesDialog] = useState(false);
+
   
   const isGenerating = notebook?.generation_status === 'generating';
   
@@ -47,18 +50,70 @@ const ChatArea = ({
     deleteChatHistory,
     isDeletingChatHistory
   } = useChatMessages(notebookId);
-  
+
   const {
-    sources
-  } = useSources(notebookId);
-  
+    sources,
+    hasProcessedSources,
+    completedCount,
+    processingCount
+  } = useChatSessionSources(notebookId);
+
+  // Title generation hook
+  const { generateTitle } = useGenerateChatTitle();
+  const [titleGenerated, setTitleGenerated] = useState(false);
+
+  // Auto-generate title after first AI response
+  useEffect(() => {
+    const shouldGenerateTitle =
+      !titleGenerated &&
+      notebookId &&
+      messages &&
+      messages.length >= 2 && // At least user question + AI response
+      messages.some(msg => msg.message.type === 'human'); // Ensure user has sent a message
+
+    if (shouldGenerateTitle) {
+      // Extract chat history
+      const chatHistory = messages.map(msg => ({
+        role: msg.message.type === 'human' ? 'user' as const : 'assistant' as const,
+        content: typeof msg.message.content === 'string'
+          ? msg.message.content
+          : JSON.stringify(msg.message.content),
+        timestamp: msg.message.created_at,
+      }));
+
+      // Generate title asynchronously (don't block UI)
+      generateTitle.mutate(
+        { chatHistory, sessionId: notebookId },
+        {
+          onSuccess: (data) => {
+            console.log('Chat title generated:', data.title);
+            setTitleGenerated(true);
+          },
+          onError: (error) => {
+            console.error('Failed to generate chat title:', error);
+            // Silently fail - don't disrupt user experience
+          },
+        }
+      );
+    }
+  }, [messages?.length, titleGenerated, notebookId]); // Removed generateTitle from deps - it's stable
+
+
+  // Debug logging
+  React.useEffect(() => {
+    console.log('========== ChatArea Component State ==========');
+    console.log('notebookId:', notebookId);
+    console.log('messages from hook:', messages);
+    console.log('messages.length:', messages?.length || 0);
+    console.log('sources.length:', sources?.length || 0);
+    console.log('hasProcessedSources:', hasProcessedSources);
+    console.log('==============================================');
+  }, [notebookId, messages, sources, hasProcessedSources]);
+
   const sourceCount = sources?.length || 0;
 
-  // Check if at least one source has been successfully processed
-  const hasProcessedSource = sources?.some(source => source.processing_status === 'completed') || false;
-
   // Chat should be disabled if there are no processed sources
-  const isChatDisabled = !hasProcessedSource;
+  const isChatDisabled = !hasProcessedSources;
 
   // Track when we send a message to show loading state
   const [lastMessageCount, setLastMessageCount] = useState(0);
@@ -166,12 +221,12 @@ const ChatArea = ({
     }
     return "Start typing...";
   };
-  return <div className="flex-1 flex flex-col h-full overflow-hidden">
-      {hasSource ? <div className="flex-1 flex flex-col h-full overflow-hidden">
+  return <div className="flex flex-col h-full w-full overflow-hidden">
+      {hasSource ? <div className="flex flex-col h-full overflow-hidden">
           {/* Chat Header */}
-          <div className="p-4 border-b border-gray-200 flex-shrink-0">
+          <div className="p-4 border-b border-gray-200 flex-shrink-0 bg-white">
             <div className="max-w-4xl mx-auto flex items-center justify-between">
-              <h2 className="text-lg font-medium text-gray-900">Chat</h2>
+              {/* <h2 className="text-lg font-medium text-gray-900">Chat</h2> */}
               {shouldShowRefreshButton && <Button variant="ghost" size="sm" onClick={handleRefreshChat} disabled={isDeletingChatHistory || isChatDisabled} className="flex items-center space-x-2">
                   <RefreshCw className={`h-4 w-4 ${isDeletingChatHistory ? 'animate-spin' : ''}`} />
                   <span>{isDeletingChatHistory ? 'Clearing...' : 'Clear Chat'}</span>
@@ -209,9 +264,11 @@ const ChatArea = ({
                           <div className={isUserMessage(msg) ? '' : 'prose prose-gray max-w-none text-gray-800'}>
                             <MarkdownRenderer content={msg.message.content} className={isUserMessage(msg) ? '' : ''} onCitationClick={handleCitationClick} isUserMessage={isUserMessage(msg)} />
                           </div>
+                          {/* FEATURE DISABLED: Notes UI hidden per Story 1.19.0 - data preserved in database
                           {isAiMessage(msg) && <div className="mt-2 flex justify-start">
                               <SaveToNoteButton content={msg.message.content} notebookId={notebookId} />
                             </div>}
+                          */}
                         </div>
                       </div>)}
                     
@@ -243,11 +300,11 @@ const ChatArea = ({
           </ScrollArea>
 
           {/* Chat Input - Fixed at bottom */}
-          <div className="p-6 border-t border-gray-200 flex-shrink-0">
+          <div className="p-6 border-t border-gray-200 flex-shrink-0 bg-white">
             <div className="max-w-4xl mx-auto">
               <div className="flex space-x-4">
                 <div className="flex-1 relative">
-                  <Input placeholder={getPlaceholderText()} value={message} onChange={e => setMessage(e.target.value)} onKeyDown={e => e.key === 'Enter' && !isChatDisabled && !isSending && !pendingUserMessage && handleSendMessage()} className="pr-12" disabled={isChatDisabled || isSending || !!pendingUserMessage} />
+                  <Input placeholder={getPlaceholderText()} value={message} onChange={(e) => setMessage(e.target.value)} onKeyDown={e => e.key === 'Enter' && !isChatDisabled && !isSending && !pendingUserMessage && handleSendMessage()} className="pr-12" disabled={isChatDisabled || isSending || !!pendingUserMessage} />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
                     {sourceCount} source{sourceCount !== 1 ? 's' : ''}
                   </div>
@@ -256,7 +313,7 @@ const ChatArea = ({
                   {isSending || pendingUserMessage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                 </Button>
               </div>
-              
+
               {/* Example Questions Carousel */}
               {!isChatDisabled && !pendingUserMessage && !showAiLoading && exampleQuestions.length > 0 && <div className="mt-4">
                   <Carousel className="w-full max-w-4xl">
@@ -277,7 +334,8 @@ const ChatArea = ({
           </div>
         </div> :
     // Empty State
-    <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
+          <div className="flex-1 flex flex-col items-center justify-center p-8">
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-gray-100">
               <Upload className="h-8 w-8 text-slate-600" />
@@ -288,10 +346,11 @@ const ChatArea = ({
               Upload a source
             </Button>
           </div>
+          </div>
 
-          {/* Bottom Input */}
-          <div className="w-full max-w-2xl">
-            <div className="flex space-x-4">
+          {/* Bottom Input - Fixed at bottom */}
+          <div className="p-6 border-t border-gray-200 flex-shrink-0 bg-white">
+            <div className="max-w-4xl mx-auto flex space-x-4">
               <Input placeholder="Upload a source to get started" disabled className="flex-1" />
               <div className="flex items-center text-sm text-gray-500">
                 0 sources
@@ -302,12 +361,7 @@ const ChatArea = ({
             </div>
           </div>
         </div>}
-      
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-200 flex-shrink-0">
-        <p className="text-center text-sm text-gray-500">PolicyAi can be inaccurate; please double-check its responses.</p>
-      </div>
-      
+
       {/* Add Sources Dialog */}
       <AddSourcesDialog open={showAddSourcesDialog} onOpenChange={setShowAddSourcesDialog} notebookId={notebookId} />
     </div>;

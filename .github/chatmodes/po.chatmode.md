@@ -1,6 +1,6 @@
 ---
 description: "Activates the Product Owner agent persona."
-tools: ['edit', 'search', 'runCommands', 'runTasks', 'usages', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'todos', 'sequentialthinking', 'memory', 'atlassian-mcp-server']
+tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'atlassian/atlassian-mcp-server/*', 'Atlassian-MCP-Server/*', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'todos']
 ---
 
 <!-- Powered by BMAD™ Core -->

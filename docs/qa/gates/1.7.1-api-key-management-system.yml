@@ -1,0 +1,132 @@
+schema: 1
+story: '1.7.1'
+story_title: 'API Key Management System'
+gate: FAIL
+status_reason: 'Critical security risks (3) must be mitigated before implementation. Encryption key exposure, insufficient input validation, and weak encryption implementation all pose severe security threats.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2025-01-17T10:00:00Z'
+
+top_issues:
+  - id: 'SEC-001'
+    severity: high
+    finding: 'Encryption key stored in environment variables poses exposure risk'
+    suggested_action: 'Store encryption key in Supabase Vault with proper key rotation mechanism'
+  - id: 'SEC-002'
+    severity: high
+    finding: 'No comprehensive input validation for API keys allows injection attacks'
+    suggested_action: 'Implement strict regex validation, sanitization, and length limits per provider'
+  - id: 'SEC-003'
+    severity: high
+    finding: 'Encryption implementation requires external security audit'
+    suggested_action: 'Use established crypto libraries (Web Crypto API), implement AES-GCM, and conduct security audit'
+  - id: 'SEC-004'
+    severity: high
+    finding: 'Authorization controls need RLS policy verification'
+    suggested_action: 'Implement comprehensive RLS policies and test cross-tenant access prevention'
+  - id: 'DATA-001'
+    severity: high
+    finding: 'Key deletion without safeguards can cause service disruption'
+    suggested_action: 'Implement soft delete pattern with 30-day retention and confirmation dialogs'
+  - id: 'PERF-001'
+    severity: high
+    finding: 'Encryption performance not validated under load'
+    suggested_action: 'Load test with 1000+ concurrent operations and implement key caching'
+  - id: 'OPS-001'
+    severity: high
+    finding: 'No key rotation mechanism for stale keys'
+    suggested_action: 'Add key expiration dates and automated rotation reminders'
+
+waiver:
+  active: false
+
+# Extended fields
+quality_score: 45
+expires: '2025-01-31T10:00:00Z'
+
+evidence:
+  tests_reviewed: 47
+  risks_identified: 12
+
+test_design:
+  scenarios_total: 47
+  by_level:
+    unit: 18
+    integration: 21
+    e2e: 8
+  by_priority:
+    p0: 15
+    p1: 22
+    p2: 10
+  coverage_gaps: []
+  planning_ref: 'docs/qa/assessments/1.7.1-api-key-management-test-design-20250117.md'
+
+risk_summary:
+  totals:
+    critical: 3
+    high: 4
+    medium: 3
+    low: 2
+  highest:
+    id: SEC-001
+    score: 9
+    title: 'Encryption key exposure via environment variables'
+  recommendations:
+    must_fix:
+      - 'Implement Supabase Vault for encryption key storage'
+      - 'Add comprehensive input validation with provider-specific regex'
+      - 'Conduct external cryptography security audit'
+      - 'Implement and test RLS policies'
+      - 'Add soft delete with retention period'
+      - 'Perform load testing for encryption operations'
+    monitor:
+      - 'Key rotation compliance rates'
+      - 'Failed validation attempts'
+      - 'Encryption operation latency'
+      - 'Unauthorized access attempts'
+
+nfr_validation:
+  _assessed: [security, performance, reliability, maintainability]
+  security:
+    status: FAIL
+    notes: 'Multiple critical security issues: encryption key exposure, insufficient validation, weak crypto implementation, missing RLS policies'
+  performance:
+    status: CONCERNS
+    notes: 'Encryption performance not validated under load. Need caching strategy and load testing'
+  reliability:
+    status: CONCERNS
+    notes: 'Missing soft delete and recovery mechanisms. Audit logging gaps exist'
+  maintainability:
+    status: CONCERNS
+    notes: 'Complex security requirements need clear documentation and external expertise'
+
+trace:
+  totals:
+    requirements: 9
+    full: 9
+    partial: 0
+    none: 0
+  planning_ref: 'docs/qa/assessments/1.7.1-api-key-management-test-design-20250117.md'
+  uncovered: []
+  notes: 'Comprehensive test design created covering all 9 acceptance criteria with 47 test scenarios'
+
+recommendations:
+  immediate:
+    - action: 'Implement Supabase Vault integration for encryption key'
+      refs: ['src/utils/encryption.ts', 'environment configuration']
+    - action: 'Add comprehensive input validation library'
+      refs: ['src/services/apiKeyService.ts', 'src/components/settings/ApiKeyDialog.tsx']
+    - action: 'Schedule external security audit'
+      refs: ['encryption implementation', 'authorization controls']
+    - action: 'Implement RLS policies on api_keys table'
+      refs: ['supabase/migrations/20251016145127_create_api_keys_table.sql']
+    - action: 'Add soft delete pattern'
+      refs: ['database schema', 'deletion workflows']
+    - action: 'Create load testing suite'
+      refs: ['performance testing', 'encryption benchmarks']
+  future:
+    - action: 'Implement key rotation automation'
+      refs: ['operational procedures']
+    - action: 'Add comprehensive audit logging'
+      refs: ['all key operations']
+    - action: 'Create disaster recovery procedures'
+      refs: ['key backup and recovery']

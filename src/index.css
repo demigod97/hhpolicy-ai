@@ -4,51 +4,56 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* PolicyAi Brand Colors - Dark Blue Theme */
+    /* Background & Foreground */
+    --background: 0 0% 100%;                      /* White */
+    --foreground: 215 25% 15%;                    /* Slate 800 #1E293B */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Card */
+    --card: 0 0% 100%;                            /* White */
+    --card-foreground: 215 25% 15%;               /* Slate 800 */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    /* Popover */
+    --popover: 0 0% 100%;                         /* White */
+    --popover-foreground: 215 25% 15%;            /* Slate 800 */
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary (Dark Blue - #1e3a8a) */
+    --primary: 221 64% 33%;                       /* Dark Blue */
+    --primary-foreground: 0 0% 100%;              /* White text on blue */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 221 83% 53%;
+    /* Secondary (Medium Blue for accents) */
+    --secondary: 221 83% 53%;                     /* Medium Blue #2563EB */
+    --secondary-foreground: 0 0% 100%;            /* White text on blue */
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted */
+    --muted: 60 11% 96%;                          /* Very light warm gray */
+    --muted-foreground: 60 11% 40%;               /* Darker warm gray */
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 221 83% 53%;
+    /* Accent (Light Blue) */
+    --accent: 217 91% 60%;                        /* Light Blue #60A5FA */
+    --accent-foreground: 0 0% 100%;               /* White text on blue */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive (Red for errors) */
+    --destructive: 0 84% 60%;                     /* Red for destructive actions */
+    --destructive-foreground: 0 0% 100%;          /* White */
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
+    /* Border & Input */
+    --border: 60 11% 85%;                         /* Light warm gray */
+    --input: 60 11% 85%;                          /* Light warm gray */
+    --ring: 221 64% 33%;                          /* Dark blue for focus rings */
 
-    --radius: 0.5rem;
+    /* Radius */
+    --radius: 0.5rem;                             /* 8px - modern, friendly */
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 221 83% 53%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 221 83% 53%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar */
+    --sidebar-background: 0 0% 98%;               /* Off-white */
+    --sidebar-foreground: 215 25% 15%;            /* Slate 800 */
+    --sidebar-primary: 221 64% 33%;               /* Dark blue */
+    --sidebar-primary-foreground: 0 0% 100%;      /* White */
+    --sidebar-accent: 217 91% 95%;                /* Light blue */
+    --sidebar-accent-foreground: 215 25% 15%;     /* Slate 800 */
+    --sidebar-border: 220 13% 91%;                /* Light gray */
+    --sidebar-ring: 221 64% 33%;                  /* Dark blue */
   }
 
   .dark {

@@ -2,6 +2,8 @@ Us# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Critical : Always use AskUserQuestion Tool when you want to clarify, interview or ask questions from the user.
+
 ## Project Overview
 
 **PolicyAi** is an AI-powered policy management and compliance Q&A system being developed from the existing InsightsLM codebase. It transforms organizational policy documents into an intelligent, searchable system with role-based access control and RAG (Retrieval-Augmented Generation) capabilities.

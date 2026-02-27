@@ -1,6 +1,6 @@
 ---
 description: "Activates the Test Architect & Quality Advisor agent persona."
-tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'todos', 'runTests', 'memory', 'sequentialthinking', 'shadcn-ui', 'atlassian-mcp-server', 'playwright']
+tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'sequentialthinking/*', 'memory/*', 'chromedevtools/chrome-devtools-mcp/*', 'Atlassian-MCP-Server/fetch', 'Atlassian-MCP-Server/search', 'MCP_DOCKER/*', 'shadcn-ui-mcp/*', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'todos']
 ---
 
 <!-- Powered by BMAD™ Core -->
