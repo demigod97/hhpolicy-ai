@@ -28,7 +28,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  role: 'system_owner' | 'company_operator' | 'board_member' | 'administrator' | 'executive';
+  role: 'system_owner' | 'company_operator' | 'board' | 'administrator' | 'executive';
   createdAt: string;
   lastActive: string;
   isActive: boolean;
@@ -46,7 +46,7 @@ const UserDetailView = ({ user, onRoleAssignment }: UserDetailViewProps) => {
         return <Crown className="h-5 w-5 text-red-600" />;
       case 'company_operator':
         return <Shield className="h-5 w-5 text-blue-600" />;
-      case 'board_member':
+      case 'board':
         return <Building className="h-5 w-5 text-purple-600" />;
       case 'administrator':
         return <Settings className="h-5 w-5 text-green-600" />;
@@ -63,7 +63,7 @@ const UserDetailView = ({ user, onRoleAssignment }: UserDetailViewProps) => {
         return 'destructive';
       case 'company_operator':
         return 'default';
-      case 'board_member':
+      case 'board':
         return 'secondary';
       case 'administrator':
         return 'outline';
@@ -80,7 +80,7 @@ const UserDetailView = ({ user, onRoleAssignment }: UserDetailViewProps) => {
         return 'System Owner';
       case 'company_operator':
         return 'Company Operator';
-      case 'board_member':
+      case 'board':
         return 'Board Member';
       case 'administrator':
         return 'Administrator';
@@ -97,7 +97,7 @@ const UserDetailView = ({ user, onRoleAssignment }: UserDetailViewProps) => {
         return 'Full system access including user management, system configuration, and all administrative functions.';
       case 'company_operator':
         return 'Company-level management with user role assignment capabilities.';
-      case 'board_member':
+      case 'board':
         return 'High-level access for board members and executives.';
       case 'administrator':
         return 'Administrative access for system management and user support.';

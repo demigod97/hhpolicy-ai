@@ -37,7 +37,7 @@ export const NAVIGATION_PERMISSIONS = {
     canAccessSearch: true,
     canAccessSettings: true,
     canAccessHelp: true,
-    canAccessUserManagement: false,
+    canAccessUserManagement: true,
     canAccessAPIKeys: false,
     canAccessTokenDashboard: false,
     canAccessSystemSettings: false,

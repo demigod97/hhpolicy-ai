@@ -29,7 +29,18 @@ dist-ssr
 nul
 
 .agent/*
-.claude/commands/bmad/*
 .gemini/*
 _bmad/*
 .github/agents/*
+.claude/*
+!.claude/skills/
+!.claude/skills/**
+
+.codex/*
+!.codex/skills/
+!.codex/skills/**
+
+.opencode/*
+!.opencode/skills/
+!.opencode/skills/**
+
