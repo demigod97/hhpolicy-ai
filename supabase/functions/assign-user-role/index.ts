@@ -3,7 +3,7 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 interface AssignRoleRequest {
   user_id: string;
-  role: 'administrator' | 'executive' | 'super_admin';
+  role: 'system_owner' | 'company_operator' | 'board_member' | 'administrator' | 'executive';
   action: 'assign' | 'revoke';
 }
 
@@ -55,17 +55,29 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Check if current user is super admin
-    const { data: currentUserRoles, error: roleCheckError } = await supabase
-      .from('user_roles')
+    // Check if current user has permission to assign roles
+    const { data: currentUserData, error: roleCheckError } = await supabase
+      .from('users')
       .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'super_admin');
+      .eq('id', user.id)
+      .single();
 
-    if (roleCheckError || !currentUserRoles || currentUserRoles.length === 0) {
+    if (roleCheckError || !currentUserData) {
       return new Response(
         JSON.stringify({
-          error: 'Access denied. Only super admins can assign roles.'
+          error: 'User role not found'
+        }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const currentUserRole = currentUserData.role;
+    
+    // Only system_owner and company_operator can assign roles
+    if (!['system_owner', 'company_operator'].includes(currentUserRole)) {
+      return new Response(
+        JSON.stringify({
+          error: 'Access denied. Only System Owners and Company Operators can assign roles.'
         }),
         { status: 403, headers: { 'Content-Type': 'application/json' } }
       );
@@ -85,12 +97,22 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (!['administrator', 'executive', 'super_admin'].includes(role)) {
+    if (!['system_owner', 'company_operator', 'board_member', 'administrator', 'executive'].includes(role)) {
       return new Response(
         JSON.stringify({
-          error: 'Invalid role. Must be: administrator, executive, or super_admin'
+          error: 'Invalid role. Must be: system_owner, company_operator, board_member, administrator, or executive'
         }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Company operators cannot assign system_owner role
+    if (currentUserRole === 'company_operator' && role === 'system_owner') {
+      return new Response(
+        JSON.stringify({
+          error: 'Company Operators cannot assign System Owner role'
+        }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
@@ -116,65 +138,76 @@ Deno.serve(async (req: Request) => {
     let result: AssignRoleResponse;
 
     if (action === 'assign') {
-      // Check if role already exists
-      const { data: existingRole } = await supabase
-        .from('user_roles')
-        .select('id')
-        .eq('user_id', user_id)
-        .eq('role', role)
+      // Update the user's role in the users table
+      const { data: updatedUser, error: assignError } = await supabase
+        .from('users')
+        .update({ role })
+        .eq('id', user_id)
+        .select('*')
         .single();
 
-      if (existingRole) {
-        result = {
-          success: false,
-          message: `User already has ${role} role`,
-        };
-      } else {
-        // Assign the role
-        const { data: roleData, error: assignError } = await supabase
-          .from('user_roles')
-          .insert({
-            user_id,
-            role,
-          })
-          .select('*')
-          .single();
-
-        if (assignError) {
-          throw assignError;
-        }
-
-        result = {
-          success: true,
-          message: `Successfully assigned ${role} role to user`,
-          data: roleData,
-        };
+      if (assignError) {
+        throw assignError;
       }
+
+      // Log the role change for audit
+      const { error: auditError } = await supabase
+        .from('audit_logs')
+        .insert({
+          action: 'role_assignment',
+          user_id,
+          performed_by: user.id,
+          details: {
+            new_role: role,
+            timestamp: new Date().toISOString()
+          }
+        });
+
+      if (auditError) {
+        console.warn('Failed to log role change:', auditError);
+      }
+
+      result = {
+        success: true,
+        message: `Successfully assigned ${role} role to user`,
+        data: updatedUser,
+      };
     } else {
-      // Revoke the role
-      const { data: revokedRole, error: revokeError } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', user_id)
-        .eq('role', role)
-        .select('*');
+      // For revoke action, we'll set the role to a default role
+      // In a real system, you might want to handle this differently
+      const { data: updatedUser, error: revokeError } = await supabase
+        .from('users')
+        .update({ role: 'executive' }) // Default role when revoking
+        .eq('id', user_id)
+        .select('*')
+        .single();
 
       if (revokeError) {
         throw revokeError;
       }
 
-      if (!revokedRole || revokedRole.length === 0) {
-        result = {
-          success: false,
-          message: `User does not have ${role} role to revoke`,
-        };
-      } else {
-        result = {
-          success: true,
-          message: `Successfully revoked ${role} role from user`,
-          data: revokedRole[0],
-        };
+      // Log the role change for audit
+      const { error: auditError } = await supabase
+        .from('audit_logs')
+        .insert({
+          action: 'role_revocation',
+          user_id,
+          performed_by: user.id,
+          details: {
+            new_role: 'executive',
+            timestamp: new Date().toISOString()
+          }
+        });
+
+      if (auditError) {
+        console.warn('Failed to log role revocation:', auditError);
       }
+
+      result = {
+        success: true,
+        message: `Successfully revoked ${role} role from user`,
+        data: updatedUser,
+      };
     }
 
     return new Response(

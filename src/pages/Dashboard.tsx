@@ -1,29 +1,178 @@
 
-import React from 'react';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import NotebookGrid from '@/components/dashboard/NotebookGrid';
-import EmptyDashboard from '@/components/dashboard/EmptyDashboard';
-import UserGreetingCard from '@/components/dashboard/UserGreetingCard';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { DocumentTable } from '@/components/dashboard/DocumentTable';
+import { PDFViewer } from '@/components/pdf/PDFViewer';
+import { PrimaryNavigationBar } from '@/components/navigation/PrimaryNavigationBar';
+import { Footer } from '@/components/layout/Footer';
+import { DocumentUploader } from '@/components/document/DocumentUploader';
 import { useNotebooks } from '@/hooks/useNotebooks';
+import { useDocuments } from '@/hooks/useDocuments';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRolePermissions } from '@/hooks/useRolePermissions';
+import { useCreateChatSession } from '@/hooks/useChatSession';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Upload, FileText, MessageSquarePlus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { user, loading: authLoading, error: authError } = useAuth();
-  const { notebooks, isLoading, error, isError } = useNotebooks();
-  const hasNotebooks = notebooks && notebooks.length > 0;
+  const { notebooks } = useNotebooks();
+  const { documents, isLoading: documentsLoading } = useDocuments();
+  const { hasRoleOrHigher } = useRolePermissions();
+  const createSession = useCreateChatSession();
+  const [showUploader, setShowUploader] = useState(false);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<any>(null);
+
+  // Get the first notebook ID for uploads
+  const defaultNotebookId = notebooks && notebooks.length > 0 ? notebooks[0].id : null;
+
+  // Determine if user can upload based on role (company_operator or higher)
+  const canUpload = hasRoleOrHigher('company_operator');
+
+  // Handler for creating a new chat session
+  const handleNewChat = async () => {
+    try {
+      const session = await createSession.mutateAsync('New Chat');
+      navigate(`/chat/${session.id}`);
+    } catch (error) {
+      console.error('Error creating chat session:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create new chat session. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleUploadComplete = async (sourceIds: string[]) => {
+    console.log('Upload complete, source IDs:', sourceIds);
+
+    // Show success message immediately
+    toast({
+      title: 'Upload Complete',
+      description: `${sourceIds.length} document(s) uploaded successfully. Refreshing...`,
+    });
+
+    // Invalidate queries to refresh document list
+    await queryClient.invalidateQueries({ queryKey: ['notebooks'] });
+    await queryClient.invalidateQueries({ queryKey: ['sources'] });
+    await queryClient.invalidateQueries({ queryKey: ['documents'] });
+    await queryClient.invalidateQueries({ queryKey: ['document-stats'] });
+
+    // Wait a moment for queries to refetch before closing
+    setTimeout(() => {
+      setShowUploader(false);
+    }, 500);
+  };
+
+  // Upload dialog can be triggered from DocumentTable upload button
+
+  const handleDocumentSelect = async (documentId: string) => {
+    setSelectedDocumentId(documentId);
+
+    // Fetch the document details including storage bucket, processing status, and access control fields
+    const { data, error } = await supabase
+      .from('sources')
+      .select('id, title, pdf_file_path, pdf_storage_bucket, file_path, processing_status, target_role, uploaded_by_user_id')
+      .eq('id', documentId)
+      .single();
+
+    if (error) {
+      console.error('Error loading document:', error);
+
+      // Check if it's an RLS permission error
+      if (error.code === 'PGRST116' || error.message?.includes('row-level security')) {
+        toast({
+          title: 'Access Denied',
+          description: 'You do not have permission to access this document.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to load document details.',
+          variant: 'destructive',
+        });
+      }
+      setSelectedDocument(null);
+      return;
+    }
+
+    // Check if document is still processing
+    if (data?.processing_status === 'pending' || data?.processing_status === 'processing') {
+      toast({
+        title: 'Document Processing',
+        description: 'This document is still being processed. Please wait until processing is complete.',
+        variant: 'default',
+      });
+      setSelectedDocument(null);
+      return;
+    }
+
+    // Check if processing failed
+    if (data?.processing_status === 'failed') {
+      toast({
+        title: 'Processing Failed',
+        description: 'This document failed to process. Please try re-uploading it.',
+        variant: 'destructive',
+      });
+      setSelectedDocument(null);
+      return;
+    }
+
+    // Determine the correct file path and bucket
+    const filePath = data?.pdf_file_path || data?.file_path;
+    const bucket = data?.pdf_storage_bucket || 'sources'; // Default to 'sources' bucket
+
+    if (filePath) {
+      // Get public URL from Supabase Storage
+      // Buckets are public, security is enforced via sources table RLS
+      const { data: urlData } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(filePath);
+
+      if (!urlData?.publicUrl) {
+        toast({
+          title: 'Error',
+          description: 'Failed to load PDF file. The file may be corrupted or inaccessible.',
+          variant: 'destructive',
+        });
+        setSelectedDocument(null);
+        return;
+      }
+
+      setSelectedDocument({
+        id: data.id,
+        title: data.title,
+        url: urlData.publicUrl,
+      });
+    } else {
+      toast({
+        title: 'No PDF Available',
+        description: 'This document does not have an associated PDF file.',
+        variant: 'destructive',
+      });
+      setSelectedDocument(null);
+    }
+  };
 
   // Show loading while auth is initializing
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <DashboardHeader userEmail={user?.email} />
-        <main className="max-w-7xl mx-auto px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-4xl font-medium text-gray-900 mb-2">Welcome to PolicyAi</h1>
-          </div>
-          <div className="text-center py-16">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Initializing...</p>
+      <div className="min-h-screen bg-background flex flex-col">
+        <PrimaryNavigationBar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </main>
       </div>
@@ -33,61 +182,12 @@ const Dashboard = () => {
   // Show auth error if present
   if (authError) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <DashboardHeader userEmail={user?.email} />
-        <main className="max-w-7xl mx-auto px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-4xl font-medium text-gray-900 mb-2">Welcome to PolicyAi</h1>
-          </div>
-          <div className="text-center py-16">
-            <p className="text-red-600">Authentication error: {authError}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Retry
-            </button>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  // Show notebooks loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <DashboardHeader userEmail={user?.email} />
-        <main className="max-w-7xl mx-auto px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-4xl font-medium text-gray-900 mb-2">Welcome to PolicyAi</h1>
-          </div>
-          <div className="text-center py-16">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your notebooks...</p>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  // Show notebooks error if present
-  if (isError && error) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <DashboardHeader userEmail={user?.email} />
-        <main className="max-w-7xl mx-auto px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-4xl font-medium text-gray-900 mb-2">Welcome to PolicyAi</h1>
-          </div>
-          <div className="text-center py-16">
-            <p className="text-red-600">Error loading notebooks: {error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Retry
-            </button>
+      <div className="min-h-screen bg-background flex flex-col">
+        <PrimaryNavigationBar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center max-w-md">
+            <p className="text-destructive mb-4">Authentication error: {authError}</p>
+            <Button onClick={() => window.location.reload()}>Retry</Button>
           </div>
         </main>
       </div>
@@ -95,20 +195,55 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <DashboardHeader userEmail={user?.email} />
-      
-      <main className="max-w-7xl mx-auto px-6 py-[60px]">
-        <div className="mb-8">
-          <h1 className="font-medium text-gray-900 mb-2 text-5xl">Welcome to PolicyAi</h1>
-        </div>
+    <div className="h-screen bg-background flex flex-col">
+      {/* Primary Navigation */}
+      <PrimaryNavigationBar />
 
-        <div className="mb-8">
-          <UserGreetingCard />
-        </div>
+      {/* Document Table - Full Width with Top Padding */}
+      <div className="flex-1 overflow-auto p-8 bg-muted/30">
+        <DocumentTable
+          documents={documents}
+          isLoading={documentsLoading}
+          onDocumentSelect={handleDocumentSelect}
+          onUploadClick={() => setShowUploader(true)}
+          selectedDocumentId={selectedDocumentId}
+          canUpload={canUpload}
+          canManage={canUpload}
+        />
+      </div>
 
-        {hasNotebooks ? <NotebookGrid /> : <EmptyDashboard />}
-      </main>
+      {/* PDF Viewer Modal */}
+      <Dialog open={!!selectedDocument} onOpenChange={(open) => !open && setSelectedDocument(null)}>
+        <DialogContent className="max-w-7xl h-[90vh] p-0">
+          <DialogHeader className="px-6 py-4 border-b">
+            <DialogTitle className="text-xl font-semibold pr-8">
+              {selectedDocument?.title || 'Document Preview'}
+            </DialogTitle>
+            {/* Close button is provided by DialogContent component */}
+          </DialogHeader>
+          <div className="h-full overflow-hidden">
+            {selectedDocument && (
+              <PDFViewer
+                fileUrl={selectedDocument.url}
+                fileName={selectedDocument.title}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Footer */}
+      <Footer />
+
+      {/* Document Uploader Modal */}
+      {defaultNotebookId && (
+        <DocumentUploader
+          open={showUploader}
+          onOpenChange={setShowUploader}
+          notebookId={defaultNotebookId}
+          onUploadComplete={handleUploadComplete}
+        />
+      )}
     </div>
   );
 };

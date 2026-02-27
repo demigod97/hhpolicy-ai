@@ -24,3 +24,12 @@ dist-ssr
 *.sw?
 .env
 # BMAD (local only)
+.mcp.json
+.mcp.json
+nul
+
+.agent/*
+.claude/commands/bmad/*
+.gemini/*
+_bmad/*
+.github/agents/*

@@ -66,13 +66,14 @@ export const useNotebooks = () => {
     },
   });
 
-  // Set up real-time subscription for notebooks updates
+  // Set up real-time subscriptions for notebooks and sources updates
   useEffect(() => {
     if (!user?.id || !isAuthenticated) return;
 
-    console.log('Setting up real-time subscription for notebooks');
+    console.log('Setting up real-time subscriptions for notebooks and sources');
 
-    const channel = supabase
+    // Subscribe to policy_documents changes
+    const notebooksChannel = supabase
       .channel('notebooks-changes')
       .on(
         'postgres_changes',
@@ -84,16 +85,34 @@ export const useNotebooks = () => {
         },
         (payload) => {
           console.log('Real-time notebook update received:', payload);
-          
-          // Invalidate and refetch notebooks when any change occurs
           queryClient.invalidateQueries({ queryKey: ['notebooks', user.id] });
         }
       )
       .subscribe();
 
+    // Subscribe to sources changes (for source counts)
+    const sourcesChannel = supabase
+      .channel('sources-changes-notebooks')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'sources',
+        },
+        (payload) => {
+          console.log('Real-time sources update received (for notebooks):', payload);
+          // Invalidate notebooks to refresh source counts
+          queryClient.invalidateQueries({ queryKey: ['notebooks', user.id] });
+          queryClient.invalidateQueries({ queryKey: ['documents'] });
+        }
+      )
+      .subscribe();
+
     return () => {
-      console.log('Cleaning up real-time subscription');
-      supabase.removeChannel(channel);
+      console.log('Cleaning up real-time subscriptions');
+      supabase.removeChannel(notebooksChannel);
+      supabase.removeChannel(sourcesChannel);
     };
   }, [user?.id, isAuthenticated, queryClient]);
 

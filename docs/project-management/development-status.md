@@ -180,6 +180,33 @@
 - **Impact**: Significantly improved user experience with informative feedback
 - **Documentation**: Full implementation log created in project-management folder
 
+---
+
+#### ✅ HHR-172: Help Section Expansion — Bug Fixes (2026-02-27)
+
+- **Status**: Complete
+- **Branch**: `HHR-172-help-section-expansion`
+- **Type**: Bug Fixes + Feature Additions
+- **Features Added / Fixed**:
+  - **Upload auto-open bug fixed**: `Upload.tsx` changed from `useState(true)` → `useState(false)`, explicit button trigger added
+  - **Word template downloads**: All 9 Help Library templates replaced with editable `.docx` files; PDF preview removed
+  - **Avatar upload**: Camera icon overlay added to Settings profile card; uploads to Supabase `avatars` bucket
+  - **User Management error messages**: Toast now shows actual API error instead of generic string
+- **Files Modified**:
+  - `src/pages/Upload.tsx`
+  - `src/components/help/TemplatePreviewCard.tsx`
+  - `src/components/help/TemplatePreviewGrid.tsx`
+  - `src/hooks/useUserProfile.tsx` (added `useUploadAvatar`)
+  - `src/components/settings/ProfileCard.tsx`
+  - `src/pages/Settings.tsx`
+  - `src/hooks/useUserManagement.tsx`
+  - `public/templates/*.docx` (9 new Word files)
+  - `scripts/generate-templates.mjs` (new generation script)
+- **Story**: `docs/stories/HHR-172-help-section-expansion.md`
+- **Note**: Avatar upload requires `avatars` Supabase Storage bucket to be created as public
+
+---
+
 ## Last Updated
 
-2025-09-22 - Citation display bug fix completed, all Epic 2 functionality validated
+2026-02-27 - HHR-172 bug fixes: Upload auto-open, Word templates, Avatar upload, User Management error messages

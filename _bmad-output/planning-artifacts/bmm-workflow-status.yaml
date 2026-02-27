@@ -1,0 +1,116 @@
+# BMM Workflow Status - PolicyAi
+# Generated: 2026-02-06
+# This tracks progress through BMM methodology Analysis, Planning, and Solutioning phases.
+# Implementation phase is tracked separately in sprint-status.yaml
+
+# STATUS DEFINITIONS:
+# ==================
+# Initial Status (before completion):
+#   - required: Must be completed to progress
+#   - optional: Can be completed but not required
+#   - recommended: Strongly suggested but not required
+#   - conditional: Required only if certain conditions met (e.g., if_has_ui)
+#
+# Completion Status:
+#   - {file-path}: File created/found (e.g., "docs/product-brief.md")
+#   - skipped: Optional/conditional workflow that was skipped
+
+generated: "2026-02-06"
+project: "PolicyAi"
+project_type: "web-application"
+selected_track: "method"
+field_type: "brownfield"
+workflow_path: "method-brownfield.yaml"
+
+# Existing artifacts discovered during init
+existing_artifacts:
+  prd: "docs/reference/prd-original-v2.0.md"
+  architecture:
+    - "docs/architecture/high-level-architecture.md"
+    - "docs/architecture/frontend-architecture.md"
+    - "docs/current/current-architecture.md"
+  stories: "docs/stories/"
+  project_brief: "docs/project_brief.md"
+
+workflow_status:
+  # Phase 0: Documentation (Brownfield prerequisite)
+  phase_0_documentation:
+    name: "Documentation"
+    conditional: "if_undocumented"
+    note: "Existing docs found - may need update"
+    workflows:
+      document-project:
+        status: "docs/architecture/"  # Existing architecture docs found
+        agent: "analyst"
+        command: "/bmad:bmm:workflows:document-project"
+        note: "Existing documentation found; run if comprehensive update needed"
+
+  # Phase 1: Analysis (Optional - user skipped)
+  phase_1_analysis:
+    name: "Analysis (Optional)"
+    optional: true
+    workflows:
+      brainstorm-project:
+        status: "skipped"
+        agent: "analyst"
+        command: "/bmad:core:workflows:brainstorming"
+      research:
+        status: "skipped"
+        agent: "analyst"
+        command: "/bmad:bmm:workflows:research"
+      product-brief:
+        status: "docs/project_brief.md"  # Existing brief found
+        agent: "analyst"
+        command: "/bmad:bmm:workflows:create-product-brief"
+
+  # Phase 2: Planning
+  phase_2_planning:
+    name: "Planning"
+    required: true
+    workflows:
+      prd:
+        status: "docs/reference/prd-original-v2.0.md"  # Existing PRD found
+        agent: "pm"
+        command: "/bmad:bmm:workflows:prd"
+        note: "Existing PRD found; validate or update for new features"
+      create-ux-design:
+        status: "conditional"  # if_has_ui - PolicyAi has UI
+        agent: "ux-designer"
+        command: "/bmad:bmm:workflows:create-ux-design"
+        note: "Recommended for UI-heavy project like PolicyAi"
+
+  # Phase 3: Solutioning
+  phase_3_solutioning:
+    name: "Solutioning"
+    required: true
+    workflows:
+      create-architecture:
+        status: "docs/architecture/"  # Existing architecture found
+        agent: "architect"
+        command: "/bmad:bmm:workflows:create-architecture"
+        note: "Existing architecture found; validate or extend for new features"
+      create-epics-and-stories:
+        status: "docs/stories/"  # Existing stories found
+        agent: "pm"
+        command: "/bmad:bmm:workflows:create-epics-and-stories"
+        note: "70+ existing stories found"
+      test-design:
+        status: "optional"
+        agent: "tea"
+        command: "/bmad:bmm:workflows:testarch-test-design"
+      implementation-readiness:
+        status: "required"
+        agent: "architect"
+        command: "/bmad:bmm:workflows:check-implementation-readiness"
+        note: "Validate all artifacts before implementation"
+
+  # Phase 4: Implementation
+  phase_4_implementation:
+    name: "Implementation"
+    required: true
+    workflows:
+      sprint-planning:
+        status: "required"
+        agent: "sm"
+        command: "/bmad:bmm:workflows:sprint-planning"
+        note: "Creates sprint-status.yaml for tracking implementation"
