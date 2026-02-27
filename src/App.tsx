@@ -192,7 +192,7 @@ const AppContent = () => {
         path="/admin/user-management"
         element={
           <ProtectedRoute fallback={<Auth />}>
-            <PermissionGuard requiredRole="company_operator" redirectTo="/unauthorized">
+            <PermissionGuard requiredRole="board" redirectTo="/unauthorized">
               <UserManagementPage />
             </PermissionGuard>
           </ProtectedRoute>

@@ -31,7 +31,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  role: 'system_owner' | 'company_operator' | 'board_member' | 'administrator' | 'executive';
+  role: 'system_owner' | 'company_operator' | 'board' | 'administrator' | 'executive';
   createdAt: string;
   lastActive: string;
   isActive: boolean;
@@ -63,7 +63,7 @@ const UserTable = ({
         return <Crown className="h-4 w-4 text-red-600" />;
       case 'company_operator':
         return <Shield className="h-4 w-4 text-blue-600" />;
-      case 'board_member':
+      case 'board':
         return <Building className="h-4 w-4 text-purple-600" />;
       case 'administrator':
         return <Settings className="h-4 w-4 text-green-600" />;
@@ -80,7 +80,7 @@ const UserTable = ({
         return 'destructive';
       case 'company_operator':
         return 'default';
-      case 'board_member':
+      case 'board':
         return 'secondary';
       case 'administrator':
         return 'outline';
@@ -97,7 +97,7 @@ const UserTable = ({
         return 'System Owner';
       case 'company_operator':
         return 'Company Operator';
-      case 'board_member':
+      case 'board':
         return 'Board Member';
       case 'administrator':
         return 'Administrator';

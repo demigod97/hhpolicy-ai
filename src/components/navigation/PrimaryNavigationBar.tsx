@@ -49,7 +49,7 @@ const NAV_ITEMS: NavItem[] = [
     title: 'Users',
     href: '/admin/user-management', // Links to UserManagement page
     icon: Users,
-    showForRoles: ['company_operator', 'system_owner'],
+    showForRoles: ['board', 'administrator', 'company_operator', 'system_owner'],
   },
   {
     title: 'Help',

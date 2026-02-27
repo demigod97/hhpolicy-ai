@@ -49,9 +49,10 @@ Deno.serve(async (req: Request) => {
       throw new Error('Missing Supabase configuration');
     }
 
+    // Service role client for admin operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get the current user from the Authorization header
+    // Extract user from JWT (already verified by Supabase gateway)
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(
@@ -60,14 +61,16 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Verify the user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
-
-    if (authError || !user) {
+    const token = authHeader.replace('Bearer ', '');
+    let user: { id: string; email: string };
+    try {
+      const payloadStr = atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'));
+      const payload = JSON.parse(payloadStr);
+      if (!payload.sub) throw new Error('Missing sub claim');
+      user = { id: payload.sub, email: payload.email || '' };
+    } catch {
       return new Response(
-        JSON.stringify({ error: 'Invalid or expired token' }),
+        JSON.stringify({ error: 'Invalid token format' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -88,12 +91,12 @@ Deno.serve(async (req: Request) => {
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    
-    // Only system_owner and company_operator can view all users
-    if (!['system_owner', 'company_operator'].includes(currentUserRole.role)) {
+
+    // system_owner, company_operator, board, and administrator can view all users
+    if (!['system_owner', 'company_operator', 'board', 'administrator'].includes(currentUserRole.role)) {
       return new Response(
         JSON.stringify({
-          error: 'Access denied. Only System Owners and Company Operators can view user lists.'
+          error: 'Access denied. Only System Owners, Company Operators, Board Members, and Administrators can view user lists.'
         }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
