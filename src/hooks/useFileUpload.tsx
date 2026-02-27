@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,6 +13,7 @@ interface UploadResult {
 
 export const useFileUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
+  const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -136,6 +138,12 @@ export const useFileUpload = () => {
       onProgress?.(100);
 
       console.log('Document uploaded and processing initiated:', processData);
+
+      // Invalidate queries so document list updates immediately
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['documents'] }),
+        queryClient.invalidateQueries({ queryKey: ['sources'] }),
+      ]);
 
       toast({
         title: 'Upload Successful',

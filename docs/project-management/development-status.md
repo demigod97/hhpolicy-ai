@@ -207,6 +207,28 @@
 
 ---
 
+#### ✅ HHR-173: Bug Fix Sprint — Upload Visibility, Slow Loading, NaN Display (2026-02-27)
+
+- **Status**: Complete
+- **Branch**: `HHR-173-bug-fixes`
+- **Type**: Bug Fixes + Performance Optimization
+- **Issues Created**: #7, #8, #9, #10, #11, #12, #13 (7 GitHub issues)
+- **Bugs Fixed**:
+  - **Upload visibility (Bug 3, #9)**: Added `queryClient.invalidateQueries` in `useFileUpload.tsx` after upload; parallelized invalidation in Dashboard; fixed stale source IDs in DocumentUploader
+  - **Slow document loading (Bug 2, #8)**: Added `.range(0, 99)` to limit fetch; scoped real-time subscription to `type=eq.pdf`; created `created_at DESC` database index migration
+  - **NaN file size (Bug 1, #7)**: Added `formatFileSize()` helper with null/NaN guard in DocumentUploader
+- **Database Migration**: `20260227100000_add_sources_created_at_index.sql` — `idx_sources_created_at` + `idx_sources_type_status_created`
+- **Files Modified**:
+  - `src/hooks/useFileUpload.tsx`
+  - `src/hooks/useDocuments.tsx`
+  - `src/components/document/DocumentUploader.tsx`
+  - `src/pages/Dashboard.tsx`
+  - `supabase/migrations/20260227100000_add_sources_created_at_index.sql` (new)
+- **Story**: `docs/stories/HHR-173-bug-fix-sprint.md`
+- **Note**: DB migration must be applied manually via Supabase Dashboard SQL Editor (CLI returns 403)
+
+---
+
 ## Last Updated
 
-2026-02-27 - HHR-172 bug fixes: Upload auto-open, Word templates, Avatar upload, User Management error messages
+2026-02-27 - HHR-173 bug fixes: Upload visibility, slow document loading, NaN file size display
