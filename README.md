@@ -6,7 +6,7 @@
 **PolicyAi** is a specialized application designed to help administrators and executives navigate complex organizational policies with AI-powered search and question-answering capabilities. It provides a centralized platform for policy document management with advanced RAG (Retrieval-Augmented Generation) technology to ensure accurate, source-grounded responses.
 
 **Status**: v1.0-beta (Core features functional)
-**Last Updated**: 2025-10-20
+**Last Updated**: 2026-02-27
 
 ---
 
@@ -296,12 +296,12 @@ npx supabase db reset
 
 ## 🐛 Known Issues
 
-**Minor Bugs** (tracked in [docs/current/known-issues.md](docs/current/known-issues.md)):
-- File size displays as "NaN MB" during upload (cosmetic)
-- Slow document list loading with 10+ documents (performance)
-- Document visibility delay after upload (cache invalidation)
+No active bugs at this time. See [docs/current/known-issues.md](docs/current/known-issues.md) for recently fixed issues.
 
-**Workarounds and fixes are available in the documentation.**
+**Recently Fixed (HHR-173)**:
+- ~~File size displays as "NaN MB" during upload~~ — Fixed with `formatFileSize` helper
+- ~~Slow document list loading with 10+ documents~~ — Fixed with `.range()` limit + DB index
+- ~~Document visibility delay after upload~~ — Fixed with React Query cache invalidation
 
 ---
 
@@ -316,10 +316,11 @@ PolicyAi is under active development. Current focus areas:
 - Real-time status updates
 - AI-powered chat with citations
 
-**In Progress** 🔨:
-- Bug fixes for upload UI
-- Performance optimization for document loading
-- Enhanced chat session management
+**Recently Completed** ✅:
+- Upload visibility and cache invalidation fixes (HHR-173)
+- Document loading performance optimization with DB indexes (HHR-173)
+- Word template library and avatar upload (HHR-172)
+- User management error message improvements (HHR-172)
 
 **Planned** 📋:
 - Enhanced PDF features (search, thumbnails, citation highlighting)
@@ -431,7 +432,7 @@ PolicyAi evolved from the [InsightsLM](https://github.com/theaiautomators/insigh
 
 **Version**: v1.0-beta
 **Status**: Core features functional, active development
-**Last Updated**: 2025-10-20
+**Last Updated**: 2026-02-27
 
 **What's Working**:
 - ✅ Document upload and processing

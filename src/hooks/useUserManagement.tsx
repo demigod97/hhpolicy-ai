@@ -21,31 +21,17 @@ export const useUserManagement = () => {
   const fetchUsers = useCallback(async (): Promise<User[]> => {
     setIsLoading(true);
     try {
-      // Get the current session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('No active session');
-      }
-
-      // Call the get-users Edge Function
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const response = await fetch(`${supabaseUrl}/functions/v1/get-users`, {
+      // Call the get-users Edge Function via Supabase client (handles CORS)
+      const { data: result, error: invokeError } = await supabase.functions.invoke('get-users', {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch users');
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Failed to fetch users');
       }
 
-      const result = await response.json();
-      
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to fetch users');
+      if (!result?.success) {
+        throw new Error(result?.error || 'Failed to fetch users');
       }
 
       // Transform the data to match our User interface
@@ -84,36 +70,21 @@ export const useUserManagement = () => {
   const updateUserRole = useCallback(async ({ userId, newRole }: RoleUpdateParams): Promise<{ success: boolean; error?: string }> => {
     setIsOperationLoading(true);
     try {
-      // Get the current session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('No active session');
-      }
-
-      // Call the assign-user-role Edge Function
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const response = await fetch(`${supabaseUrl}/functions/v1/assign-user-role`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      // Call the assign-user-role Edge Function via Supabase client (handles CORS)
+      const { data: result, error: invokeError } = await supabase.functions.invoke('assign-user-role', {
+        body: {
           user_id: userId,
           role: newRole,
           action: 'assign'
-        }),
+        },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update user role');
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Failed to update user role');
       }
 
-      const result = await response.json();
-      
-      if (!result.success) {
-        throw new Error(result.message || 'Failed to update user role');
+      if (!result?.success) {
+        throw new Error(result?.message || 'Failed to update user role');
       }
 
       toast({
@@ -139,35 +110,20 @@ export const useUserManagement = () => {
   const bulkUpdateUserRoles = useCallback(async ({ userIds, newRole }: BulkRoleUpdateParams): Promise<{ success: boolean; error?: string }> => {
     setIsOperationLoading(true);
     try {
-      // Get the current session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('No active session');
-      }
-
-      // Call the bulk-assign-user-roles Edge Function
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const response = await fetch(`${supabaseUrl}/functions/v1/bulk-assign-user-roles`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      // Call the bulk-assign-user-roles Edge Function via Supabase client (handles CORS)
+      const { data: result, error: invokeError } = await supabase.functions.invoke('bulk-assign-user-roles', {
+        body: {
           user_ids: userIds,
           role: newRole
-        }),
+        },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to bulk update user roles');
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Failed to bulk update user roles');
       }
 
-      const result = await response.json();
-      
-      if (!result.success) {
-        throw new Error(result.message || 'Failed to bulk update user roles');
+      if (!result?.success) {
+        throw new Error(result?.message || 'Failed to bulk update user roles');
       }
 
       toast({

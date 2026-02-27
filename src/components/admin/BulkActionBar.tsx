@@ -60,7 +60,7 @@ const BulkActionBar = ({
         return <Crown className="h-4 w-4 text-red-600" />;
       case 'company_operator':
         return <Shield className="h-4 w-4 text-blue-600" />;
-      case 'board_member':
+      case 'board':
         return <Building className="h-4 w-4 text-purple-600" />;
       case 'administrator':
         return <Settings className="h-4 w-4 text-green-600" />;
@@ -77,7 +77,7 @@ const BulkActionBar = ({
         return 'Full system access including user management and system configuration';
       case 'company_operator':
         return 'Company-level management with user role assignment capabilities';
-      case 'board_member':
+      case 'board':
         return 'High-level access for board members and executives';
       case 'administrator':
         return 'Administrative access for system management and user support';
@@ -91,7 +91,7 @@ const BulkActionBar = ({
   const getAvailableRoles = () => {
     return [
       { value: 'company_operator', label: 'Company Operator' },
-      { value: 'board_member', label: 'Board Member' },
+      { value: 'board', label: 'Board Member' },
       { value: 'administrator', label: 'Administrator' },
       { value: 'executive', label: 'Executive' },
       { value: 'system_owner', label: 'System Owner' }

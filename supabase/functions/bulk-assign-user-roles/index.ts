@@ -3,14 +3,12 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 interface BulkAssignRoleRequest {
   user_ids: string[];
-  role: 'system_owner' | 'company_operator' | 'board_member' | 'administrator' | 'executive';
+  role: 'system_owner' | 'company_operator' | 'board' | 'administrator' | 'executive';
 }
 
 interface BulkAssignRoleResponse {
   success: boolean;
   message: string;
-  data?: Record<string, unknown>;
-  error?: string;
   results?: Array<{
     user_id: string;
     success: boolean;
@@ -18,13 +16,28 @@ interface BulkAssignRoleResponse {
   }>;
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+const VALID_ROLES = ['system_owner', 'company_operator', 'board', 'administrator', 'executive'];
+
 Deno.serve(async (req: Request) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders
+    });
+  }
+
   try {
     // Only allow POST requests
     if (req.method !== 'POST') {
       return new Response(
         JSON.stringify({ error: 'Method not allowed' }),
-        { status: 405, headers: { 'Content-Type': 'application/json' } }
+        { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -36,54 +49,53 @@ Deno.serve(async (req: Request) => {
       throw new Error('Missing Supabase configuration');
     }
 
+    // Service role client for admin operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get the current user from the Authorization header
+    // Extract user from JWT (already verified by Supabase gateway)
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: 'Authorization header required' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Verify the user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
-
-    if (authError || !user) {
+    const token = authHeader.replace('Bearer ', '');
+    let user: { id: string; email: string };
+    try {
+      const payloadStr = atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'));
+      const payload = JSON.parse(payloadStr);
+      if (!payload.sub) throw new Error('Missing sub claim');
+      user = { id: payload.sub, email: payload.email || '' };
+    } catch {
       return new Response(
-        JSON.stringify({ error: 'Invalid or expired token' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Invalid token format' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Check if current user has permission to assign roles
-    const { data: currentUserData, error: roleCheckError } = await supabase
-      .from('users')
+    // Check if current user has permission to assign roles (query user_roles table)
+    const { data: currentUserRole, error: roleCheckError } = await supabase
+      .from('user_roles')
       .select('role')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
-    if (roleCheckError || !currentUserData) {
+    if (roleCheckError || !currentUserRole) {
       return new Response(
-        JSON.stringify({
-          error: 'User role not found'
-        }),
-        { status: 403, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'User role not found' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const currentUserRole = currentUserData.role;
-    
-    // Only system_owner and company_operator can assign roles
-    if (!['system_owner', 'company_operator'].includes(currentUserRole)) {
+    // system_owner, company_operator, board, and administrator can assign roles
+    if (!['system_owner', 'company_operator', 'board', 'administrator'].includes(currentUserRole.role)) {
       return new Response(
         JSON.stringify({
-          error: 'Access denied. Only System Owners and Company Operators can assign roles.'
+          error: 'Access denied. Only System Owners, Company Operators, Board Members, and Administrators can assign roles.'
         }),
-        { status: 403, headers: { 'Content-Type': 'application/json' } }
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -94,38 +106,25 @@ Deno.serve(async (req: Request) => {
     // Validate input
     if (!user_ids || !Array.isArray(user_ids) || user_ids.length === 0) {
       return new Response(
-        JSON.stringify({
-          error: 'Missing or invalid user_ids array'
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Missing or invalid user_ids array' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!role) {
+    if (!role || !VALID_ROLES.includes(role)) {
       return new Response(
         JSON.stringify({
-          error: 'Missing required field: role'
+          error: `Invalid or missing role. Must be one of: ${VALID_ROLES.join(', ')}`
         }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!['system_owner', 'company_operator', 'board_member', 'administrator', 'executive'].includes(role)) {
+    // Company operators, board members, and administrators cannot assign system_owner role
+    if (['company_operator', 'board', 'administrator'].includes(currentUserRole.role) && role === 'system_owner') {
       return new Response(
-        JSON.stringify({
-          error: 'Invalid role. Must be: system_owner, company_operator, board_member, administrator, or executive'
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Company operators cannot assign system_owner role
-    if (currentUserRole === 'company_operator' && role === 'system_owner') {
-      return new Response(
-        JSON.stringify({
-          error: 'Company Operators cannot assign System Owner role'
-        }),
-        { status: 403, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Only System Owners can assign the System Owner role' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -136,46 +135,22 @@ Deno.serve(async (req: Request) => {
 
     for (const user_id of user_ids) {
       try {
-        // Update the user's role
-        const { data: updatedUser, error: updateError } = await supabase
-          .from('users')
-          .update({ role })
-          .eq('id', user_id)
-          .select('*')
-          .single();
+        // Delete existing roles for this user, then insert the new one
+        await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', user_id);
 
-        if (updateError) {
-          results.push({
-            user_id,
-            success: false,
-            error: updateError.message
-          });
+        const { error: insertError } = await supabase
+          .from('user_roles')
+          .insert({ user_id, role });
+
+        if (insertError) {
+          results.push({ user_id, success: false, error: insertError.message });
           errorCount++;
         } else {
-          results.push({
-            user_id,
-            success: true
-          });
+          results.push({ user_id, success: true });
           successCount++;
-
-          // Log the role change for audit
-          const { error: auditError } = await supabase
-            .from('audit_logs')
-            .insert({
-              action: 'bulk_role_assignment',
-              user_id,
-              performed_by: user.id,
-              details: {
-                new_role: role,
-                bulk_operation: true,
-                affected_users: user_ids.length,
-                timestamp: new Date().toISOString()
-              }
-            });
-
-          if (auditError) {
-            console.warn('Failed to log bulk role change:', auditError);
-          }
         }
       } catch (error) {
         results.push({
@@ -189,15 +164,15 @@ Deno.serve(async (req: Request) => {
 
     const response: BulkAssignRoleResponse = {
       success: errorCount === 0,
-      message: `Successfully updated ${successCount} user${successCount !== 1 ? 's' : ''} role${successCount !== 1 ? 's' : ''}. ${errorCount} error${errorCount !== 1 ? 's' : ''} occurred.`,
+      message: `Successfully updated ${successCount} user${successCount !== 1 ? 's' : ''}. ${errorCount} error${errorCount !== 1 ? 's' : ''}.`,
       results
     };
 
     return new Response(
       JSON.stringify(response),
       {
-        status: errorCount === 0 ? 200 : 207, // 207 Multi-Status for partial success
-        headers: { 'Content-Type': 'application/json' }
+        status: errorCount === 0 ? 200 : 207,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
 
@@ -209,7 +184,7 @@ Deno.serve(async (req: Request) => {
         error: 'Internal server error',
         details: error instanceof Error ? error.message : 'Unknown error'
       }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

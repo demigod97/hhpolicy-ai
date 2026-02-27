@@ -41,7 +41,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  role: 'system_owner' | 'company_operator' | 'board_member' | 'administrator' | 'executive';
+  role: 'system_owner' | 'company_operator' | 'board' | 'administrator' | 'executive';
   createdAt: string;
   lastActive: string;
   isActive: boolean;
@@ -88,7 +88,7 @@ const RoleAssignmentDialog = ({
         return <Crown className="h-4 w-4 text-red-600" />;
       case 'company_operator':
         return <Shield className="h-4 w-4 text-blue-600" />;
-      case 'board_member':
+      case 'board':
         return <Building className="h-4 w-4 text-purple-600" />;
       case 'administrator':
         return <Settings className="h-4 w-4 text-green-600" />;
@@ -123,7 +123,7 @@ const RoleAssignmentDialog = ({
             'Cannot assign System Owner role'
           ]
         };
-      case 'board_member':
+      case 'board':
         return {
           title: 'Board Member',
           description: 'High-level access for board members and executives.',
@@ -171,7 +171,7 @@ const RoleAssignmentDialog = ({
     // For now, we'll show all roles - the backend will enforce permissions
     return [
       { value: 'company_operator', label: 'Company Operator' },
-      { value: 'board_member', label: 'Board Member' },
+      { value: 'board', label: 'Board Member' },
       { value: 'administrator', label: 'Administrator' },
       { value: 'executive', label: 'Executive' },
       { value: 'system_owner', label: 'System Owner' }
