@@ -60,6 +60,13 @@ const getFileIcon = (fileType: string | undefined) => {
   return File;
 };
 
+const formatFileSize = (bytes: number | undefined): string => {
+  if (bytes == null || isNaN(bytes)) return 'Unknown size';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+};
+
 export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   open,
   onOpenChange,
@@ -127,6 +134,9 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 
     setIsUploading(true);
 
+    // Collect source IDs directly to avoid reading stale React state
+    const successfulSourceIds: string[] = [];
+
     const uploadPromises = files.map(async (file, index) => {
       setFiles((prev) => {
         const newFiles = [...prev];
@@ -146,7 +156,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 
         const result = await uploadFileAndProcess(file, notebookId, onProgress);
 
-        if (result.success) {
+        if (result.success && result.sourceId) {
+          successfulSourceIds.push(result.sourceId);
           setFiles((prev) => {
             const newFiles = [...prev];
             newFiles[index] = {
@@ -177,13 +188,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     await Promise.all(uploadPromises);
     setIsUploading(false);
 
-    // Get successful uploads
-    const successfulUploads = files
-      .filter((f) => f.uploadStatus === 'completed' && f.sourceId)
-      .map((f) => f.sourceId!);
-
-    if (successfulUploads.length > 0 && onUploadComplete) {
-      onUploadComplete(successfulUploads);
+    if (successfulSourceIds.length > 0 && onUploadComplete) {
+      onUploadComplete(successfulSourceIds);
     }
 
     // Don't auto-close - let parent component handle it via onUploadComplete
@@ -261,7 +267,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{file.name}</p>
                           <p className="text-xs text-gray-500">
-                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                            {formatFileSize(file.size)}
                           </p>
                         </div>
                       </div>

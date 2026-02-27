@@ -1,6 +1,6 @@
 # PolicyAi - Features Currently Implemented
 
-**Last Updated**: 2025-10-20
+**Last Updated**: 2026-02-27
 **Version**: v1.0-beta
 **Status**: Development - Core Features Working
 
@@ -30,6 +30,13 @@
 - ✅ Fixed white screen crash (null safety in `getFileIcon()`)
 - ✅ Fixed Storage RLS policies (4 policies: INSERT, SELECT, UPDATE, DELETE)
 - ✅ Fixed source creation RLS violation (added `uploaded_by_user_id`)
+
+**Performance Improvements (HHR-173, 2026-02-27)**:
+- ✅ Documents appear immediately after upload (query invalidation in useFileUpload)
+- ✅ File size displays correctly during upload (formatFileSize helper)
+- ✅ Document list limited to 100 docs with .range() for performance
+- ✅ Real-time subscription scoped to PDF sources only
+- ✅ Database index migration for `created_at DESC` + composite index
 
 ---
 

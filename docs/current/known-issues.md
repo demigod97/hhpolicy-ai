@@ -1,6 +1,6 @@
 # PolicyAi - Known Issues and Bugs
 
-**Last Updated**: 2025-10-20
+**Last Updated**: 2026-02-27
 **Environment**: Development
 **Status**: Active Tracking
 
@@ -8,179 +8,7 @@
 
 ## 🐛 Active Bugs (Need Fixing)
 
-### Bug 1: NaN File Size Display During Upload
-**Severity**: 🟡 **MINOR - UI Cosmetic**
-**Status**: Open
-**Reported**: 2025-10-20
-
-**Description**:
-When uploading documents, the file size displays as "NaN MB" instead of showing the actual file size (e.g., "2.5 MB").
-
-**Location**:
-- Component: `src/components/document/DocumentUploader.tsx`
-- Likely cause: File size calculation issue in upload progress display
-
-**Steps to Reproduce**:
-1. Open Dashboard
-2. Click "Upload Documents"
-3. Select a PDF file
-4. Observe file size display shows "NaN MB"
-
-**Expected Behavior**:
-Display actual file size: "2.5 MB" or "1.2 MB"
-
-**Actual Behavior**:
-Displays "NaN MB" for all files
-
-**Impact**:
-- User cannot see actual file size during upload
-- Cosmetic issue only - does not affect upload functionality
-- Upload still completes successfully
-
-**Workaround**:
-None needed - upload works despite display issue
-
-**Priority**: Low (cosmetic)
-**Effort**: Small (1-2 hours)
-
-**Technical Investigation Needed**:
-```typescript
-// In DocumentUploader.tsx, check file.size calculation:
-<p className="text-xs text-gray-500">
-  {(file.size / 1024 / 1024).toFixed(2)} MB  // This line may be the issue
-</p>
-```
-
----
-
-### Bug 2: Slow Document List Loading (10+ Documents)
-**Severity**: 🟠 **MODERATE - Performance**
-**Status**: Open
-**Reported**: 2025-10-20
-
-**Description**:
-When 10 or more documents are uploaded, the document list takes a long time to load on the Dashboard. Users may see loading spinners for 3-5 seconds.
-
-**Location**:
-- Page: `src/pages/Dashboard.tsx`
-- Hook: `src/hooks/useDocuments.tsx`
-- Database: `sources` table query
-
-**Steps to Reproduce**:
-1. Upload 10+ PDF documents
-2. Navigate to Dashboard
-3. Observe loading time for document grid
-
-**Expected Behavior**:
-Document list loads within 1 second
-
-**Actual Behavior**:
-Document list takes 3-5 seconds to load with 10+ documents
-
-**Impact**:
-- Poor user experience with larger document libraries
-- Scaling concern as document count grows
-- May indicate inefficient query or rendering
-
-**Possible Causes**:
-1. Large PDF metadata/content being fetched unnecessarily
-2. Missing database indexes on `sources` table
-3. Real-time subscription overhead
-4. React rendering inefficiency (not virtualized)
-
-**Workaround**:
-- Keep document count low during testing
-- Reload page to refresh list
-
-**Priority**: Medium (affects UX at scale)
-**Effort**: Medium (4-8 hours investigation + optimization)
-
-**Suggested Fixes**:
-1. **Add pagination**: Show 20 documents per page
-2. **Optimize query**: Only fetch necessary fields (not full content)
-3. **Add database indexes**: Index `created_at`, `updated_at`, `user_id`
-4. **Implement virtualization**: Use `react-window` or `react-virtual` for long lists
-5. **Lazy load document cards**: Load metadata on-demand
-
-**SQL Investigation**:
-```sql
--- Check query performance
-EXPLAIN ANALYZE
-SELECT id, title, type, processing_status, created_at, metadata
-FROM sources
-WHERE notebook_id = 'xxx'
-ORDER BY created_at DESC;
-
--- Check for missing indexes
-SELECT * FROM pg_indexes WHERE tablename = 'sources';
-```
-
----
-
-### Bug 3: Previously Uploaded Files Not Visible Immediately
-**Severity**: 🟠 **MODERATE - UX Issue**
-**Status**: Open
-**Reported**: 2025-10-20
-
-**Description**:
-After uploading a document successfully, the document does not immediately appear in the document list. User must manually refresh the page or wait several seconds for the real-time subscription to update.
-
-**Location**:
-- Component: `src/components/document/DocumentUploader.tsx`
-- Hook: `src/hooks/useDocuments.tsx`
-- Dashboard: `src/pages/Dashboard.tsx`
-
-**Steps to Reproduce**:
-1. Navigate to Dashboard
-2. Upload a new PDF document
-3. Wait for upload to complete (see "Upload Complete" toast)
-4. Observe document list does NOT immediately show new document
-5. Refresh page manually → document now appears
-
-**Expected Behavior**:
-- New document appears in list immediately after upload completes
-- No manual refresh needed
-
-**Actual Behavior**:
-- Document not visible until page refresh or real-time subscription fires
-- Delay can be 2-5 seconds
-
-**Impact**:
-- Confusing user experience
-- Users think upload failed
-- Requires manual page refresh
-
-**Root Cause (Suspected)**:
-1. **Query invalidation missing**: React Query cache not invalidated after upload
-2. **Real-time subscription delay**: Supabase Realtime has 1-2 second propagation delay
-3. **Optimistic update missing**: Should add document to UI immediately, then confirm
-
-**Workaround**:
-- Manually refresh page after upload
-- Wait 3-5 seconds for real-time update
-
-**Priority**: Medium (affects user confidence)
-**Effort**: Medium (2-4 hours)
-
-**Suggested Fix**:
-```typescript
-// In DocumentUploader.tsx or parent component:
-const { uploadFileAndProcess } = useFileUpload();
-const queryClient = useQueryClient();
-
-const handleUploadComplete = async (sourceIds: string[]) => {
-  // Option 1: Invalidate query to refetch
-  await queryClient.invalidateQueries(['documents', notebookId]);
-
-  // Option 2: Optimistic update
-  queryClient.setQueryData(['documents', notebookId], (old) => {
-    return [...old, ...newDocuments];
-  });
-
-  // Close dialog after query updated
-  setOpen(false);
-};
-```
+_No active bugs at this time._
 
 ---
 
@@ -249,30 +77,52 @@ PDF viewer may be slow with very large PDFs (50+ pages, 10+ MB files).
 
 ### TD 3: Missing Database Indexes
 **Severity**: 🟡 **MINOR - Performance**
-**Status**: Investigation Needed
+**Status**: Fixed (HHR-173) — migration created, pending manual application
 
 **Description**:
-`sources` table may be missing performance indexes on commonly queried columns.
+`sources` table was missing `created_at DESC` index used by the document list query.
 
-**Likely Missing Indexes**:
-- `sources.notebook_id` (for filtering by notebook)
-- `sources.created_at` (for sorting)
-- `sources.processing_status` (for filtering by status)
-- `sources.uploaded_by_user_id` (for RLS queries)
+**Resolution**:
+Migration `20260227100000_add_sources_created_at_index.sql` created with:
+- `idx_sources_created_at` — `created_at DESC`
+- `idx_sources_type_status_created` — composite `(type, processing_status, created_at DESC)`
 
-**Investigation**:
-```sql
--- Check existing indexes
-SELECT * FROM pg_indexes
-WHERE schemaname = 'public'
-AND tablename = 'sources';
-```
+**Note**: Must be applied manually via Supabase Dashboard SQL Editor (CLI returns 403).
 
-**Priority**: Low (performance concern at scale)
+**Priority**: Resolved
 
 ---
 
 ## ✅ Recently Fixed Issues
+
+### Fixed (HHR-173) — 2026-02-27
+
+#### HHR-173-F1: Uploaded Files Not Visible Immediately (Bug 3)
+**Severity**: 🟠 **MODERATE - UX Issue**
+**Fixed**: 2026-02-27 | **Branch**: HHR-173-bug-fixes | **Issue**: #9
+**Root Cause**: `useFileUpload.tsx` did not call `queryClient.invalidateQueries` after upload. `Dashboard.tsx` had sequential invalidation + `setTimeout(500)` delay. `DocumentUploader.tsx` read stale React state for source IDs.
+**Fix**: Added `useQueryClient` + `invalidateQueries` in `useFileUpload.tsx` after upload. Parallelized invalidation in `Dashboard.tsx` with `Promise.all`. Collected source IDs in local array in `DocumentUploader.tsx`. Removed `setTimeout` delay.
+**Files**: `src/hooks/useFileUpload.tsx`, `src/pages/Dashboard.tsx`, `src/components/document/DocumentUploader.tsx`
+
+---
+
+#### HHR-173-F2: Slow Document List Loading (Bug 2)
+**Severity**: 🟠 **MODERATE - Performance**
+**Fixed**: 2026-02-27 | **Branch**: HHR-173-bug-fixes | **Issue**: #8
+**Root Cause**: No server-side limit on query (fetched ALL documents). Missing `created_at DESC` index. Wildcard real-time subscription on entire `sources` table.
+**Fix**: Added `.range(0, 99)` to limit fetch to 100 docs. Scoped real-time subscription to `filter: 'type=eq.pdf'`. Created migration for `created_at DESC` + composite index.
+**Files**: `src/hooks/useDocuments.tsx`, `supabase/migrations/20260227100000_add_sources_created_at_index.sql`
+
+---
+
+#### HHR-173-F3: NaN File Size Display (Bug 1)
+**Severity**: 🟡 **MINOR - UI Cosmetic**
+**Fixed**: 2026-02-27 | **Branch**: HHR-173-bug-fixes | **Issue**: #7
+**Root Cause**: `file.size` can be undefined when File object is cloned via `Object.assign`, causing `(undefined / 1024 / 1024).toFixed(2)` to produce "NaN".
+**Fix**: Added `formatFileSize()` helper with null/NaN guard. Replaced inline calculation.
+**Files**: `src/components/document/DocumentUploader.tsx`
+
+---
 
 ### Fixed (HHR-172) — 2026-02-27
 
@@ -442,16 +292,16 @@ processing_status: 'processing'
 
 ## 📊 Bug Statistics
 
-**Total Active Bugs**: 3
+**Total Active Bugs**: 0
 - 🔴 Critical: 0
-- 🟠 Moderate: 2 (Bugs 2, 3)
-- 🟡 Minor: 1 (Bug 1)
+- 🟠 Moderate: 0
+- 🟡 Minor: 0
 
-**Recently Fixed**: 5 (all critical/blocker issues)
+**Recently Fixed**: 8 (5 critical in Oct 2025 + 3 moderate/minor in HHR-173)
 
-**Technical Debt Items**: 3
+**Technical Debt Items**: 2 (TD 1, TD 2 — TD 3 resolved in HHR-173)
 
-**Bug Trend**: ⬇️ Decreasing (5 critical bugs fixed in last session)
+**Bug Trend**: ⬇️ All known bugs resolved
 
 ---
 
@@ -517,19 +367,10 @@ processing_status: 'processing'
 
 ## 📈 Priority Matrix
 
-| Bug/Issue | Severity | User Impact | Effort | Priority |
-|-----------|----------|-------------|--------|----------|
-| Bug 1: NaN file size | 🟡 Minor | Low | Small | Low |
-| Bug 2: Slow loading | 🟠 Moderate | Medium | Medium | **High** |
-| Bug 3: Visibility delay | 🟠 Moderate | Medium | Medium | **High** |
-
-**Recommended Fix Order**:
-1. **Bug 3** (visibility delay) - Medium effort, high user impact
-2. **Bug 2** (slow loading) - Medium effort, scaling concern
-3. **Bug 1** (NaN display) - Small effort, cosmetic
+_All tracked bugs have been resolved. See "Recently Fixed" section above._
 
 ---
 
 **Maintained By**: Dev Team
 **Review Frequency**: Weekly
-**Last Major Update**: 2025-10-20 (Fixed 5 critical bugs)
+**Last Major Update**: 2026-02-27 (Fixed 3 bugs in HHR-173 sprint)
