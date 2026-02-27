@@ -6,6 +6,7 @@ import { DocumentUploader } from '@/components/document/DocumentUploader';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotebooks } from '@/hooks/useNotebooks';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload as UploadIcon, FileText } from 'lucide-react';
 
@@ -14,7 +15,7 @@ const Upload = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { notebooks } = useNotebooks();
-  const [showUploader, setShowUploader] = useState(true);
+  const [showUploader, setShowUploader] = useState(false);
 
   // Get the first notebook ID for uploads
   const defaultNotebookId = notebooks && notebooks.length > 0 ? notebooks[0].id : null;
@@ -34,10 +35,7 @@ const Upload = () => {
     await queryClient.invalidateQueries({ queryKey: ['documents'] });
     await queryClient.invalidateQueries({ queryKey: ['document-stats'] });
 
-    // Close dialog briefly then reopen to allow new uploads
-    // The DocumentUploader resets its files state when `open` transitions to true
     setShowUploader(false);
-    setTimeout(() => setShowUploader(true), 300);
   };
 
   return (
@@ -99,21 +97,19 @@ const Upload = () => {
                 Upload Policy Documents
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              {defaultNotebookId ? (
-                <DocumentUploader
-                  open={showUploader}
-                  onOpenChange={setShowUploader}
-                  notebookId={defaultNotebookId}
-                  onUploadComplete={handleUploadComplete}
-                />
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-600">
-                    Loading... Please wait while we prepare the upload system.
-                  </p>
-                </div>
-              )}
+            <CardContent className="text-center py-8">
+              <Button
+                size="lg"
+                onClick={() => setShowUploader(true)}
+                disabled={!defaultNotebookId}
+                className="gap-2"
+              >
+                <UploadIcon className="h-5 w-5" />
+                Upload Documents
+              </Button>
+              <p className="text-sm text-gray-500 mt-3">
+                Click to select or drag-and-drop PDF files
+              </p>
             </CardContent>
           </Card>
 
@@ -128,6 +124,15 @@ const Upload = () => {
         </div>
       </main>
       <Footer />
+
+      {defaultNotebookId && (
+        <DocumentUploader
+          open={showUploader}
+          onOpenChange={setShowUploader}
+          notebookId={defaultNotebookId}
+          onUploadComplete={handleUploadComplete}
+        />
+      )}
     </div>
   );
 };

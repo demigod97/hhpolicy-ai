@@ -98,6 +98,48 @@ export function useUpdateDisplayName() {
 }
 
 /**
+ * Upload and save a new avatar image for the current user
+ */
+export function useUploadAvatar() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (file: File) => {
+      if (!user?.id) throw new Error('Not authenticated');
+
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/avatar.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
+        .eq('id', user.id);
+      if (updateError) throw updateError;
+
+      return publicUrl;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+      toast({ title: 'Avatar updated', description: 'Your profile picture has been saved.' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Upload failed', description: error.message, variant: 'destructive' });
+    },
+  });
+}
+
+/**
  * Change user password via Supabase Auth
  */
 export function useChangePassword() {

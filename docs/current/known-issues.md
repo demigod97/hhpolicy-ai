@@ -274,6 +274,46 @@ AND tablename = 'sources';
 
 ## ✅ Recently Fixed Issues
 
+### Fixed (HHR-172) — 2026-02-27
+
+#### HHR-172-F1: Upload Dialog Auto-Opens on Tab Click
+**Severity**: 🟠 **MODERATE - UX Bug**
+**Fixed**: 2026-02-27 | **Branch**: HHR-172-help-section-expansion
+**Root Cause**: `useState(true)` in `Upload.tsx:17` caused the dialog to mount open.
+**Fix**: Changed to `useState(false)`, added an explicit "Upload Documents" button trigger, moved `DocumentUploader` outside the card. Auto-reopen `setTimeout` also removed.
+**Files**: `src/pages/Upload.tsx`
+
+---
+
+#### HHR-172-F2: Template Library Serves Uneditable PDFs
+**Severity**: 🟠 **MODERATE - Feature Gap**
+**Fixed**: 2026-02-27 | **Branch**: HHR-172-help-section-expansion
+**Root Cause**: All 9 templates in `public/templates/` were PDFs — not editable by users.
+**Fix**: Generated 9 `.docx` Word documents via `scripts/generate-templates.mjs` (uses `docx` package). Updated `TemplatePreviewGrid.tsx` paths, renamed `pdfPath` → `filePath` prop, removed PDF preview dialog from `TemplatePreviewCard.tsx`. Cards now show a single "Download Word Template" button.
+**Files**: `src/components/help/TemplatePreviewCard.tsx`, `src/components/help/TemplatePreviewGrid.tsx`, `public/templates/*.docx`, `scripts/generate-templates.mjs`
+
+---
+
+#### HHR-172-F3: No Avatar Upload UI in Settings
+**Severity**: 🟡 **MINOR - Missing Feature**
+**Fixed**: 2026-02-27 | **Branch**: HHR-172-help-section-expansion
+**Root Cause**: `avatar_url` existed in DB schema but no upload UI or Supabase Storage mutation was implemented.
+**Fix**: Added `useUploadAvatar` mutation (uploads to `avatars` bucket, updates `profiles.avatar_url`). Added camera icon overlay + hidden file input on avatar in `ProfileCard`. Wired up in `Settings.tsx`.
+**Pre-requisite**: `avatars` Supabase Storage bucket must exist and be public.
+**Files**: `src/hooks/useUserProfile.tsx`, `src/components/settings/ProfileCard.tsx`, `src/pages/Settings.tsx`
+
+---
+
+#### HHR-172-F4: User Management Shows Generic Error Message
+**Severity**: 🟡 **MINOR - DX/Debug**
+**Fixed**: 2026-02-27 | **Branch**: HHR-172-help-section-expansion
+**Root Cause**: Toast `description` hardcoded to generic string instead of actual API error.
+**Fix**: Changed toast description to use `error.message` from caught error.
+**Note**: Root cause of actual user management failure is likely a backend issue — Edge Function not deployed or user missing `user_roles` entry.
+**Files**: `src/hooks/useUserManagement.tsx`
+
+---
+
 ### Fixed 1: White Screen Crash on Upload Error
 **Severity**: 🔴 **CRITICAL**
 **Fixed**: 2025-10-20

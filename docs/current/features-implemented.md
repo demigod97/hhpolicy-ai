@@ -194,6 +194,44 @@ User Upload → Storage → Edge Function (process-document)
 
 ---
 
+---
+
+### 9. Avatar / Profile Picture Upload (HHR-172)
+**Status**: ✅ **IMPLEMENTED** (requires `avatars` Supabase Storage bucket)
+**Date Added**: 2026-02-27
+
+**What Works**:
+- Camera icon overlay on the avatar in Settings → Profile card
+- Click to open native file picker (accepts `image/*`)
+- Uploads to Supabase Storage bucket `avatars` at path `{userId}/avatar.{ext}`
+- Updates `profiles.avatar_url` in the database
+- Avatar image renders via `AvatarImage` component when URL is set
+
+**Implementation**:
+- Hook: `useUploadAvatar` in `src/hooks/useUserProfile.tsx`
+- Component: `src/components/settings/ProfileCard.tsx`
+- Page: `src/pages/Settings.tsx`
+- Storage: Supabase `avatars` bucket (must be created as public)
+
+---
+
+### 10. Word Document Template Library (HHR-172)
+**Status**: ✅ **IMPLEMENTED**
+**Date Added**: 2026-02-27
+
+**What Works**:
+- 9 editable `.docx` templates in Help → Template Library
+- Templates organized by type (Policy / Process / Checklist) × access level (General / Executive / Board)
+- Each card has a "Download Word Template" button — no inline preview (Word files can't be previewed)
+- Templates contain structured sections: Purpose, Scope, Policy/Process/Checklist items, Sign-off, Document Control
+
+**Implementation**:
+- Files: `public/templates/*.docx` (9 files)
+- Generation script: `scripts/generate-templates.mjs` (regenerate with `node scripts/generate-templates.mjs`)
+- Components: `src/components/help/TemplatePreviewCard.tsx`, `src/components/help/TemplatePreviewGrid.tsx`
+
+---
+
 ## ⚠️ Features Partially Implemented
 
 ### Chat Session Management

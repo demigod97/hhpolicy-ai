@@ -9,7 +9,7 @@ import {
   SecurityCard,
   AccountActions,
 } from '@/components/settings';
-import { useUserProfile, useUpdateDisplayName, useChangePassword } from '@/hooks/useUserProfile';
+import { useUserProfile, useUpdateDisplayName, useChangePassword, useUploadAvatar } from '@/hooks/useUserProfile';
 import { useLogout } from '@/services/authService';
 
 const Settings = () => {
@@ -21,6 +21,7 @@ const Settings = () => {
   const { data: profile, isLoading: isLoadingProfile, error: profileError } = useUserProfile();
   const updateDisplayName = useUpdateDisplayName();
   const changePassword = useChangePassword();
+  const uploadAvatar = useUploadAvatar();
   const { logout } = useLogout();
 
   // Handlers
@@ -116,8 +117,10 @@ const Settings = () => {
               email={profile.email}
               role={profile.role}
               displayName={profile.full_name}
+              avatarUrl={profile.avatar_url}
               onEditDisplayName={() => setIsEditingDisplayName(true)}
-              isLoading={updateDisplayName.isPending}
+              onUploadAvatar={(file) => uploadAvatar.mutate(file)}
+              isLoading={updateDisplayName.isPending || uploadAvatar.isPending}
             />
 
             {/* Security Section */}

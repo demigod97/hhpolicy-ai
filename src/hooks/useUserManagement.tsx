@@ -72,7 +72,7 @@ export const useUserManagement = () => {
       console.error('Error fetching users:', error);
       toast({
         title: 'Error',
-        description: 'Failed to fetch users. Please try again.',
+        description: error instanceof Error ? error.message : 'Failed to fetch users. Please try again.',
         variant: 'destructive',
       });
       return [];

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Pencil, Info } from 'lucide-react';
+import { Pencil, Info, Camera } from 'lucide-react';
 import {
   ROLE_DISPLAY_NAMES,
   ROLE_DESCRIPTIONS,
@@ -16,7 +16,9 @@ interface ProfileCardProps {
   email: string;
   role: UserRoleType;
   displayName: string | null;
+  avatarUrl?: string | null;
   onEditDisplayName: () => void;
+  onUploadAvatar: (file: File) => void;
   isLoading?: boolean;
 }
 
@@ -39,7 +41,9 @@ export function ProfileCard({
   email,
   role,
   displayName,
+  avatarUrl,
   onEditDisplayName,
+  onUploadAvatar,
   isLoading = false,
 }: ProfileCardProps) {
   const initials = getInitials(displayName, email);
@@ -55,11 +59,27 @@ export function ProfileCard({
       <CardContent className="space-y-6">
         {/* Avatar and basic info */}
         <div className="flex items-start gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarFallback className="bg-[#1e3a8a] text-white text-lg font-medium">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          <div className="relative">
+            <Avatar className="h-16 w-16">
+              {avatarUrl && <AvatarImage src={avatarUrl} alt="Profile" />}
+              <AvatarFallback className="bg-[#1e3a8a] text-white text-lg font-medium">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <label className="absolute -bottom-1 -right-1 cursor-pointer bg-white border rounded-full p-1 shadow-sm hover:bg-gray-50">
+              <Camera className="h-3 w-3 text-gray-600" />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) onUploadAvatar(file);
+                  e.target.value = '';
+                }}
+              />
+            </label>
+          </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 truncate">{email}</p>
             <div className="flex items-center gap-2 mt-1">

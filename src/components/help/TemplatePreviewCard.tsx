@@ -1,16 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { PDFViewer } from '@/components/pdf/PDFViewer';
-import { FileText, Eye, Download, ClipboardList, Workflow } from 'lucide-react';
+import { FileText, Download, ClipboardList, Workflow } from 'lucide-react';
 
 export type TemplateType = 'policy' | 'process' | 'checklist';
 export type AccessLevel = 'general' | 'executive' | 'board';
@@ -18,7 +10,7 @@ export type AccessLevel = 'general' | 'executive' | 'board';
 interface TemplatePreviewCardProps {
   templateType: TemplateType;
   accessLevel: AccessLevel;
-  pdfPath: string;
+  filePath: string;
   title: string;
   description: string;
 }
@@ -54,21 +46,19 @@ const accessLevelDescriptions: Record<AccessLevel, string> = {
 };
 
 /**
- * TemplatePreviewCard - Card component with live PDF preview for template documents
+ * TemplatePreviewCard - Card component for downloading Word template documents
  */
 export const TemplatePreviewCard: React.FC<TemplatePreviewCardProps> = ({
   templateType,
   accessLevel,
-  pdfPath,
+  filePath,
   title,
   description,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
   const handleDownload = () => {
     const link = document.createElement('a');
-    link.href = pdfPath;
-    link.download = `${typeLabels[templateType]}-${accessLevelLabels[accessLevel]}-Template.pdf`;
+    link.href = filePath;
+    link.download = `${typeLabels[templateType]}-${accessLevelLabels[accessLevel]}-Template.docx`;
     link.click();
   };
 
@@ -93,37 +83,10 @@ export const TemplatePreviewCard: React.FC<TemplatePreviewCardProps> = ({
         <p className="text-xs text-gray-500">
           {accessLevelDescriptions[accessLevel]}
         </p>
-        <div className="flex gap-2">
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="flex-1">
-                <Eye className="h-4 w-4 mr-1" />
-                Preview
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl h-[85vh] p-0">
-              <DialogHeader className="px-4 pt-4 pb-2">
-                <DialogTitle className="flex items-center gap-2">
-                  {typeIcons[templateType]}
-                  {title}
-                  <Badge variant="outline" className={accessLevelColors[accessLevel]}>
-                    {accessLevelLabels[accessLevel]}
-                  </Badge>
-                </DialogTitle>
-              </DialogHeader>
-              <div className="flex-1 h-[calc(85vh-60px)]">
-                <PDFViewer
-                  fileUrl={pdfPath}
-                  fileName={`${typeLabels[templateType]}-${accessLevelLabels[accessLevel]}-Template.pdf`}
-                />
-              </div>
-            </DialogContent>
-          </Dialog>
-          <Button variant="outline" size="sm" onClick={handleDownload}>
-            <Download className="h-4 w-4 mr-1" />
-            Download
-          </Button>
-        </div>
+        <Button variant="default" size="sm" className="w-full" onClick={handleDownload}>
+          <Download className="h-4 w-4 mr-1" />
+          Download Word Template
+        </Button>
       </CardContent>
     </Card>
   );
