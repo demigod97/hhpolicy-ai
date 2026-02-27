@@ -58,19 +58,19 @@ const Dashboard = () => {
     // Show success message immediately
     toast({
       title: 'Upload Complete',
-      description: `${sourceIds.length} document(s) uploaded successfully. Refreshing...`,
+      description: `${sourceIds.length} document(s) uploaded successfully.`,
     });
 
-    // Invalidate queries to refresh document list
-    await queryClient.invalidateQueries({ queryKey: ['notebooks'] });
-    await queryClient.invalidateQueries({ queryKey: ['sources'] });
-    await queryClient.invalidateQueries({ queryKey: ['documents'] });
-    await queryClient.invalidateQueries({ queryKey: ['document-stats'] });
+    // Invalidate queries in parallel to refresh document list immediately
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['notebooks'] }),
+      queryClient.invalidateQueries({ queryKey: ['sources'] }),
+      queryClient.invalidateQueries({ queryKey: ['documents'] }),
+      queryClient.invalidateQueries({ queryKey: ['document-stats'] }),
+    ]);
 
-    // Wait a moment for queries to refetch before closing
-    setTimeout(() => {
-      setShowUploader(false);
-    }, 500);
+    // Close uploader after queries are invalidated (no delay needed)
+    setShowUploader(false);
   };
 
   // Upload dialog can be triggered from DocumentTable upload button
