@@ -29,7 +29,8 @@ export const useDocuments = () => {
         .eq('type', 'pdf')
         // Show completed, processing, and pending documents
         .in('processing_status', ['completed', 'processing', 'pending'])
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(0, 99); // Limit to 100 documents for performance
 
       if (error) throw error;
 
@@ -55,18 +56,19 @@ export const useDocuments = () => {
     console.log('Setting up real-time subscription for sources (documents)');
 
     const channel = supabase
-      .channel('sources-changes')
+      .channel('sources-pdf-changes')
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'sources',
+          filter: 'type=eq.pdf',
         },
         (payload) => {
-          console.log('Real-time source update received:', payload);
+          console.log('Real-time PDF source update received:', payload);
 
-          // Invalidate and refetch documents when any change occurs
+          // Invalidate and refetch documents when a PDF source changes
           queryClient.invalidateQueries({ queryKey: ['documents', userRole] });
           queryClient.invalidateQueries({ queryKey: ['sources'] });
           queryClient.invalidateQueries({ queryKey: ['notebooks'] });
