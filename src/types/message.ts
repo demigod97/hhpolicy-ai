@@ -13,6 +13,7 @@ export interface Citation {
   chunk_lines_to?: number;
   chunk_index?: number;
   excerpt?: string;
+  source_url?: string;
 }
 
 export interface EnhancedChatMessage {

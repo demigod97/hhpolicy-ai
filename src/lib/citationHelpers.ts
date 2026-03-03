@@ -12,6 +12,11 @@ export async function fetchChunkContent(
   linesFrom: number,
   linesTo: number
 ): Promise<string | null> {
+  // Guard: skip DB query for web citations (non-UUID source IDs)
+  if (sourceId === 'fairwork-web' || !sourceId.match(/^[0-9a-f]{8}-/)) {
+    return null;
+  }
+
   try {
     const { data, error } = await supabase
       .from('documents')

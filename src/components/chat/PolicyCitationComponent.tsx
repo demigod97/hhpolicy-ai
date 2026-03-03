@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { FileText, Shield, ExternalLink } from 'lucide-react';
+import { FileText, Shield, ExternalLink, Globe } from 'lucide-react';
 import { Citation } from '@/types/message';
 
 interface PolicyCitationComponentProps {
@@ -65,6 +65,9 @@ const PolicyCitationComponent = ({
     return 'Referenced content';
   };
 
+  const isWebCitation = !!citation.source_url;
+  const IconComponent = isWebCitation ? Globe : FileText;
+
   return (
     <TooltipProvider>
       <Tooltip>
@@ -73,9 +76,9 @@ const PolicyCitationComponent = ({
             variant="outline"
             size="sm"
             onClick={onClick}
-            className={`inline-flex items-center justify-center h-6 min-w-6 px-2 ml-1 text-xs font-medium text-blue-600 border-blue-300 hover:bg-blue-50 hover:border-blue-400 rounded-full transition-colors ${className}`}
+            className={`inline-flex items-center justify-center h-6 min-w-6 px-2 ml-1 text-xs font-medium ${isWebCitation ? 'text-green-600 border-green-300 hover:bg-green-50 hover:border-green-400' : 'text-blue-600 border-blue-300 hover:bg-blue-50 hover:border-blue-400'} rounded-full transition-colors ${className}`}
           >
-            <FileText className="h-3 w-3 mr-1" />
+            <IconComponent className="h-3 w-3 mr-1" />
             {citationNumber}
           </Button>
         </TooltipTrigger>
@@ -91,7 +94,7 @@ const PolicyCitationComponent = ({
               <Badge variant="secondary" className="text-xs">
                 {formatSourceType(citation.source_type)}
               </Badge>
-              {userRole && (
+              {userRole && !isWebCitation && (
                 <Badge className={`text-xs ${getRoleColor(userRole)}`}>
                   <Shield className="h-3 w-3 mr-1" />
                   {userRole}
@@ -105,9 +108,9 @@ const PolicyCitationComponent = ({
             </div>
 
             {/* Click to view hint */}
-            <div className="flex items-center text-xs text-blue-600">
+            <div className={`flex items-center text-xs ${isWebCitation ? 'text-green-600' : 'text-blue-600'}`}>
               <ExternalLink className="h-3 w-3 mr-1" />
-              Click to view source
+              {isWebCitation ? 'Click to open on Fair Work website' : 'Click to view source'}
             </div>
           </div>
         </TooltipContent>

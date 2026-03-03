@@ -44,6 +44,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     sourceId: string;
     linesFrom?: number;
     linesTo?: number;
+    source_url?: string;
+    source_title?: string;
   } | null>(null);
 
   // PDF Viewer State (for opening full PDF in modal)
@@ -91,6 +93,17 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const handleCitationClick = async (citation: Citation) => {
     if (onCitationClick) {
       onCitationClick(citation);
+      return;
+    }
+
+    // Web citations: open URL directly in new tab and show in sidebar
+    if (citation.source_url) {
+      window.open(citation.source_url, '_blank', 'noopener,noreferrer');
+      setSelectedCitation({
+        sourceId: citation.source_id,
+        source_url: citation.source_url,
+        source_title: citation.source_title,
+      });
       return;
     }
 

@@ -86,6 +86,13 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
     setIsLoading(true);
     setError(null);
 
+    // Guard: skip DB query for web citations (non-UUID source IDs)
+    if (sourceId === 'fairwork-web' || !sourceId.match(/^[0-9a-f]{8}-/)) {
+      setError('This is a web citation. Open it in your browser instead.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       // Fetch ALL chunks for this source
       const { data: docs, error: docsError } = await supabase

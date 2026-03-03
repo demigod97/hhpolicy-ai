@@ -37,6 +37,7 @@ interface N8nAiResponseContent {
       chunk_source_id: string;
       chunk_lines_from: number;
       chunk_lines_to: number;
+      source_url?: string;
     }>;
   }>;
 }
@@ -78,21 +79,24 @@ const transformMessage = (item: { id: string; session_id: string; message: unkno
             // Process citations if they exist
             if (outputItem.citations && outputItem.citations.length > 0) {
               outputItem.citations.forEach((citation) => {
-                const sourceInfo = sourceMap.get(citation.chunk_source_id);
+                const isWebCitation = !!citation.source_url;
+                const sourceInfo = isWebCitation ? null : sourceMap.get(citation.chunk_source_id);
                 console.log('PolicyChat: Processing citation:', {
                   chunk_source_id: citation.chunk_source_id,
                   sourceInfo: sourceInfo,
-                  foundInMap: sourceMap.has(citation.chunk_source_id)
+                  foundInMap: sourceMap.has(citation.chunk_source_id),
+                  isWebCitation
                 });
                 citations.push({
                   citation_id: citationIdCounter,
                   source_id: citation.chunk_source_id,
-                  source_title: sourceInfo?.title || `Source Reference ${citation.chunk_source_id.substring(0, 8)}...`,
-                  source_type: sourceInfo?.type || 'pdf',
+                  source_title: isWebCitation ? 'Fair Work Australia' : (sourceInfo?.title || `Source Reference ${citation.chunk_source_id.substring(0, 8)}...`),
+                  source_type: isWebCitation ? 'website' : (sourceInfo?.type || 'pdf'),
                   chunk_lines_from: citation.chunk_lines_from,
                   chunk_lines_to: citation.chunk_lines_to,
                   chunk_index: citation.chunk_index,
-                  excerpt: `Lines ${citation.chunk_lines_from}-${citation.chunk_lines_to}`
+                  excerpt: isWebCitation ? (citation.source_url || 'fairwork.gov.au') : `Lines ${citation.chunk_lines_from}-${citation.chunk_lines_to}`,
+                  source_url: citation.source_url,
                 });
               });
               citationIdCounter++;
