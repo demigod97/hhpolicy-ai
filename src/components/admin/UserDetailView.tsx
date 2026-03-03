@@ -2,19 +2,18 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
 } from '@/components/ui/dialog';
-import { 
-  User, 
-  Mail, 
-  Shield, 
-  Calendar, 
-  Clock, 
+import {
+  User,
+  Mail,
+  Shield,
+  Calendar,
+  Clock,
   Activity,
   Crown,
   Building,
@@ -35,11 +34,13 @@ interface User {
 }
 
 interface UserDetailViewProps {
-  user: User;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  user: User | null;
   onRoleAssignment: (user: User) => void;
 }
 
-const UserDetailView = ({ user, onRoleAssignment }: UserDetailViewProps) => {
+const UserDetailView = ({ open, onOpenChange, user, onRoleAssignment }: UserDetailViewProps) => {
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'system_owner':
@@ -134,14 +135,10 @@ const UserDetailView = ({ user, onRoleAssignment }: UserDetailViewProps) => {
     }
   };
 
+  if (!user) return null;
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <User className="h-4 w-4 mr-2" />
-          View Details
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
@@ -169,7 +166,7 @@ const UserDetailView = ({ user, onRoleAssignment }: UserDetailViewProps) => {
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center space-x-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
@@ -207,13 +204,16 @@ const UserDetailView = ({ user, onRoleAssignment }: UserDetailViewProps) => {
                   {getRoleDisplayName(user.role)}
                 </Badge>
               </div>
-              
+
               <p className="text-sm text-muted-foreground">
                 {getRoleDescription(user.role)}
               </p>
-              
+
               <Button
-                onClick={() => onRoleAssignment(user)}
+                onClick={() => {
+                  onOpenChange(false);
+                  onRoleAssignment(user);
+                }}
                 variant="outline"
                 className="w-full"
               >

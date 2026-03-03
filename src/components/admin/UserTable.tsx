@@ -43,6 +43,8 @@ interface UserTableProps {
   onUserSelection: (userId: string, selected: boolean) => void;
   onSelectAll: (selected: boolean) => void;
   onRoleAssignment: (user: User) => void;
+  onViewDetails: (user: User) => void;
+  onEditUser: (user: User) => void;
   isLoading: boolean;
 }
 
@@ -52,6 +54,8 @@ const UserTable = ({
   onUserSelection,
   onSelectAll,
   onRoleAssignment,
+  onViewDetails,
+  onEditUser,
   isLoading
 }: UserTableProps) => {
   const allSelected = users.length > 0 && selectedUsers.length === users.length;
@@ -231,11 +235,11 @@ const UserTable = ({
                       <Shield className="h-4 w-4 mr-2" />
                       Assign Role
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onViewDetails(user)}>
                       <User className="h-4 w-4 mr-2" />
                       View Details
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEditUser(user)}>
                       <Settings className="h-4 w-4 mr-2" />
                       Edit User
                     </DropdownMenuItem>

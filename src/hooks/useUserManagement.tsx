@@ -13,6 +13,18 @@ interface BulkRoleUpdateParams {
   newRole: string;
 }
 
+interface InviteUserParams {
+  email: string;
+  role: string;
+  name?: string;
+}
+
+interface UpdateUserParams {
+  userId: string;
+  name?: string;
+  email?: string;
+}
+
 export const useUserManagement = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isOperationLoading, setIsOperationLoading] = useState(false);
@@ -146,10 +158,82 @@ export const useUserManagement = () => {
     }
   }, [toast]);
 
+  const inviteUser = useCallback(async ({ email, role, name }: InviteUserParams): Promise<{ success: boolean; error?: string }> => {
+    setIsOperationLoading(true);
+    try {
+      const { data: result, error: invokeError } = await supabase.functions.invoke('invite-user', {
+        body: { email, role, name },
+      });
+
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Failed to invite user');
+      }
+
+      if (!result?.success) {
+        throw new Error(result?.message || result?.error || 'Failed to invite user');
+      }
+
+      toast({
+        title: 'Success',
+        description: `Invitation sent to ${email}`,
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error inviting user:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to invite user';
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsOperationLoading(false);
+    }
+  }, [toast]);
+
+  const updateUser = useCallback(async ({ userId, name, email }: UpdateUserParams): Promise<{ success: boolean; error?: string }> => {
+    setIsOperationLoading(true);
+    try {
+      const { data: result, error: invokeError } = await supabase.functions.invoke('update-user', {
+        body: { user_id: userId, name, email },
+      });
+
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Failed to update user');
+      }
+
+      if (!result?.success) {
+        throw new Error(result?.message || result?.error || 'Failed to update user');
+      }
+
+      toast({
+        title: 'Success',
+        description: 'User updated successfully.',
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating user:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update user';
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsOperationLoading(false);
+    }
+  }, [toast]);
+
   return {
     fetchUsers,
     updateUserRole,
     bulkUpdateUserRoles,
+    inviteUser,
+    updateUser,
     isLoading,
     isOperationLoading
   };

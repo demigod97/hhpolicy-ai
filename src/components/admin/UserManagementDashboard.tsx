@@ -43,6 +43,9 @@ import {
 import UserTable from './UserTable';
 import RoleAssignmentDialog from './RoleAssignmentDialog';
 import BulkActionBar from './BulkActionBar';
+import UserDetailView from './UserDetailView';
+import AddUserDialog from './AddUserDialog';
+import EditUserDialog from './EditUserDialog';
 import { useUserManagement } from '@/hooks/useUserManagement';
 
 interface User {
@@ -65,11 +68,18 @@ const UserManagementDashboard = () => {
   const [showRoleDialog, setShowRoleDialog] = useState(false);
   const [selectedUserForRole, setSelectedUserForRole] = useState<User | null>(null);
   const [showBulkActions, setShowBulkActions] = useState(false);
+  const [showDetailView, setShowDetailView] = useState(false);
+  const [selectedUserForDetail, setSelectedUserForDetail] = useState<User | null>(null);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedUserForEdit, setSelectedUserForEdit] = useState<User | null>(null);
 
   const {
     fetchUsers,
     updateUserRole,
     bulkUpdateUserRoles,
+    inviteUser,
+    updateUser,
     isLoading: isOperationLoading
   } = useUserManagement();
 
@@ -156,6 +166,32 @@ const UserManagementDashboard = () => {
     }
   };
 
+  const handleViewDetails = (user: User) => {
+    setSelectedUserForDetail(user);
+    setShowDetailView(true);
+  };
+
+  const handleEditUser = (user: User) => {
+    setSelectedUserForEdit(user);
+    setShowEditDialog(true);
+  };
+
+  const handleInviteUser = async (email: string, role: string, name?: string) => {
+    const result = await inviteUser({ email, role, name });
+    if (result.success) {
+      await loadUsers();
+    }
+    return result;
+  };
+
+  const handleUpdateUser = async (userId: string, name?: string, email?: string) => {
+    const result = await updateUser({ userId, name, email });
+    if (result.success) {
+      await loadUsers();
+    }
+    return result;
+  };
+
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case 'system_owner':
@@ -209,7 +245,7 @@ const UserManagementDashboard = () => {
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button>
+          <Button onClick={() => setShowAddDialog(true)}>
             <UserPlus className="h-4 w-4 mr-2" />
             Add User
           </Button>
@@ -311,6 +347,8 @@ const UserManagementDashboard = () => {
             onUserSelection={handleUserSelection}
             onSelectAll={handleSelectAll}
             onRoleAssignment={handleRoleAssignment}
+            onViewDetails={handleViewDetails}
+            onEditUser={handleEditUser}
             isLoading={isLoading}
           />
         </CardContent>
@@ -334,6 +372,31 @@ const UserManagementDashboard = () => {
           isLoading={isOperationLoading}
         />
       )}
+
+      {/* User Detail View */}
+      <UserDetailView
+        open={showDetailView}
+        onOpenChange={setShowDetailView}
+        user={selectedUserForDetail}
+        onRoleAssignment={handleRoleAssignment}
+      />
+
+      {/* Add User Dialog */}
+      <AddUserDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onInviteUser={handleInviteUser}
+        isLoading={isOperationLoading}
+      />
+
+      {/* Edit User Dialog */}
+      <EditUserDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        user={selectedUserForEdit}
+        onUpdateUser={handleUpdateUser}
+        isLoading={isOperationLoading}
+      />
     </div>
   );
 };
