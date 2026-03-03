@@ -1,0 +1,42 @@
+{
+  "workflows": {
+    "PolicyAI - Board Chat": {
+      "id": "69jhE0gWdRyDqAMj",
+      "url": "https://n8n-prod.coralshades.ai/workflow/69jhE0gWdRyDqAMj",
+      "description": "Board/Executive chat workflow"
+    },
+    "PolicyAI - Admin Chat": {
+      "id": "LpaEZmUgUQWRVcH3",
+      "url": "https://n8n-prod.coralshades.ai/workflow/LpaEZmUgUQWRVcH3",
+      "description": "Administrator chat workflow"
+    },
+    "PolicyAI - Executive Chat": {
+      "id": "sGJpWkPMbtz5D2nS",
+      "url": "https://n8n-prod.coralshades.ai/workflow/sGJpWkPMbtz5D2nS",
+      "description": "Executive role chat workflow"
+    },
+    "PolicyAI - Upsert to Vector Store": {
+      "id": "OYsxnxUWqCZ9IROV",
+      "url": "https://n8n-prod.coralshades.ai/workflow/OYsxnxUWqCZ9IROV",
+      "description": "Vector store upsert workflow for embeddings"
+    },
+    "PolicyAI - Extract Text": {
+      "id": "5EtFIipnqTD5m9tu",
+      "url": "https://n8n-prod.coralshades.ai/workflow/5EtFIipnqTD5m9tu",
+      "description": "Text extraction from policy documents"
+    },
+    "PolicyAI - Process Additional Sources": {
+      "id": "v7lVaScXXr25sHvl",
+      "url": "https://n8n-prod.coralshades.ai/workflow/v7lVaScXXr25sHvl",
+      "description": "Process additional source documents"
+    },
+    "PolicyAI - Generate Notebook Details": {
+      "id": "J0RjKDyXGvEhXB4i",
+      "url": "https://n8n-prod.coralshades.ai/workflow/J0RjKDyXGvEhXB4i",
+      "description": "Generate policy document details and metadata"
+    }
+  },
+  "base_url": "https://n8n-prod.coralshades.ai",
+  "total_workflows": 7,
+  "last_updated": "2026-02-27"
+}
