@@ -56,9 +56,11 @@ export const TemplatePreviewCard: React.FC<TemplatePreviewCardProps> = ({
   description,
 }) => {
   const handleDownload = () => {
+    const typeLabel = typeLabels[templateType];
+    const levelLabel = accessLevelLabels[accessLevel];
     const link = document.createElement('a');
     link.href = filePath;
-    link.download = `${typeLabels[templateType]}-${accessLevelLabels[accessLevel]}-Template.docx`;
+    link.download = `CompanyInitial ${typeLabel} - Name of ${typeLabel} - ${levelLabel} - YEARMMDD.docx`;
     link.click();
   };
 
